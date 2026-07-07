@@ -46,7 +46,7 @@ const Home = () => {
 
     {/* Dot Pattern */}
     <div
-        className="absolute right-6 hidden lg:block  top-20 sm:right-12 lg:right-20 w-40 h-40 sm:w-60 sm:h-60 lg:w-72 lg:h-72 opacity-20"
+        className="absolute right-6 hidden lg:block  top-20 sm:right-12 lg:right-20 w-40 h-40 sm:w-60 sm:h-60 lg:w-72 lg:h-72 lg:opacity-20"
         style={{
             backgroundImage:
                 "radial-gradient(#ff6a00 1px, transparent 1px)",
