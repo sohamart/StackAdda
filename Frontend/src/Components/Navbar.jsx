@@ -13,14 +13,14 @@ const Navbar = () => {
 
         <Link
           to="/"
-          className="text-2xl font-bold text-orange-500"
+          className="text-2xl  font-bold text-orange-500"
         >
           Stack Adda
         </Link>
 
         {/* Desktop Menu */}
 
-        <div className="hidden md:flex items-center gap-8 lg:text-xl text-xl uppercase text-white">
+        <div className="hidden  lg:mr-12 md:flex items-center gap-8 lg:text-xl text-xl uppercase text-white">
 
           <Link to="/">Home</Link>
 
