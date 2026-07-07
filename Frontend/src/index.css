@@ -24,4 +24,5 @@ html {
 /* IE & Old Edge */
 body {
   -ms-overflow-style: none;
+  scroll-behavior:auto;
 }

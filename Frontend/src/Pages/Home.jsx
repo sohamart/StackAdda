@@ -1,6 +1,9 @@
 import React from "react";
+import { useEffect } from "react";
+import Lenis from "lenis";
 
 const Home = () => {
+
     return (
         <>
         {/* First Screen */}
@@ -14,8 +17,10 @@ const Home = () => {
                 top-1/2
                 -translate-x-1/2
                 -translate-y-1/2
-                w-[700px]
-                h-[700px]
+                lg:w-[700px]
+                w-[500px]
+                h-[500px]
+                lg:h-[700px]
                 rounded-full
                 bg-orange-500/20
                 blur-[180px]
