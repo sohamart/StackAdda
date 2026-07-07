@@ -9,7 +9,7 @@ import Intro from "../assets/intro.mp4";
 const Home = () => {
 
   const ytopen = () => {
-    window.open("https://www.youtube.com/@stackadda", "_blank");
+    window.open("https://yt.openinapp.co/StackAdda", "_blank");
   }
 
   return (
