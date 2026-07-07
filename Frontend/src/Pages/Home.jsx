@@ -9,7 +9,7 @@ const Home = () => {
         <>
 
         {/* First Screen */}
-        <div className="relative h-[92vh] w-full overflow-hidden bg-black px-5 sm:px-8 lg:px-16">
+        <div className="relative lg:h-[92vh] h-[85vh] w-full overflow-hidden bg-black px-5 sm:px-8 lg:px-16">
         
     {/* Orange Glow */}
     <div
@@ -26,7 +26,8 @@ const Home = () => {
         lg:w-[700px]
         lg:h-[700px]
         rounded-full
-        bg-orange-500/20
+        lg:bg-orange-500/20
+        bg-orange-500/40
         blur-[120px]
         lg:blur-[180px]
         "
