@@ -62,15 +62,15 @@ const Navbar = () => {
             Home
           </Link>
 
-          <Link to="/courses" onClick={() => setOpen(false)}>
+          <Link to="/" onClick={() => setOpen(false)}>
             Courses
           </Link>
 
-          <Link to="/about" onClick={() => setOpen(false)}>
+          <Link to="/" onClick={() => setOpen(false)}>
             About
           </Link>
 
-          <Link to="/contact" onClick={() => setOpen(false)}>
+          <Link to="/" onClick={() => setOpen(false)}>
             Contact
           </Link>
 
