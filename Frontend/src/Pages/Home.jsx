@@ -27,7 +27,7 @@ const Home = () => {
         lg:h-[700px]
         rounded-full
         lg:bg-orange-500/20
-        bg-orange-500/40
+        bg-orange-500/30
         blur-[120px]
         lg:blur-[180px]
         "
