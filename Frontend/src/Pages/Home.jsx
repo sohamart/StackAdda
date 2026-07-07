@@ -56,7 +56,7 @@ const Home = () => {
 
     {/* SVG */}
     <svg
-        className="absolute inset-0 w-full h-full opacity-20"
+        className="absolute lg:block hidden inset-0 w-full h-full opacity-20"
         xmlns="http://www.w3.org/2000/svg"
     >
         <line x1="0" y1="120" x2="500" y2="620" stroke="#444" />
