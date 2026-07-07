@@ -18,8 +18,8 @@ const Home = () => {
                 -translate-x-1/2
                 -translate-y-1/2
                 lg:w-[700px]
-                w-[500px]
-                h-[500px]
+                w-[300px]
+                h-[300px]
                 lg:h-[700px]
                 rounded-full
                 bg-orange-500/20
