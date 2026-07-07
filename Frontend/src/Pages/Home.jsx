@@ -165,9 +165,9 @@ const Home = () => {
 </div>
        
         {/* Second Screen */}
-<div className="relative min-h-screen w-full rounded-t-[60px] lg:rounded-t-[120px] border-t border-white/20 bg-black overflow-hidden">
+<div className="relative  w-full rounded-t-[60px] lg:rounded-t-[120px] border-t border-white/20 bg-black overflow-hidden">
 
-  <div className="mx-auto flex w-full max-w-7xl justify-center px-4 sm:px-6 lg:px-10 py-8 lg:py-14">
+  <div className="mx-auto flex w-full max-w-7xl justify-center px-04 sm:px-6 lg:px-10 py-8 lg:py-14">
 
     <div
       className="
@@ -245,13 +245,14 @@ const Home = () => {
               rounded-xl
               border
               border-red-500
-              bg-red-500
+              bg-red-600
               px-6
               py-3
               font-semibold
               text-white
               transition
-              hover:bg-red-600
+              hover:bg-black
+              hover:border-red-200
               active:scale-95
               "
             >
@@ -346,7 +347,468 @@ const Home = () => {
 
   </div>
 
+
+  
+
 </div>
+      
+{/* Third Screen */}
+
+<div className="relative rounded-2xl   mx-auto lg:w-350  mb-12 " > 
+         <h1 className="text-5xl text-center uppercase text-white font-bold">Our Courses</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mt-12">
+          {/* Course Card */}
+
+<div
+  className="
+  group
+  relative
+  overflow-hidden
+  rounded-[28px]
+  border
+  border-orange-500/20
+  bg-white/[0.04]
+  backdrop-blur-2xl
+  transition-all
+  duration-500
+  hover:-translate-y-2
+  hover:border-orange-500/40
+  hover:shadow-[0_0_50px_rgba(249,115,22,.18)]
+  "
+>
+
+  {/* Glow */}
+  <div className="absolute -top-20 -right-20 h-48 w-48 rounded-full bg-orange-500/20 blur-[80px]" />
+
+  {/* Shine */}
+  <div className="absolute -left-24 top-0 h-full w-20 rotate-12 bg-white/10 blur-xl transition-all duration-1000 group-hover:left-[120%]" />
+
+  {/* Thumbnail */}
+  <div className="relative overflow-hidden">
+
+    <img
+      src="https://i.ytimg.com/vi/qnD8VwoQZZQ/maxresdefault.jpg"
+      className="h-46 w-full object-cover transition duration-700 group-hover:scale-110"
+      alt=""
+    />
+
+    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+
+    <span
+      className="
+      absolute
+      left-4
+      top-4
+      rounded-full
+      border
+      border-orange-400/30
+      bg-orange-500/20
+      px-4
+      py-1
+      text-xs
+      font-semibold
+      uppercase
+      text-orange-300
+      backdrop-blur-xl
+      "
+    >
+      Bestseller
+    </span>
+
+  </div>
+
+  {/* Content */}
+
+  <div className="relative z-10 p-6">
+
+    <h2 className="text-2xl font-bold text-white transition group-hover:text-orange-400">
+      HTML Advanced Course
+    </h2>
+
+    <p className="mt-2 text-sm leading-7 text-white/60">
+      Learn HTML from scratch and build beautiful websites with our comprehensive HTML course. Perfect for beginners and aspiring web developers.
+    </p>
+
+    {/* Stats */}
+
+    <div className="mt-2 flex justify-between text-sm text-white/60">
+
+      <div>
+        📚 <span className="animate-pulse">35+ Lessons</span>
+      </div>
+
+      <div>
+        ⏱️ <span>8 Hours</span>
+      </div>
+
+    </div>
+
+    <div className="mt-3 flex justify-between text-sm text-white/60">
+
+      <div className="text-white uppercase font-semibold">
+        👨‍🏫 Stack Adda
+      </div>
+
+      <div>
+        ⭐ 4.9
+      </div>
+
+    </div>
+
+    {/* Price */}
+
+    <div className="mt-6 flex items-center justify-between">
+
+      <div>
+
+        <h3 className="text-3xl font-bold  animate-pulse text-orange-400">
+          ₹999
+        </h3>
+
+        <p className="text-sm text-white/40 line-through">
+          ₹2999
+        </p>
+
+      </div>
+
+      <button
+        className="
+        rounded-xl
+        border
+        border-orange-500
+        bg-orange-600
+        px-5
+        py-3
+        font-semibold
+        text-white
+        transition
+        duration-300
+        hover:bg-orange-500
+        hover:shadow-[0_0_25px_rgba(249,115,22,.6)]
+        active:scale-95
+        animate-bounce
+        "
+      >
+        Enroll →
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+{/* Courses 2 */}
+<div
+  className="
+  group
+  relative
+  overflow-hidden
+  rounded-[28px]
+  border
+  border-orange-500/20
+  bg-white/[0.04]
+  backdrop-blur-2xl
+  transition-all
+  duration-500
+  hover:-translate-y-2
+  hover:border-orange-500/40
+  hover:shadow-[0_0_50px_rgba(249,115,22,.18)]
+  "
+>
+
+  {/* Glow */}
+  <div className="absolute -top-20 -right-20 h-48 w-48 rounded-full bg-orange-500/20 blur-[80px]" />
+
+  {/* Shine */}
+  <div className="absolute -left-24 top-0 h-full w-20 rotate-12 bg-white/10 blur-xl transition-all duration-1000 group-hover:left-[120%]" />
+
+  {/* Thumbnail */}
+  <div className="relative overflow-hidden">
+
+    <img
+      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVmXDIpPLK0ZjqCkK8I0bzOmNA2Jm40pLdMHh-Vi7gkLyci9BdAqf5Uhv7&s=10"
+      className="h-46 w-full object-cover transition duration-700 group-hover:scale-110"
+      alt=""
+    />
+
+    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+
+    <span
+      className="
+      absolute
+      left-4
+      top-4
+      rounded-full
+      border
+      border-green-400/30
+      bg-green-500/20
+      px-4
+      py-1
+      text-xs
+      font-semibold
+      uppercase
+      text-green-300
+      backdrop-blur-xl
+      "
+    >
+      Low Price
+    </span>
+
+  </div>
+
+  {/* Content */}
+
+  <div className="relative z-10 p-6">
+
+    <h2 className="text-2xl font-bold text-white transition group-hover:text-orange-400">
+      CSS Advanced Course
+    </h2>
+
+    <p className="mt-2 text-sm leading-7 text-white/60">
+      Learn CSS from scratch and build beautiful websites with our comprehensive CSS course. Perfect for beginners and aspiring web developers.
+    </p>
+
+    {/* Stats */}
+
+    <div className="mt-2 flex justify-between text-sm text-white/60">
+
+      <div>
+        📚 <span className="animate-pulse">35+ Lessons</span>
+      </div>
+
+      <div>
+        ⏱️ <span>8 Hours</span>
+      </div>
+
+    </div>
+
+    <div className="mt-3 flex justify-between text-sm text-white/60">
+
+      <div className="text-white uppercase font-semibold">
+        👨‍🏫 Stack Adda
+      </div>
+
+      <div>
+        ⭐ 4.9
+      </div>
+
+    </div>
+
+    {/* Price */}
+
+    <div className="mt-6 flex items-center justify-between">
+
+      <div>
+
+        <h3 className="text-3xl font-bold  animate-pulse text-orange-400">
+          ₹1199
+        </h3>
+
+        <p className="text-sm text-white/40 line-through">
+          ₹2999
+        </p>
+
+      </div>
+
+      <button
+        className="
+        rounded-xl
+        border
+        border-orange-500
+        bg-orange-600
+        px-5
+        py-3
+        font-semibold
+        text-white
+        transition
+        duration-300
+        hover:bg-orange-500
+        hover:shadow-[0_0_25px_rgba(249,115,22,.6)]
+        active:scale-95
+        animate-bounce
+        "
+      >
+        Enroll →
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+{/* Courses 3 */}
+  <div
+  className="
+  group
+  relative
+  overflow-hidden
+  rounded-[28px]
+  border
+  border-orange-500/20
+  bg-white/[0.04]
+  backdrop-blur-2xl
+  transition-all
+  duration-500
+  hover:-translate-y-2
+  hover:border-orange-500/40
+  hover:shadow-[0_0_50px_rgba(249,115,22,.18)]
+  "
+>
+
+  {/* Glow */}
+  <div className="absolute -top-20 -right-20 h-48 w-48 rounded-full bg-orange-500/20 blur-[80px]" />
+
+  {/* Shine */}
+  <div className="absolute -left-24 top-0 h-full w-20 rotate-12 bg-white/10 blur-xl transition-all duration-1000 group-hover:left-[120%]" />
+
+  {/* Thumbnail */}
+  <div className="relative overflow-hidden">
+
+    <img
+      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsXAcki-K62R3xrn_aVUa9Kp8mbcvDDX9PY52oYIKZOtkkmvt5M4U1Rl_U&s=10"
+      className="h-46 w-full object-cover transition duration-700 group-hover:scale-110"
+      alt=""
+    />
+
+    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+
+    <span
+      className="
+      absolute
+      left-4
+      top-4
+      rounded-full
+      border
+      border-blue-400/30
+      bg-blue-500/20
+      px-4
+      py-1
+      text-xs
+      font-semibold
+      uppercase
+      text-blue-300
+      backdrop-blur-xl
+      "
+    >
+      Trending
+    </span>
+
+  </div>
+
+  {/* Content */}
+
+  <div className="relative z-10 p-6">
+
+    <h2 className="text-2xl font-bold text-white transition group-hover:text-orange-400">
+      JavaScript Advanced Course
+    </h2>
+
+    <p className="mt-2 text-sm leading-7 text-white/60">
+      Learn JavaScript from scratch and build powerful web applications with our comprehensive JavaScript course. Perfect for beginners and aspiring web developers.
+    </p>
+
+    {/* Stats */}
+
+    <div className="mt-2 flex justify-between text-sm text-white/60">
+
+      <div>
+        📚 <span className="animate-pulse">35+ Lessons</span>
+      </div>
+
+      <div>
+        ⏱️ <span>8 Hours</span>
+      </div>
+
+    </div>
+
+    <div className="mt-3 flex justify-between text-sm text-white/60">
+
+      <div className="text-white uppercase font-semibold">
+        👨‍🏫 Stack Adda
+      </div>
+
+      <div>
+        ⭐ 4.9
+      </div>
+
+    </div>
+
+    {/* Price */}
+
+    <div className="mt-6 flex items-center justify-between">
+
+      <div>
+
+        <h3 className="text-3xl font-bold  animate-pulse text-orange-400">
+          ₹1999
+        </h3>
+
+        <p className="text-sm text-white/40 line-through">
+          ₹3999
+        </p>
+
+      </div>
+
+      <button
+        className="
+        rounded-xl
+        border
+        border-orange-500
+        bg-orange-600
+        px-5
+        py-3
+        font-semibold
+        text-white
+        transition
+        duration-300
+        hover:bg-orange-500
+        hover:shadow-[0_0_25px_rgba(249,115,22,.6)]
+        active:scale-95
+        animate-bounce
+        "
+      >
+        Enroll →
+      </button>
+
+    </div>
+
+  </div>
+
+</div> 
+
+{/* Button  */}<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mt-12">
+  {/* Course Cards */}
+</div>
+
+<div className="flex justify-center mt-12">
+  <button
+    className="
+      rounded-xl
+      border
+      border-orange-500/50
+      bg-orange-500/20
+      px-8
+      py-4
+      font-semibold
+      text-white
+      transition
+      hover:bg-orange-500
+      hover:shadow-[0_0_25px_rgba(249,115,22,.6)]
+      active:scale-95
+    "
+  >
+    View All Courses →
+  </button>
+</div>
+        
+
+            
+         </div>
+      
+        
+  </div>
 </>
     );
 };
