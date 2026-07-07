@@ -8,6 +8,10 @@ import Intro from "../assets/intro.mp4";
 
 const Home = () => {
 
+  const ytopen = () => {
+    window.open("https://www.youtube.com/@stackadda", "_blank");
+  }
+
   return (
     <>
 
@@ -240,6 +244,7 @@ const Home = () => {
                 <div className="mt-8 flex w-full flex-col sm:flex-row gap-4">
 
                   <button
+                  onClick={ytopen}
                     className="
               w-full sm:w-auto
               rounded-xl
