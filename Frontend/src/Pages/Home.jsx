@@ -30,7 +30,7 @@ const Home = () => {
         lg:h-[700px]
         rounded-full
         lg:bg-orange-500/25
-        bg-orange-500/30
+        bg-orange-500/25
         blur-[120px]
         lg:blur-[180px]
         "
@@ -60,7 +60,7 @@ const Home = () => {
 
     {/* SVG */}
     <svg
-        className="absolute lg:block hidden inset-0 w-full h-full opacity-40"
+        className="absolute lg:block  inset-0 w-full h-full opacity-40"
         xmlns="http://www.w3.org/2000/svg"
     >
         <line x1="0" y1="120" x2="500" y2="620" stroke="#444" />
