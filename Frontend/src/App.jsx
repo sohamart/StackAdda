@@ -1,11 +1,13 @@
 import React from 'react'
-import {Routes, Route} from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import Home from './/Pages/Home'
 import { useEffect } from "react";
 import Lenis from "lenis";
 
+import MainLayout from './/Layout/MainLayout'
+
 const App = () => {
-   useEffect(() => {
+  useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2,
       smoothWheel: true,
@@ -21,9 +23,12 @@ const App = () => {
     return () => lenis.destroy();
   }, []);
   return (
-    <div ClassName="   bg-black no-scrollbar" >
+    <div className=" flex flex-col w-full   bg-black no-scrollbar" >
+
       <Routes>
-        <Route path='/' element={<Home />} />
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<Home />} />
+        </Route>
       </Routes>
     </div>
   )

@@ -2,13 +2,15 @@ import React from "react";
 import { useEffect } from "react";
 import Lenis from "lenis";
 
+
 const Home = () => {
     
     return (
         <>
+
         {/* First Screen */}
         <div className="relative h-[92vh] w-full overflow-hidden bg-black px-5 sm:px-8 lg:px-16">
-
+        
     {/* Orange Glow */}
     <div
         className="
@@ -141,11 +143,11 @@ const Home = () => {
         >
             <div className="relative h-6 overflow-hidden">
 
-                <span className="block transition-transform duration-500 group-hover:-translate-y-full">
+                <span className="block uppercase transition-transform duration-500 group-hover:-translate-y-full">
                     Get Started
                 </span>
 
-                <span className="absolute left-0 top-full w-full transition-all duration-500 group-hover:top-0">
+                <span className="absolute uppercase left-0 top-full w-full transition-all duration-500 group-hover:top-0">
                     Let's Go →
                 </span>
 
