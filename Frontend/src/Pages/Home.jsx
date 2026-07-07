@@ -12,7 +12,7 @@ const Home = () => {
         <>
 
         {/* First Screen */}
-        <div className="relative lg:h-[89vh] h-[80vh] w-full overflow-hidden bg-black px-5 sm:px-8 lg:px-16">
+        <div className="relative lg:h-[89vh] h-[70vh] w-full overflow-hidden bg-black px-5 sm:px-8 lg:px-16">
         
     {/* Orange Glow */}
     <div
