@@ -12,7 +12,7 @@ const Home = () => {
         <>
 
         {/* First Screen */}
-        <div className="relative lg:h-[89vh] h-[70vh] w-full overflow-hidden bg-black px-5 sm:px-8 lg:px-16">
+        <div className="relative lg:h-[89vh] h-[70vh] w-full overflow-hidden bg-black  sm:px-8 lg:px-16">
         
     {/* Orange Glow */}
     <div
@@ -33,12 +33,14 @@ const Home = () => {
         bg-orange-500/25
         blur-[120px]
         lg:blur-[180px]
+        
+        
         "
     />
 
     {/* Grid */}
     <div
-        className="absolute inset-0 lg:opacity-40 opacity-25"
+        className="absolute inset-0 lg:opacity-40 opacity-45"
         style={{
             backgroundImage: `
             linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px),
@@ -60,7 +62,7 @@ const Home = () => {
 
     {/* SVG */}
     <svg
-        className="absolute lg:block  inset-0 w-full h-full opacity-40"
+        className="absolute lg:block hidden  inset-0 w-full h-full opacity-40"
         xmlns="http://www.w3.org/2000/svg"
     >
         <line x1="0" y1="120" x2="500" y2="620" stroke="#444" />
@@ -72,7 +74,7 @@ const Home = () => {
 
     {/* Noise */}
     <div
-        className="absolute lg:block hidden inset-0 opacity-[0.03]"
+        className="absolute lg:block  inset-0 opacity-[0.03]"
         style={{
             backgroundImage:
                 "radial-gradient(circle,#fff 1px,transparent 1px)",
@@ -81,7 +83,7 @@ const Home = () => {
     />
 
     {/* Content */}
-    <div className="relative z-10 flex min-h-screen flex-col items-center justify-center text-center">
+    <div className="relative lg:mt-0 mt-[-60px] z-10 flex min-h-screen flex-col items-center justify-center text-center">
 
         <p className="text-xs sm:text-sm md:text-lg lg:text-2xl uppercase tracking-[4px] text-orange-500">
             Learn. Code. Placed.
