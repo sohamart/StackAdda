@@ -68,7 +68,7 @@ const Home = () => {
 
     {/* Noise */}
     <div
-        className="absolute inset-0 opacity-[0.03]"
+        className="absolute lg:block hidden inset-0 opacity-[0.03]"
         style={{
             backgroundImage:
                 "radial-gradient(circle,#fff 1px,transparent 1px)",
