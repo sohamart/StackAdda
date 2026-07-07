@@ -167,7 +167,7 @@ const Home = () => {
       {/* Second Screen */}
       <div className="relative  w-full rounded-t-[60px] lg:rounded-t-[120px] border-t border-white/20 bg-black overflow-hidden">
 
-        <div className="mx-auto flex w-full max-w-7xl justify-center px-04 sm:px-6 lg:px-10 py-8 lg:py-14">
+        <div className="mx-auto flex w-full  max-w-7xl justify-center px-4 sm:px-6 lg:px-10 py-8 lg:py-14">
 
           <div
             className="
