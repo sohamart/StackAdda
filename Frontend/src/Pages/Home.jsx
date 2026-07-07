@@ -207,7 +207,7 @@ const Home = () => {
 
                 <div className="flex flex-col sm:flex-row items-center gap-5">
 
-                  <div className="flex h-16 w-16 md:h-20 md:w-20 items-center justify-center overflow-hidden rounded-full border border-white/20 bg-white/5">
+                  <div className="flex lg:h-26 lg:w-26 w-40 h-40 md:h-20 md:w-20 items-center justify-center overflow-hidden rounded-full border border-white/20 bg-white/5">
 
                     <img
                       src={YTlogo}
