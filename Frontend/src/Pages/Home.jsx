@@ -44,7 +44,7 @@ const Home = () => {
 
     {/* Dot Pattern */}
     <div
-        className="absolute right-4 top-20 sm:right-12 lg:right-20 w-40 h-40 sm:w-60 sm:h-60 lg:w-72 lg:h-72 opacity-30"
+        className="absolute right-6 top-20 sm:right-12 lg:right-20 w-40 h-40 sm:w-60 sm:h-60 lg:w-72 lg:h-72 opacity-20"
         style={{
             backgroundImage:
                 "radial-gradient(#ff6a00 1px, transparent 1px)",
@@ -54,7 +54,7 @@ const Home = () => {
 
     {/* SVG */}
     <svg
-        className="absolute inset-0 w-full h-full opacity-40"
+        className="absolute inset-0 w-full h-full opacity-20"
         xmlns="http://www.w3.org/2000/svg"
     >
         <line x1="0" y1="120" x2="500" y2="620" stroke="#444" />
