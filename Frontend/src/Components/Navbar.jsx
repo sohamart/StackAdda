@@ -9,6 +9,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const LoginButton = () => {
     navigate("/login");
+    setOpen(false);
   };
 
   return (
@@ -79,7 +80,7 @@ const Navbar = () => {
             Contact
           </Link>
 
-          <button onClick={LoginButton} onClick={() => setOpen(false)} className="rounded-lg bg-orange-600 px-6 py-2 text-white">
+          <button onClick={LoginButton}  className="rounded-lg bg-orange-600 px-6 py-2 text-white">
             Login
           </button>
 
