@@ -79,7 +79,7 @@ const Navbar = () => {
             Contact
           </Link>
 
-          <button onClick={LoginButton} className="rounded-lg bg-orange-600 px-6 py-2 text-white">
+          <button onClick={LoginButton} onClick={() => setOpen(false)} className="rounded-lg bg-orange-600 px-6 py-2 text-white">
             Login
           </button>
 
