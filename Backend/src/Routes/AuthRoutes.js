@@ -1,5 +1,5 @@
 const express = require("express");
-const authMiddleware = require("../Middleware/AuthMiddleware");
+const authMiddleware = require("../MiddleWare/AuthMiddleware");
 
 const {
   studentRegister,
