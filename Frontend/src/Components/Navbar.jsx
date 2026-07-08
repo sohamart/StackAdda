@@ -1,10 +1,15 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
 
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const LoginButton = () => {
+    navigate("/login");
+  };
 
   return (
     <nav className="fixed top-5 left-1/2 -translate-x-1/2 z-50 w-[95%] md:w-[90%] lg:w-[80vw] rounded-2xl border border-white/20 bg-white/5 backdrop-blur-xl">
@@ -34,7 +39,7 @@ const Navbar = () => {
 
         {/* Desktop Button */}
 
-        <button className="hidden md:block rounded-lg bg-orange-600 px-5 py-2 text-white transition hover:bg-orange-500">
+        <button onClick={LoginButton} className="hidden md:block rounded-lg bg-orange-600 px-5 py-2 text-white transition hover:bg-orange-500">
           Login
         </button>
 
@@ -74,7 +79,7 @@ const Navbar = () => {
             Contact
           </Link>
 
-          <button className="rounded-lg bg-orange-600 px-6 py-2 text-white">
+          <button onClick={LoginButton} className="rounded-lg bg-orange-600 px-6 py-2 text-white">
             Login
           </button>
 

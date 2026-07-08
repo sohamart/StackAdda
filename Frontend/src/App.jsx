@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom'
 import Home from './/Pages/Home'
 import { useEffect } from "react";
 import Lenis from "lenis";
+import Login from './/Pages/Login'
 
 import MainLayout from './/Layout/MainLayout'
 
@@ -34,6 +35,7 @@ const App = () => {
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
         </Route>
       </Routes>
     </div>
