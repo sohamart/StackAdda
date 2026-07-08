@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Hand, Menu, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../Context/AuthContext";
+import { toast } from "react-toastify";
 
 const Navbar = () => {
 
@@ -11,7 +13,14 @@ const Navbar = () => {
     navigate("/login");
     setOpen(false);
   };
+  const { user, logout } = useAuth();
+const handleLogout = async () => {
+  const data = await logout();
 
+  toast.success(data?.message || "Logout Successful");
+
+  navigate("/login");
+};
   return (
     <nav className="fixed top-5 left-1/2 -translate-x-1/2 z-50 w-[95%] md:w-[90%] lg:w-[80vw] rounded-2xl border border-white/20 bg-white/5 backdrop-blur-xl">
 
@@ -40,9 +49,41 @@ const Navbar = () => {
 
         {/* Desktop Button */}
 
-        <button onClick={LoginButton} className="hidden md:block rounded-lg bg-orange-600 px-5 py-2 text-white transition hover:bg-orange-500">
-          Login
-        </button>
+        <div className="hidden md:flex items-center gap-3">
+
+  {user ? (
+    <>
+      <Link
+        to={user.role === "admin" ? "/admin" : "/dashboard"}
+        className="text-white hover:text-orange-400 transition"
+      >
+        Dashboard
+      </Link>
+
+      <Link
+        to="/profile"
+        className="text-white hover:text-orange-400 transition"
+      >
+        Profile
+      </Link>
+
+      <button
+        onClick={handleLogout}
+        className="rounded-lg bg-red-500 px-5 py-2 text-white hover:bg-red-600 transition"
+      >
+        Logout
+      </button>
+    </>
+  ) : (
+    <button
+      onClick={LoginButton}
+      className="rounded-lg bg-orange-600 px-5 py-2 text-white hover:bg-orange-500 transition"
+    >
+      Login
+    </button>
+  )}
+
+</div>
 
         {/* Mobile Menu Button */}
 
@@ -80,9 +121,37 @@ const Navbar = () => {
             Contact
           </Link>
 
-          <button onClick={LoginButton}  className="rounded-lg bg-orange-600 px-6 py-2 text-white">
-            Login
-          </button>
+          {user ? (
+  <>
+    <Link
+      to={user.role === "admin" ? "/admin" : "/dashboard"}
+      onClick={() => setOpen(false)}
+    >
+      Dashboard
+    </Link>
+
+    <Link
+      to="/profile"
+      onClick={() => setOpen(false)}
+    >
+      Profile
+    </Link>
+
+    <button
+      onClick={handleLogout}
+      className="rounded-lg bg-red-500 px-6 py-2 text-white"
+    >
+      Logout
+    </button>
+  </>
+) : (
+  <button
+    onClick={LoginButton}
+    className="rounded-lg bg-orange-600 px-6 py-2 text-white"
+  >
+    Login
+  </button>
+)}
 
         </div>
       </div>

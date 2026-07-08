@@ -1,9 +1,17 @@
 import React, { useState } from "react";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import API from "../../api/axios";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../Context/AuthContext";
+
+
+
 
 const LoginForm = ({ isAdmin, setIsRegister }) => {
   const [showPassword, setShowPassword] = useState(false);
-
+  const { getUser } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -17,33 +25,52 @@ const LoginForm = ({ isAdmin, setIsRegister }) => {
       [e.target.name]: e.target.value,
     });
   };
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  if (!formData.email || !formData.password) {
+    return toast.error("Please fill all fields");
+  }
 
-    if (!formData.email || !formData.password) {
-      alert("Please fill all fields");
-      return;
-    }
+  try {
+    setLoading(true);
 
-    try {
-      setLoading(true);
+    const url = isAdmin
+      ? "/auth/admin/login"
+      : "/auth/student/login";
 
-      console.log({
-        role: isAdmin ? "Admin" : "Student",
-        ...formData,
-      });
+    const { data } = await API.post(url, {
+      email: formData.email.toLowerCase(),
+      password: formData.password,
+    });
 
-      setTimeout(() => {
-        setLoading(false);
-        alert(`${isAdmin ? "Admin" : "Student"} Login Success`);
-      }, 1500);
+    // AuthContext Update
+    await getUser();
 
-    } catch (err) {
-      console.log(err);
-      setLoading(false);
-    }
-  };
+    // Reset Form
+    setFormData({
+      email: "",
+      password: "",
+    });
+
+    // Success Toast
+    toast.success(data.message || "Login Successful");
+
+    // Navigate
+    
+
+setTimeout(() => {
+  navigate(isAdmin ? "/admin" : "/dashboard");
+}, 0);
+
+  } catch (error) {
+    toast.error(
+      error.response?.data?.message || "Login Failed"
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <>

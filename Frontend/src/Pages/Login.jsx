@@ -2,10 +2,35 @@ import React, { useState } from "react";
 import LoginForm from "..//Components//Login//LoginForm";
 import RegisterForm from "..//Components//Login//RegisterForm";
 import { GraduationCap, ShieldCheck } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../Context/AuthContext";
+import { useEffect } from "react";
+import { toast } from "react-toastify";
  
 const Login = () => {
   const [isRegister, setIsRegister] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+  console.log("Loading:", loading);
+  console.log("User:", user);
+
+  if (loading) return;
+
+  if (user) {
+    console.log("Navigating...");
+    
+
+setTimeout(() => {
+  navigate(user.role === "admin" ? "/admin" : "/dashboard", {
+      replace: true,
+    });
+}, 0);
+    
+  }
+}, [user, loading, navigate]);
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center px-4  overflow-hidden relative">
@@ -14,7 +39,7 @@ const Login = () => {
       <div className="absolute  left-0 top-0 w-96 h-96 lg:bg-orange-500/20 bg-orange-500/5 blur-[140px]" />
       <div className="absolute right-0 bottom-0 w-96 h-96 lg:bg-orange-500/20 bg-orange-500/5 blur-[140px]" />
 
-      <div className="relative lg:mt-25 mb-5 lg:mb-0 mt-30 z-10 w-full max-w-5xl rounded-3xl overflow-hidden border border-orange-500/20 bg-white/[0.04] backdrop-blur-3xl">
+      <div className="relative   lg:mb-0 z-10 w-full max-w-5xl rounded-3xl overflow-hidden border border-orange-500/20 bg-white/[0.04] backdrop-blur-3xl">
 
         <div className="grid lg:grid-cols-2">
 

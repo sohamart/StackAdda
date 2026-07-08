@@ -12,6 +12,7 @@ const {
     getAdminById,
     loggedInStudent,
     loggedInAdmin,
+    logout,
 } = require("../Controllers/AuthController");
 
 const router = express.Router();
@@ -30,5 +31,8 @@ router.post("/admin/register", adminRegister);
 router.get("/admins", getAllAdmins);
 router.get("/admins/:id", getAdminById);
 router.get("/admin/me", authMiddleware, loggedInAdmin);
+
+// Logout
+router.post("/logout", logout);
 
 module.exports = router;

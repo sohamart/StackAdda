@@ -1,45 +1,72 @@
-import React from 'react'
-import { Routes, Route } from 'react-router-dom'
-import Home from './/Pages/Home'
-import { useEffect } from "react";
-import Lenis from "lenis";
-import Login from './/Pages/Login'
+import React from "react";
+import { Routes, Route } from "react-router-dom";
 
-import MainLayout from './/Layout/MainLayout'
+// Layout
+import MainLayout from "./Layout/MainLayout";
+
+// Pages
+import Home from "./Pages/Home";
+import Login from "./Pages/Login";
+import StudentDashboard from "./Pages/StudentDashboard";
+import AdminDashboard from "./Pages/AdminDashboard";
+import Profile from "./Pages/Profile";
+
+// Auth
+import ProtectedRoute from "./Routes/ProtectedRoute";
 
 const App = () => {
-  useEffect(() => {
-  const lenis = new Lenis({
-    duration: 1.4,
-    smoothWheel: true,
-    syncTouch: true,       // Mobile support
-    syncTouchLerp: 0.08,
-    touchMultiplier: 1.2,
-    wheelMultiplier: 1,
-  });
-
-  function raf(time) {
-    lenis.raf(time);
-    requestAnimationFrame(raf);
-  }
-
-  requestAnimationFrame(raf);
-
-  return () => {
-    lenis.destroy();
-  };
-}, []);
   return (
-    <div className=" flex flex-col w-full   bg-black no-scrollbar" >
+    <Routes>
 
-      <Routes>
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-        </Route>
-      </Routes>
-    </div>
-  )
-}
+      {/* Public Routes */}
+      <Route element={<MainLayout />}>
+        <Route path="/" element={<Home />} />
+      </Route>
 
-export default App
+      <Route path="/login" element={<Login />} />
+
+      {/* Student Dashboard */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <StudentDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Admin Dashboard */}
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute adminOnly>
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Profile */}
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* 404 */}
+      <Route
+        path="*"
+        element={
+          <div className="min-h-screen bg-black flex items-center justify-center text-white text-3xl">
+            404 | Page Not Found
+          </div>
+        }
+      />
+
+    </Routes>
+  );
+};
+
+export default App;

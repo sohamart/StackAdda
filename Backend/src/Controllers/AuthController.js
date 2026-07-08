@@ -47,6 +47,7 @@ res
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
+    path: "/",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   })
   .status(201)
@@ -55,13 +56,6 @@ res
     message: "Registration Successful",
     student,
   });
-
-    res.status(201).json({
-      success: true,
-      message: "Registration Successful",
-      token,
-      student,
-    });
 
   } catch (error) {
 
@@ -113,6 +107,7 @@ const studentLogin = async (req, res) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
+    path: "/",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   })
   .status(200)
@@ -121,13 +116,6 @@ const studentLogin = async (req, res) => {
     message: "Login Successful",
     student,
   });
-
-    res.status(200).json({
-      success: true,
-      message: "Login Successful",
-      token,
-      student,
-    });
 
   } catch (error) {
 
@@ -181,6 +169,7 @@ res
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
+    path: "/",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   })
   .status(200)
@@ -190,13 +179,7 @@ res
     admin,
   });
 
-    res.status(200).json({
-      success: true,
-      message: "Admin Login Successful",
-      token,
-      admin,
-    });
-
+    
   } catch (error) {
 
     res.status(500).json({
@@ -247,6 +230,7 @@ const adminRegister = async (req, res) => {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
+        path: "/",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       })
       .status(201)
@@ -425,6 +409,25 @@ const loggedInAdmin = async (req, res) => {
   }
 };
 
+// =======================
+// Logout
+// =======================
+
+const logout = (req, res) => {
+  res
+    .clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+    })
+    .status(200)
+    .json({
+      success: true,
+      message: "Logout Successful",
+    });
+};
+
 module.exports = {
   studentRegister,
   studentLogin,
@@ -436,6 +439,7 @@ module.exports = {
     getAdminById,
     loggedInStudent,
     loggedInAdmin,
+    logout,
 };
 
 

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Eye, EyeOff, Mail, Lock, User, Phone } from "lucide-react";
+import API from "../../api/axios";
+import { toast } from "react-toastify";
 
 const RegisterForm = ({ setIsRegister }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -21,41 +23,54 @@ const RegisterForm = ({ setIsRegister }) => {
       [e.target.name]: e.target.value,
     }));
   };
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  if (
+    !formData.name ||
+    !formData.email ||
+    !formData.password ||
+    !formData.confirmPassword
+  ) {
+    return toast.error("Please fill all fields");
+  }
 
-    if (
-      !formData.name ||
-      !formData.phone ||
-      !formData.email ||
-      !formData.password ||
-      !formData.confirmPassword
-    ) {
-      alert("Please fill all fields.");
-      return;
-    }
+  if (formData.password !== formData.confirmPassword) {
+    return toast.error("Passwords do not match");
+  }
 
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match.");
-      return;
-    }
+  try {
+    setLoading(true);
 
-    try {
-      setLoading(true);
+    const { data } = await API.post("/auth/student/register", {
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+    });
 
-      console.log(formData);
+    toast.success(data.message);
 
-      setTimeout(() => {
-        setLoading(false);
-        alert("Registration Successful 🎉");
-      }, 1500);
+    setFormData({
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    });
 
-    } catch (err) {
-      console.log(err);
-      setLoading(false);
-    }
-  };
+    setIsRegister(false);
+
+  } catch (error) {
+
+    toast.error(
+      error.response?.data?.message || "Registration Failed"
+    );
+
+  } finally {
+
+    setLoading(false);
+
+  }
+};
 
   return (
     <>
