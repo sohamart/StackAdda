@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import LoginForm from "../components/Login/LoginForm";
-import RegisterForm from "../components/Login/RegisterForm";
+import LoginForm from "..//components//Login//LoginForm";
+import RegisterForm from "..//components//Login//RegisterForm";
 import { GraduationCap, ShieldCheck } from "lucide-react";
  
 const Login = () => {
