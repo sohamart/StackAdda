@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import LoginForm from "../components/Login/LoginForm";
 import RegisterForm from "../components/Login/RegisterForm";
 import { GraduationCap, ShieldCheck } from "lucide-react";
-
+ 
 const Login = () => {
   const [isRegister, setIsRegister] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
