@@ -1,103 +1,76 @@
 import React, { useState } from "react";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
-import API from "../../api/axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../Context/AuthContext";
 
-
-
-
 const LoginForm = ({ isAdmin, setIsRegister }) => {
-  const [showPassword, setShowPassword] = useState(false);
-  const { getUser } = useAuth();
   const navigate = useNavigate();
+
+  const { studentLogin, adminLogin } = useAuth();
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const [loading, setLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
-  const [loading, setLoading] = useState(false);
-
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
+    }));
   };
-const handleSubmit = async (e) => {
-  e.preventDefault();
 
-  if (!formData.email || !formData.password) {
-    return toast.error("Please fill all fields");
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  try {
+    if (!formData.email || !formData.password) {
+      return toast.error("Please fill all fields");
+    }
+
     setLoading(true);
 
-    const url = isAdmin
-      ? "/auth/admin/login"
-      : "/auth/student/login";
+    try {
+      let success = false;
 
-    const { data } = await API.post(url, {
-      email: formData.email.toLowerCase(),
-      password: formData.password,
-    });
+      if (isAdmin) {
+        success = await adminLogin(formData);
 
-    // AuthContext Update
-    await getUser();
+        if (success) {
+          navigate("/admin");
+        }
+      } else {
+        success = await studentLogin(formData);
 
-    // Reset Form
-    setFormData({
-      email: "",
-      password: "",
-    });
-
-    // Success Toast
-    toast.success(data.message || "Login Successful");
-
-    // Navigate
-    
-
-setTimeout(() => {
-  navigate(isAdmin ? "/admin" : "/dashboard");
-}, 0);
-
-  } catch (error) {
-    toast.error(
-      error.response?.data?.message || "Login Failed"
-    );
-  } finally {
-    setLoading(false);
-  }
-};
+        if (success) {
+          navigate("/student");
+        }
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
-
       <h2 className="text-2xl font-bold text-white">
-
         {isAdmin ? "Admin Login" : "Welcome Back"}
-
       </h2>
 
       <p className="mt-1 text-sm text-white/60">
-
         {isAdmin
           ? "Login to admin dashboard."
           : "Login to continue learning."}
-
       </p>
 
-      <form
-        onSubmit={handleSubmit}
-        className="mt-4 space-y-4"
-      >
-
+      <form onSubmit={handleSubmit} className="mt-4 space-y-4">
         {/* Email */}
 
         <div className="relative">
-
           <Mail
             className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-400"
             size={20}
@@ -124,13 +97,11 @@ setTimeout(() => {
             focus:border-orange-500
             "
           />
-
         </div>
 
         {/* Password */}
 
         <div className="relative">
-
           <Lock
             className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-400"
             size={20}
@@ -169,27 +140,25 @@ setTimeout(() => {
               <Eye size={20} />
             )}
           </button>
-
         </div>
 
         {/* Forgot Password */}
 
         {!isAdmin && (
           <div className="flex justify-end">
-
             <button
               type="button"
               className="text-sm text-orange-400 hover:text-orange-300"
             >
               Forgot Password?
             </button>
-
           </div>
         )}
 
         {/* Login Button */}
 
         <button
+          type="submit"
           disabled={loading}
           className="
           w-full
@@ -205,19 +174,16 @@ setTimeout(() => {
           disabled:opacity-60
           "
         >
-
           {loading
             ? "Please Wait..."
             : isAdmin
             ? "Admin Login"
             : "Login"}
-
         </button>
 
         {/* Google Login */}
 
         {!isAdmin && (
-
           <button
             type="button"
             className="
@@ -234,30 +200,22 @@ setTimeout(() => {
           >
             Continue with Google
           </button>
-
         )}
-
       </form>
 
       {/* Register */}
 
       {!isAdmin && (
-
         <p className="mt-4 text-center text-white/60">
-
           Don't have an account?{" "}
-
           <button
             onClick={() => setIsRegister(true)}
             className="font-semibold text-orange-400 hover:text-orange-300"
           >
             Register
           </button>
-
         </p>
-
       )}
-
     </>
   );
 };

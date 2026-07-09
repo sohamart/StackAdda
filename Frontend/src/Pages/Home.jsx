@@ -2,11 +2,17 @@ import React from "react";
 import YoutubeSection from "../Components/HomeComponents/YoutubeSection";
 import Courses from "../Components/HomeComponents/Courses";
 import HeroSection from "../Components/HomeComponents/HeroSection";
+import API from "../api/axios";
+import { useEffect } from "react";
 
 
 
 const Home = () => {
-
+  useEffect(() => {
+    API.get("/auth/me")
+      .then((res) => console.log(res.data))
+      .catch((err) => console.log(err.response?.data));
+  }, []);
 
   return (
     <>

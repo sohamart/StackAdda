@@ -1,21 +1,23 @@
 import React, { useState } from "react";
-import { Eye, EyeOff, Mail, Lock, User, Phone } from "lucide-react";
-import API from "../../api/axios";
+import { Eye, EyeOff, User, Mail, Lock } from "lucide-react";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../Context/AuthContext";
 
 const RegisterForm = ({ setIsRegister }) => {
+  const navigate = useNavigate();
+
+  const { studentRegister } = useAuth();
+
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
+
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
-    phone: "",
     email: "",
     password: "",
-    confirmPassword: "",
   });
-
-  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -23,75 +25,47 @@ const RegisterForm = ({ setIsRegister }) => {
       [e.target.name]: e.target.value,
     }));
   };
-const handleSubmit = async (e) => {
-  e.preventDefault();
 
-  if (
-    !formData.name ||
-    !formData.email ||
-    !formData.password ||
-    !formData.confirmPassword
-  ) {
-    return toast.error("Please fill all fields");
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  if (formData.password !== formData.confirmPassword) {
-    return toast.error("Passwords do not match");
-  }
+    if (!formData.name || !formData.email || !formData.password) {
+      return toast.error("Please fill all fields");
+    }
 
-  try {
     setLoading(true);
 
-    const { data } = await API.post("/auth/student/register", {
-      name: formData.name,
-      email: formData.email,
-      password: formData.password,
-    });
+    try {
+      const success = await studentRegister(formData);
 
-    toast.success(data.message);
-
-    setFormData({
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-    });
-
-    setIsRegister(false);
-
-  } catch (error) {
-
-    toast.error(
-      error.response?.data?.message || "Registration Failed"
-    );
-
-  } finally {
-
-    setLoading(false);
-
-  }
-};
+      if (success) {
+        navigate("/student");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
-      <h2 className="text-3xl font-bold text-white">
+      <h2 className="text-2xl font-bold text-white">
         Create Account
       </h2>
 
-      <p className="mt-2 text-white/60">
-        Join Stack Adda and start your journey.
+      <p className="mt-1 text-sm text-white/60">
+        Join Stack Adda and start learning.
       </p>
 
       <form
         onSubmit={handleSubmit}
-        className="mt-8 space-y-5"
+        className="mt-4 space-y-4"
       >
         {/* Name */}
 
         <div className="relative">
           <User
-            size={20}
             className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-400"
+            size={20}
           />
 
           <input
@@ -106,41 +80,12 @@ const handleSubmit = async (e) => {
             border
             border-white/10
             bg-white/5
-            py-4
+            py-2
             pl-12
             pr-4
             text-white
             outline-none
-            focus:border-orange-500
-            "
-          />
-        </div>
-
-        {/* Phone */}
-
-        <div className="relative">
-          <Phone
-            size={20}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-400"
-          />
-
-          <input
-            type="tel"
-            name="phone"
-            placeholder="Phone Number"
-            value={formData.phone}
-            onChange={handleChange}
-            className="
-            w-full
-            rounded-xl
-            border
-            border-white/10
-            bg-white/5
-            py-4
-            pl-12
-            pr-4
-            text-white
-            outline-none
+            transition
             focus:border-orange-500
             "
           />
@@ -150,8 +95,8 @@ const handleSubmit = async (e) => {
 
         <div className="relative">
           <Mail
-            size={20}
             className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-400"
+            size={20}
           />
 
           <input
@@ -166,11 +111,12 @@ const handleSubmit = async (e) => {
             border
             border-white/10
             bg-white/5
-            py-4
+            py-2
             pl-12
             pr-4
             text-white
             outline-none
+            transition
             focus:border-orange-500
             "
           />
@@ -180,8 +126,8 @@ const handleSubmit = async (e) => {
 
         <div className="relative">
           <Lock
-            size={20}
             className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-400"
+            size={20}
           />
 
           <input
@@ -196,11 +142,12 @@ const handleSubmit = async (e) => {
             border
             border-white/10
             bg-white/5
-            py-4
+            py-2
             pl-12
             pr-12
             text-white
             outline-none
+            transition
             focus:border-orange-500
             "
           />
@@ -210,57 +157,24 @@ const handleSubmit = async (e) => {
             onClick={() => setShowPassword(!showPassword)}
             className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60"
           >
-            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-          </button>
-        </div>
-
-        {/* Confirm Password */}
-
-        <div className="relative">
-          <Lock
-            size={20}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-400"
-          />
-
-          <input
-            type={showConfirm ? "text" : "password"}
-            name="confirmPassword"
-            placeholder="Confirm Password"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            className="
-            w-full
-            rounded-xl
-            border
-            border-white/10
-            bg-white/5
-            py-4
-            pl-12
-            pr-12
-            text-white
-            outline-none
-            focus:border-orange-500
-            "
-          />
-
-          <button
-            type="button"
-            onClick={() => setShowConfirm(!showConfirm)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60"
-          >
-            {showConfirm ? <EyeOff size={20} /> : <Eye size={20} />}
+            {showPassword ? (
+              <EyeOff size={20} />
+            ) : (
+              <Eye size={20} />
+            )}
           </button>
         </div>
 
         {/* Register Button */}
 
         <button
+          type="submit"
           disabled={loading}
           className="
           w-full
           rounded-xl
           bg-orange-600
-          py-4
+          py-2
           font-semibold
           text-white
           transition
@@ -274,7 +188,7 @@ const handleSubmit = async (e) => {
         </button>
       </form>
 
-      <p className="mt-8 text-center text-white/60">
+      <p className="mt-4 text-center text-white/60">
         Already have an account?{" "}
         <button
           onClick={() => setIsRegister(false)}

@@ -1,26 +1,27 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
-import { BrowserRouter } from 'react-router-dom'
-import { GoogleOAuthProvider } from "@react-oauth/google";
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+
+import App from "./App";
 import { AuthProvider } from "./Context/AuthContext";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
-createRoot(document.getElementById('root')).render(
-  <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+import "./index.css";
 
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
     <BrowserRouter>
       <AuthProvider>
         <App />
-        <ToastContainer
+
+        <Toaster
           position="top-right"
-          autoClose={3000}
-          theme="dark"
+          reverseOrder={false}
+          toastOptions={{
+            duration: 3000,
+          }}
         />
       </AuthProvider>
     </BrowserRouter>
-
-  </GoogleOAuthProvider>
-)
+  </React.StrictMode>
+);

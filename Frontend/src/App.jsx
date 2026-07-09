@@ -1,72 +1,68 @@
-import React from "react";
 import { Routes, Route } from "react-router-dom";
 
 // Layout
 import MainLayout from "./Layout/MainLayout";
+import StudentLayout from "./Layout/StudentLayout";
+import AdminLayout from "./Layout/AdminLayout";
 
-// Pages
+// Protected Route
+import ProtectedRoute from "./Components/ProtectedRoute";
+
+// Public Pages
 import Home from "./Pages/Home";
 import Login from "./Pages/Login";
-import StudentDashboard from "./Pages/StudentDashboard";
-import AdminDashboard from "./Pages/AdminDashboard";
-import Profile from "./Pages/Profile";
+import Register from "./Pages/Register";
+import NotFound from "./Pages/NotFound";
 
-// Auth
-import ProtectedRoute from "./Routes/ProtectedRoute";
+// Student Pages
+import StudentDashboard from "./Pages/Student/Dashboard";
+import StudentProfile from "./Pages/Student/Profile";
 
-const App = () => {
+// Admin Pages
+import AdminDashboard from "./Pages/Admin/Dashboard";
+import Students from "./Pages/Admin/Students";
+
+function App() {
   return (
     <Routes>
 
       {/* Public Routes */}
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
       </Route>
 
-      <Route path="/login" element={<Login />} />
-
-      {/* Student Dashboard */}
+      {/* Student Routes */}
       <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <StudentDashboard />
-          </ProtectedRoute>
-        }
-      />
+  path="/student"
+  element={
+    <ProtectedRoute role="student">
+      <StudentLayout />
+    </ProtectedRoute>
+  }
+>
+  <Route index element={<StudentDashboard />} />
+  <Route path="profile" element={<StudentProfile />} />
+</Route>
 
-      {/* Admin Dashboard */}
+      {/* Admin Routes */}
       <Route
         path="/admin"
         element={
-          <ProtectedRoute adminOnly>
-            <AdminDashboard />
+          <ProtectedRoute role="admin">
+            <AdminLayout />
           </ProtectedRoute>
         }
-      />
-
-      {/* Profile */}
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <Profile />
-          </ProtectedRoute>
-        }
-      />
+      >
+        <Route index element={<AdminDashboard />} />
+        <Route path="students" element={<Students />} />
+      </Route>
 
       {/* 404 */}
-      <Route
-        path="*"
-        element={
-          <div className="min-h-screen bg-black flex items-center justify-center text-white text-3xl">
-            404 | Page Not Found
-          </div>
-        }
-      />
-
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
-};
+}
 
 export default App;

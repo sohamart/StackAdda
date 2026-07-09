@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import API from "../api/axios";
+import { toast } from "react-hot-toast";
 
 const AuthContext = createContext();
 
@@ -7,45 +8,116 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const getUser = async () => {
-  setLoading(true);
-
-  try {
-    const { data } = await API.get("/auth/student/me");
-    setUser(data.student);
-  } catch (err) {
+  // ==========================
+  // Current User
+  // ==========================
+  const getCurrentUser = async () => {
     try {
-      const { data } = await API.get("/auth/admin/me");
-      setUser(data.admin);
-    } catch {
+      const res = await API.get("/auth/me");
+
+      setUser(res.data.user);
+    } catch (error) {
       setUser(null);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
-  setLoading(false);
-};
+  // ==========================
+  // Student Register
+  // ==========================
+  const studentRegister = async (formData) => {
+    try {
+      const res = await API.post(
+        "/auth/student/register",
+        formData
+      );
 
+      setUser(res.data.user);
+
+      toast.success(res.data.message);
+
+      return true;
+    } catch (error) {
+      toast.error(error.response?.data?.message);
+
+      return false;
+    }
+  };
+
+  // ==========================
+  // Student Login
+  // ==========================
+  const studentLogin = async (formData) => {
+    try {
+      const res = await API.post(
+        "/auth/student/login",
+        formData
+      );
+
+      setUser(res.data.user);
+
+      toast.success(res.data.message);
+
+      return true;
+    } catch (error) {
+      toast.error(error.response?.data?.message);
+
+      return false;
+    }
+  };
+
+  // ==========================
+  // Admin Login
+  // ==========================
+  const adminLogin = async (formData) => {
+    try {
+      const res = await API.post(
+        "/auth/admin/login",
+        formData
+      );
+
+      setUser(res.data.user);
+
+      toast.success(res.data.message);
+
+      return true;
+    } catch (error) {
+      toast.error(error.response?.data?.message);
+
+      return false;
+    }
+  };
+
+  // ==========================
+  // Logout
+  // ==========================
   const logout = async () => {
-  try {
-    const { data } = await API.post("/auth/logout");
+    try {
+      await API.post("/auth/logout");
 
-    setUser(null);
+      setUser(null);
 
-    return data;
+      toast.success("Logout Successful");
+    } catch (error) {
+      toast.error("Logout Failed");
+    }
+  };
 
-  } catch (error) {
-    console.log(error);
-  }
-};
+  useEffect(() => {
+    getCurrentUser();
+  }, []);
 
   return (
     <AuthContext.Provider
       value={{
         user,
         loading,
-        setUser,
-        getUser,
+        studentLogin,
+        studentRegister,
+        adminLogin,
         logout,
+        getCurrentUser,
       }}
     >
       {children}
