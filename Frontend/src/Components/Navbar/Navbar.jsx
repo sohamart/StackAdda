@@ -51,6 +51,7 @@ const Navbar = () => {
     console.error(error);
   } finally {
     setLogoutLoading(false);
+    setOpen(false);
   }
 };
   const menuClass = ({ isActive }) =>
