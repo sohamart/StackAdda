@@ -181,7 +181,7 @@ backdrop-blur-3xl
 
         
 
-        <div className="relative  px-8 pb-8">
+        <div className="relative mt-12 px-8 pb-8">
 
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
 
