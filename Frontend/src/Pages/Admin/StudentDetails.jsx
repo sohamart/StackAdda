@@ -175,11 +175,11 @@ backdrop-blur-3xl
 
         {/* Glow */}
 
-        <div className="absolute right-0 top-0 h-72 w-72 rounded-full bg-orange-500/10 blur-[120px]" />
+        
 
         {/* Cover */}
 
-        <div className="h-40 bg-gradient-to-r from-orange-600/40 via-orange-500/20 to-transparent" />
+        <div className="h-40 bg-gradient-to-r  from-orange-600/40 via-orange-500/20 to-transparent" />
 
         <div className="relative -mt-16 px-8 pb-8">
 
