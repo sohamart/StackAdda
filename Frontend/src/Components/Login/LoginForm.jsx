@@ -144,16 +144,7 @@ const LoginForm = ({ isAdmin, setIsRegister }) => {
 
         {/* Forgot Password */}
 
-        {!isAdmin && (
-          <div className="flex justify-end">
-            <button
-              type="button"
-              className="text-sm text-orange-400 hover:text-orange-300"
-            >
-              Forgot Password?
-            </button>
-          </div>
-        )}
+  
 
         {/* Login Button */}
 
