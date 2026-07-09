@@ -27,7 +27,7 @@ import { useAuth } from "../../Context/AuthContext";
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-
+  const [logoutLoading, setLogoutLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -41,17 +41,18 @@ const Navbar = () => {
     `https://ui-avatars.com/api/?background=f97316&color=fff&name=${user?.name}`;
 
   const handleLogout = async () => {
+  try {
+    setLogoutLoading(true);
+
     await logout();
 
     navigate("/login");
-  };
-
-  const menuClass = ({ isActive }) =>
-    `transition duration-300 ${
-      isActive
-        ? "text-orange-400"
-        : "text-white hover:text-orange-400"
-    }`;
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setLogoutLoading(false);
+  }
+};
       return (
     <nav
       className="
@@ -330,26 +331,38 @@ const Navbar = () => {
                     </Link>
 
                     <button
-                      onClick={handleLogout}
-                      className="
-                      mt-2
-                      flex
-                      w-full
-                      items-center
-                      gap-3
-                      rounded-xl
-                      bg-red-500
-                      px-4
-                      py-3
-                      text-white
-                      transition
-                      hover:bg-red-600
-                      "
-                    >
-                      <LogOut size={20} />
-
-                      Logout
-                    </button>
+  onClick={handleLogout}
+  disabled={logoutLoading}
+  className="
+    mt-2
+    flex
+    w-full
+    items-center
+    justify-center
+    gap-3
+    rounded-xl
+    bg-red-500
+    px-4
+    py-3
+    text-white
+    transition
+    hover:bg-red-600
+    disabled:opacity-60
+    disabled:cursor-not-allowed
+  "
+>
+  {logoutLoading ? (
+    <>
+      <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+      Logging out...
+    </>
+  ) : (
+    <>
+      <LogOut size={20} />
+      Logout
+    </>
+  )}
+</button>
 
                   </div>
                 </div>
@@ -490,28 +503,39 @@ const Navbar = () => {
                     </div>
                   </NavLink>
                 )}
-
-                <button
-                  onClick={handleLogout}
-                  className="
-                  mt-4
-                  flex
-                  w-full
-                  items-center
-                  justify-center
-                  gap-3
-                  rounded-xl
-                  bg-red-500
-                  py-3
-                  font-medium
-                  text-white
-                  transition
-                  hover:bg-red-600
-                  "
-                >
-                  <LogOut size={20} />
-                  Logout
-                </button>
+<button
+  onClick={handleLogout}
+  disabled={logoutLoading}
+  className="
+    mt-4
+    flex
+    w-full
+    items-center
+    justify-center
+    gap-3
+    rounded-xl
+    bg-red-500
+    py-3
+    font-medium
+    text-white
+    transition
+    hover:bg-red-600
+    disabled:opacity-60
+    disabled:cursor-not-allowed
+  "
+>
+  {logoutLoading ? (
+    <>
+      <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+      Logging out...
+    </>
+  ) : (
+    <>
+      <LogOut size={20} />
+      Logout
+    </>
+  )}
+</button>
               </>
             ) : (
               <button
