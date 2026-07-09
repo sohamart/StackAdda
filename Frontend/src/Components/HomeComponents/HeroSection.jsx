@@ -1,6 +1,11 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom';
 
 const HeroSection = () => {
+  const navigator = useNavigate();
+  const openlogin = () => {
+    navigator("/login");
+  }
   return (
     <>
         {/* Orange Glow */}
@@ -112,6 +117,7 @@ const HeroSection = () => {
           </p>
 
           <button
+          onClick = {openlogin}
             className="
             group
             relative

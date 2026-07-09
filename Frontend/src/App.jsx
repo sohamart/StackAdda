@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 
+
 // Layout
 import MainLayout from "./Layout/MainLayout";
 import StudentLayout from "./Layout/StudentLayout";
@@ -13,6 +14,7 @@ import Home from "./Pages/Home";
 import Login from "./Pages/Login";
 import Register from "./Pages/Register";
 import NotFound from "./Pages/NotFound";
+import Courses from "./Pages/Courses/Courses";
 
 // Student Pages
 import StudentDashboard from "./Pages/Student/Dashboard";
@@ -31,6 +33,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/courses" element={<Courses />} />
       </Route>
 
       {/* Student Routes */}
@@ -57,6 +60,10 @@ function App() {
       >
         <Route index element={<AdminDashboard />} />
         <Route path="students" element={<Students />} />
+        <Route
+    path="student/:id"
+    element={<StudentDetails />}
+/>
       </Route>
 
       {/* 404 */}

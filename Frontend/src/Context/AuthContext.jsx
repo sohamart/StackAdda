@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import API from "../api/axios";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 
 const AuthContext = createContext();
 
@@ -119,6 +119,7 @@ export const AuthProvider = ({ children }) => {
         adminLogin,
         logout,
         getCurrentUser,
+        setUser,
       }}
     >
       {children}

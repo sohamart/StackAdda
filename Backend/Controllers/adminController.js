@@ -3,10 +3,42 @@ const asyncHandler = require("express-async-handler");
 
 // Dashboard
 const dashboard = asyncHandler(async (req, res) => {
+  const totalStudents = await User.countDocuments({
+    role: "student",
+  });
+
+  const totalAdmins = await User.countDocuments({
+    role: "admin",
+  });
+
+  const verifiedStudents = await User.countDocuments({
+    role: "student",
+    isVerified: true,
+  });
+
+  const unverifiedStudents = await User.countDocuments({
+    role: "student",
+    isVerified: false,
+  });
+
+  const recentStudents = await User.find({
+    role: "student",
+  })
+    .sort({ createdAt: -1 })
+    .limit(5)
+    .select("-password");
+
   res.status(200).json({
     success: true,
-    message: "Welcome Admin",
-    admin: req.user,
+
+    stats: {
+      totalStudents,
+      totalAdmins,
+      verifiedStudents,
+      unverifiedStudents,
+    },
+
+    recentStudents,
   });
 });
 
