@@ -24,8 +24,7 @@ const Login = () => {
     
 
 setTimeout(() => {
-  navigate(user.role === "admin" ? "/admin" : "/student
-           ", {
+  navigate(user.role === "admin" ? "/admin" : "/student", {
       replace: true,
     });
 }, 0);
