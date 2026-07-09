@@ -318,7 +318,7 @@ const Navbar = () => {
                     )}
 
                     <Link
-                      to="/profile"
+                      to="/admin/profile"
                       onClick={() => setProfileOpen(false)}
                       className="
                       flex
