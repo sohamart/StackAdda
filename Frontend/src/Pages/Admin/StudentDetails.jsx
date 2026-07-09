@@ -179,9 +179,9 @@ backdrop-blur-3xl
 
         {/* Cover */}
 
-        <div className="h-40 bg-gradient-to-r  from-orange-600/40 via-orange-500/20 to-transparent" />
+        
 
-        <div className="relative -mt-16 px-8 pb-8">
+        <div className="relative  px-8 pb-8">
 
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
 
