@@ -162,7 +162,7 @@ const Navbar = () => {
                 gap-3
                 rounded-xl
                 border
-                border-white/10
+                border-orange-500/50
                 bg-white/5
                 px-3
                 py-2
