@@ -53,6 +53,12 @@ const Navbar = () => {
     setLogoutLoading(false);
   }
 };
+  const menuClass = ({ isActive }) =>
+  `transition duration-300 ${
+    isActive
+      ? "text-orange-400"
+      : "text-white hover:text-orange-400"
+  }`;
       return (
     <nav
       className="
