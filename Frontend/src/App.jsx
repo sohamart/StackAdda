@@ -23,6 +23,7 @@ import StudentProfile from "./Pages/Student/Profile";
 // Admin Pages
 import AdminDashboard from "./Pages/Admin/Dashboard";
 import Students from "./Pages/Admin/Students";
+import StudentDetails from "./Pages/Admin/StudentDetails";
 
 function App() {
   return (
