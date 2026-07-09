@@ -25,6 +25,7 @@ import AdminDashboard from "./Pages/Admin/Dashboard";
 import Students from "./Pages/Admin/Students";
 import StudentDetails from "./Pages/Admin/StudentDetails";
 
+
 function App() {
   return (
     <Routes>
@@ -64,7 +65,9 @@ function App() {
         <Route
     path="student/:id"
     element={<StudentDetails />}
+
 />
+        <Route path="profile" element={<StudentProfile />} /> //same admin profile page as student profile page
       </Route>
 
       {/* 404 */}

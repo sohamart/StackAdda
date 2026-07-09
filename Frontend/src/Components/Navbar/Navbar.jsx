@@ -318,7 +318,7 @@ const Navbar = () => {
                     )}
 
                     <Link
-                      to="/settings"
+                      to="/profile"
                       onClick={() => setProfileOpen(false)}
                       className="
                       flex
@@ -332,9 +332,9 @@ const Navbar = () => {
                       transition
                       "
                     >
-                      <Settings size={20} />
+                      <User size={20} />
 
-                      Settings
+                      My Profile
                     </Link>
 
                     <button
@@ -497,6 +497,18 @@ const Navbar = () => {
                     </div>
                   </NavLink>
                 )}
+                {isAdmin && (
+                  <NavLink
+                    to="/admin/profile"
+                    onClick={() => setOpen(false)}
+                    className={menuClass}
+                  >
+                    <div className="flex items-center gap-3">
+                      <User size={20} />
+                      My Profile
+                    </div>
+                  </NavLink>
+                )}
 
                 {isAdmin && (
                   <NavLink
@@ -509,6 +521,7 @@ const Navbar = () => {
                       Students
                     </div>
                   </NavLink>
+                  
                 )}
 <button
   onClick={handleLogout}
