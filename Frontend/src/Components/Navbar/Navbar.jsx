@@ -357,7 +357,10 @@ const Navbar = () => {
             </>
           )}
 
-          {/* Mobile Menu Button */}
+          
+
+        </div>
+        {/* Mobile Menu Button */}
 
           <button
             onClick={() => setOpen(!open)}
@@ -365,8 +368,6 @@ const Navbar = () => {
           >
             {open ? <X size={28} /> : <Menu size={28} />}
           </button>
-
-        </div>
       </div>
             {/* Mobile Menu */}
 

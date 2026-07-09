@@ -39,7 +39,7 @@ setTimeout(() => {
       <div className="absolute  left-0 top-0 w-96 h-96 lg:bg-orange-500/20 bg-orange-500/5 blur-[140px]" />
       <div className="absolute right-0 bottom-0 w-96 h-96 lg:bg-orange-500/20 bg-orange-500/5 blur-[140px]" />
 
-      <div className="relative   lg:mb-0 z-10 w-full max-w-5xl rounded-3xl overflow-hidden border border-orange-500/20 bg-white/[0.04] backdrop-blur-3xl">
+      <div className="relative mt-24  lg:mb-0 z-10 w-full max-w-5xl rounded-3xl overflow-hidden border border-orange-500/20 bg-white/[0.04] backdrop-blur-3xl">
 
         <div className="grid lg:grid-cols-2">
 
