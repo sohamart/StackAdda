@@ -59,6 +59,12 @@ const UserSchema = new mongoose.Schema(
       enum: ["student", "admin"],
       default: "student",
     },
+    enrolledCourses: [
+  {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Course",
+  },
+],
 
     isVerified: {
       type: Boolean,

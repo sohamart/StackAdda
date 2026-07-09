@@ -6,7 +6,7 @@ const Courses = () => {
     title: "HTML Advanced Course",
     description:
       "Learn HTML from scratch and build beautiful websites.",
-    image: "https://....",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT66r-XGSPyqfu7jxCkMhs01thRHQafF3jP5W7iJ-hPqw&s=10",
     instructor: "Stack Adda",
     category: "Frontend",
     badge: "Bestseller",
@@ -21,7 +21,7 @@ const Courses = () => {
     title: "CSS Advanced Course",
     description:
       "Master CSS with modern layouts and animations.",
-    image: "https://....",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTC1rdzDwu3Dip4PPX-ZuJfhD5GnS52DQafTHXTu8jNIw&s=10",
     instructor: "Stack Adda",
     category: "Frontend",
     badge: "Low Price",
@@ -36,7 +36,7 @@ const Courses = () => {
     title: "JavaScript Advanced Course",
     description:
       "Become a JavaScript developer from beginner to advanced.",
-    image: "https://....",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRfg9VuzmoutlVj8Z7R0P2RziwIfkYSSBs5uBLh-Zyipw&s=10",
     instructor: "Stack Adda",
     category: "JavaScript",
     badge: "Trending",
