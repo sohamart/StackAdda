@@ -210,7 +210,7 @@ const Navbar = () => {
                   w-72
                   rounded-2xl
                   border
-                  border-white/10
+                  border-orange-500/10
                   bg-[#0F0F11]/95
                   backdrop-blur-3xl
                   shadow-[0_20px_60px_rgba(0,0,0,.45)]
