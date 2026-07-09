@@ -12,11 +12,13 @@ import API from "../../api/axios";
 import { Trash2, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import DeleteStudentModal from "../../Components/Admin/DeleteStudentModal";
 
 const StudentDetails = () => {
 
   const { id } = useParams();
-
+    const [openDelete, setOpenDelete] =
+  useState(false);
   const [student, setStudent] = useState(null);
 
   const [loading, setLoading] = useState(true);
@@ -256,8 +258,7 @@ hover:text-white
               </button>
 
               <button
-  onClick={handleDelete}
-  disabled={deleteLoading}
+  onClick={() => setOpenDelete(true)}
   className="
 rounded-2xl
 border
@@ -270,12 +271,10 @@ text-red-400
 transition
 hover:bg-red-500
 hover:text-white
-disabled:opacity-50
 "
 >
-  {deleteLoading ? "Deleting..." : "Delete"}
+  Delete
 </button>
-
             </div>
 
           </div>
@@ -425,6 +424,14 @@ lg:col-span-2
         </div>
 
       </div>
+
+      <DeleteStudentModal
+  open={openDelete}
+  onClose={() => setOpenDelete(false)}
+  onConfirm={handleDelete}
+  loading={deleteLoading}
+  studentName={student?.name}
+/>
           </div>
   );
 };

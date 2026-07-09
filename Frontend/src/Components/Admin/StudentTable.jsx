@@ -224,34 +224,7 @@ hover:text-white
 
               </Link>
 
-              <button
-                className="
-group
-flex
-items-center
-gap-2
-rounded-2xl
-border
-border-red-500/20
-bg-red-500/10
-px-5
-py-3
-font-medium
-text-red-400
-transition-all
-duration-300
-hover:bg-red-500
-hover:text-white
-"
-              >
-                <Trash2
-                  size={18}
-                  className="transition group-hover:scale-110"
-                />
-
-                Delete
-
-              </button>
+              
 
             </div>
 
