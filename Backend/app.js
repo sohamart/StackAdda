@@ -10,6 +10,12 @@ const profileRoutes = require("./Routes/profileRoutes");
 const errorHandler = require("./Middleware/errorMiddleware");
 const studentRoutes = require("./Routes/studentRoutes");
 const adminRoutes = require("./Routes/adminRoutes");
+const courseRoutes = require("./Routes/courseRoutes");
+const paymentRoutes = require("./Routes/paymentRoutes");
+const orderRoutes = require("./Routes/orderRoutes");
+const couponRoutes = require("./Routes/couponRoutes");
+const reviewRoutes = require("./Routes/reviewRoutes");
+const progressRoutes = require("./Routes/progressRoutes");
 
 
 /* ==========================
@@ -42,6 +48,12 @@ app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/student", studentRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/course", courseRoutes);
+app.use("/api/payment", paymentRoutes);
+app.use("/api/order", orderRoutes);
+app.use("/api/coupon", couponRoutes);
+app.use("/api/review", reviewRoutes);
+app.use("/api/progress", progressRoutes);
 /* ==========================
    Test Route
 ========================== */

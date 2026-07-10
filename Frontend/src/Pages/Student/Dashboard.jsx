@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   BookOpen,
   GraduationCap,
@@ -11,7 +11,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../Context/AuthContext";
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, StudentDashboard } = useAuth();
 
   const stats = [
     {
@@ -35,6 +35,10 @@ const Dashboard = () => {
       icon: <Clock size={28} />,
     },
   ];
+
+  useEffect(() => {
+    
+  }, []);
 
   return (
     <div className="relative min-h-screen overflow-hidden text-white">
@@ -67,7 +71,21 @@ const Dashboard = () => {
               <h1 className="mt-2 text-4xl font-bold">
                 {user?.name}
               </h1>
+              <div className="mt-6">
 
+                  <span
+                    className={`inline-flex rounded-full px-4 py-2 text-sm font-semibold ${
+                      user?.isVerified
+                        ? "bg-green-500/20 text-green-400"
+                        : "bg-yellow-500/20 text-yellow-400"
+                    }`}
+                  >
+                    {user?.isVerified
+                      ? "Verified"
+                      : "Pending Verification"}
+                  </span>
+
+                </div>
               <p className="mt-3 text-white/60 max-w-xl">
                 Continue your learning journey with Stack Adda.
                 Explore new courses, track your progress and
@@ -204,6 +222,7 @@ const Dashboard = () => {
           to-orange-500/5
           backdrop-blur-3xl
           p-8
+          mb-5
           "
         >
           <h2 className="text-2xl font-bold">
@@ -225,6 +244,7 @@ const Dashboard = () => {
             bg-orange-600
             px-6
             py-3
+            
             font-semibold
             transition
             hover:bg-orange-500
@@ -236,6 +256,15 @@ const Dashboard = () => {
           </Link>
 
         </section>
+
+
+
+         
+           
+
+               
+
+        
 
       </div>
     </div>

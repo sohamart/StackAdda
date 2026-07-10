@@ -1,5 +1,9 @@
 const mongoose = require("mongoose");
 
+// ==========================
+// Lesson Schema
+// ==========================
+
 const LessonSchema = new mongoose.Schema(
   {
     title: {
@@ -30,6 +34,20 @@ const LessonSchema = new mongoose.Schema(
       default: "",
     },
 
+    order: {
+      type: Number,
+      default: 1,
+    },
+    averageRating: {
+  type: Number,
+  default: 0,
+},
+
+totalReviews: {
+  type: Number,
+  default: 0,
+},
+
     isPreview: {
       type: Boolean,
       default: false,
@@ -39,6 +57,40 @@ const LessonSchema = new mongoose.Schema(
     _id: true,
   }
 );
+
+// ==========================
+// Chapter Schema
+// ==========================
+
+const ChapterSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    description: {
+      type: String,
+      default: "",
+    },
+
+    order: {
+      type: Number,
+      default: 1,
+    },
+
+    lessons: [LessonSchema],
+  },
+  {
+    _id: true,
+  }
+);
+
+// ==========================
+// Course Schema
+// ==========================
+
 const CourseSchema = new mongoose.Schema(
   {
     title: {
@@ -49,6 +101,7 @@ const CourseSchema = new mongoose.Schema(
 
     slug: {
       type: String,
+      required: true,
       unique: true,
       lowercase: true,
       trim: true,
@@ -78,7 +131,11 @@ const CourseSchema = new mongoose.Schema(
 
     level: {
       type: String,
-      enum: ["Beginner", "Intermediate", "Advanced"],
+      enum: [
+        "Beginner",
+        "Intermediate",
+        "Advanced",
+      ],
       default: "Beginner",
     },
 
@@ -87,19 +144,24 @@ const CourseSchema = new mongoose.Schema(
       default: "English",
     },
 
-    duration: {
-      type: String,
-      default: "",
-    },
-
     instructor: {
       type: String,
       default: "Stack Adda",
     },
 
-    isFree: {
-      type: Boolean,
-      default: true,
+    duration: {
+      type: String,
+      default: "",
+    },
+
+    accessType: {
+      type: String,
+      enum: [
+        "free",
+        "paid",
+        "private",
+      ],
+      default: "free",
     },
 
     price: {
@@ -119,11 +181,12 @@ const CourseSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["draft", "published"],
+      enum: [
+        "draft",
+        "published",
+      ],
       default: "draft",
     },
-
-    lessons: [LessonSchema],
 
     students: [
       {
@@ -132,9 +195,12 @@ const CourseSchema = new mongoose.Schema(
       },
     ],
 
+    chapters: [ChapterSchema],
+
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
   },
   {

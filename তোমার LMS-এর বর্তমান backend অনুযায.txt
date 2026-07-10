@@ -1,0 +1,231 @@
+তোমার LMS-এর বর্তমান backend অনুযায়ী **final route structure** নিচে দিলাম। এগুলোই আমরা ব্যবহার করব। নতুন route আর change করার দরকার হবে না।
+
+---
+
+# 🔐 Auth
+
+```http
+POST   /api/auth/student/register
+
+POST   /api/auth/student/login
+
+POST   /api/auth/admin/login
+
+GET    /api/auth/me
+
+POST   /api/auth/logout
+```
+
+---
+
+# 👤 Profile
+
+```http
+GET    /api/profile
+
+PUT    /api/profile
+
+PUT    /api/profile/password
+
+PUT    /api/profile/image
+```
+
+---
+
+# 👨‍💼 Admin Dashboard
+
+```http
+GET    /api/admin/dashboard
+```
+
+---
+
+# 👨‍🎓 Student Management
+
+```http
+GET    /api/admin/students
+
+GET    /api/admin/student/:id
+
+DELETE /api/admin/student/:id
+```
+
+---
+
+# 📚 Course CRUD (Admin)
+
+```http
+POST   /api/admin/course
+
+GET    /api/admin/courses
+
+GET    /api/course/:slug
+
+PUT    /api/admin/course/:id
+
+DELETE /api/admin/course/:id
+```
+
+---
+
+# 🏠 Student Courses
+
+```http
+GET    /api/course/home
+
+GET    /api/course/all
+
+GET    /api/course/my-courses
+```
+
+---
+
+# 📖 Chapter
+
+```http
+POST   /api/admin/course/:courseId/chapter
+
+PUT    /api/admin/course/:courseId/chapter/:chapterId
+
+DELETE /api/admin/course/:courseId/chapter/:chapterId
+```
+
+---
+
+# 🎥 Lesson
+
+```http
+POST   /api/admin/course/:courseId/chapter/:chapterId/lesson
+
+PUT    /api/admin/course/:courseId/chapter/:chapterId/lesson/:lessonId
+
+DELETE /api/admin/course/:courseId/chapter/:chapterId/lesson/:lessonId
+```
+
+---
+
+# 🎓 Enrollment
+
+```http
+POST   /api/course/enroll/:courseId
+
+POST   /api/admin/course/assign
+
+DELETE /api/admin/course/remove
+```
+
+---
+
+# 📈 Progress
+
+```http
+POST   /api/progress/save
+
+GET    /api/progress/:courseId
+
+POST   /api/progress/complete-lesson
+
+POST   /api/progress/update
+
+GET    /api/progress/continue/:courseId
+```
+
+---
+
+# 💳 Payment
+
+```http
+POST   /api/payment/create-order
+
+POST   /api/payment/verify
+
+GET    /api/payment/history
+
+POST   /api/payment/refund/:paymentId
+```
+
+---
+
+# 📦 Orders
+
+```http
+GET    /api/order/my-orders
+
+GET    /api/order/all
+
+PUT    /api/order/cancel/:orderId
+```
+
+---
+
+# 🎟 Coupon
+
+```http
+POST   /api/coupon
+
+GET    /api/coupon
+
+PUT    /api/coupon/:id
+
+DELETE /api/coupon/:id
+
+POST   /api/coupon/validate
+```
+
+---
+
+# ⭐ Reviews
+
+```http
+POST   /api/review
+
+PUT    /api/review/:id
+
+DELETE /api/review/:id
+
+GET    /api/review/course/:courseId
+```
+
+---
+
+# 📊 মোট Route Count
+
+| Module             | Routes |
+| ------------------ | -----: |
+| Auth               |      5 |
+| Profile            |      4 |
+| Admin Dashboard    |      1 |
+| Student Management |      3 |
+| Course             |      6 |
+| Chapter            |      3 |
+| Lesson             |      3 |
+| Enrollment         |      3 |
+| Progress           |      5 |
+| Payment            |      4 |
+| Order              |      3 |
+| Coupon             |      5 |
+| Review             |      4 |
+
+## **Total = 49 Routes** ✅
+
+---
+
+## 🔥 আমার একটা ছোট recommendation
+
+একটা **Notification Module** যোগ করলে LMS অনেক complete হবে। এতে প্রায় ৫–৬টা route লাগবে:
+
+```http
+GET    /api/notification
+
+GET    /api/notification/count
+
+PUT    /api/notification/read/:id
+
+PUT    /api/notification/read-all
+
+DELETE /api/notification/:id
+
+DELETE /api/notification/clear
+```
+
+এটা যোগ করলে মোট **55+ production-ready API** হবে, যা Stack Adda LMS-এর জন্য যথেষ্ট শক্তিশালী backend হবে।

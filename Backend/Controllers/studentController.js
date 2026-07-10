@@ -1,11 +1,15 @@
 const asyncHandler = require("express-async-handler");
+const User = require("../Models/User");
 
-// Student Dashboard
 const dashboard = asyncHandler(async (req, res) => {
+  const student = await User.findById(req.user._id)
+    .populate("verifiedBy", "name email profileImage")
+    .select("-password");
+
   res.status(200).json({
     success: true,
-    message: `Welcome ${req.user.name}`,
-    student: req.user,
+    message: `Welcome ${student.name}`,
+    student,
   });
 });
 

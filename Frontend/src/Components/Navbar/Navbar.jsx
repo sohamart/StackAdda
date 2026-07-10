@@ -237,9 +237,25 @@ const Navbar = () => {
                         {user.email}
                       </p>
 
-                      <span className="mt-2 inline-block rounded-full bg-orange-500/20 px-3 py-1 text-xs text-orange-400">
-                        {isAdmin ? "Administrator" : "Student"}
-                      </span>
+                      <div className="mt-1 gap-2 flex">
+                <span className="mt-1 inline-block rounded-full bg-orange-500/20 px-3 py-1 text-xs text-orange-400">
+                  {isAdmin ? "Administrator" : "Student"}
+                </span>
+                
+
+                  <span
+                    className={`mt-1 inline-block rounded-full  px-3 py-1 text-xs  ${
+                      user?.isVerified
+                        ? "bg-green-500/20 text-green-400"
+                        : "bg-yellow-500/20 text-yellow-400"
+                    }`}
+                  >
+                    {user?.isVerified
+                      ? "Verified"
+                      : "Pending "}
+                  </span>
+
+                </div>
 
                     </div>
 
@@ -416,10 +432,25 @@ const Navbar = () => {
                 <p className="text-sm text-white/50">
                   {user.email}
                 </p>
-
+                <div className="mt-1 gap-2 flex">
                 <span className="mt-1 inline-block rounded-full bg-orange-500/20 px-3 py-1 text-xs text-orange-400">
                   {isAdmin ? "Administrator" : "Student"}
                 </span>
+                
+
+                  <span
+                    className={`mt-1 inline-block rounded-full  px-3 py-1 text-xs  ${
+                      user?.isVerified
+                        ? "bg-green-500/20 text-green-400"
+                        : "bg-yellow-500/20 text-yellow-400"
+                    }`}
+                  >
+                    {user?.isVerified
+                      ? "Verified"
+                      : "Pending Verification"}
+                  </span>
+
+                </div>
 
               </div>
 

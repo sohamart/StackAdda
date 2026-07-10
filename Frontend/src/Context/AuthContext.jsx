@@ -7,6 +7,8 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [StudentDashboard, setStudentDashboard] = useState(null);
+  
 
   // ==========================
   // Current User
@@ -18,6 +20,18 @@ export const AuthProvider = ({ children }) => {
       setUser(res.data.user);
     } catch (error) {
       setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const StudentDashboardData = async () => {
+    try {
+      const res = await API.get("/student/dashboard");
+      setStudentDashboard(res.data.dashboard);
+    } catch (error) {
+      console.error("Error fetching student dashboard:", error);
+      setStudentDashboard(null);
     } finally {
       setLoading(false);
     }
@@ -120,6 +134,8 @@ export const AuthProvider = ({ children }) => {
         logout,
         getCurrentUser,
         setUser,
+        StudentDashboard,
+        setStudentDashboard,
       }}
     >
       {children}
