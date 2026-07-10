@@ -1,15 +1,399 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { CheckCircle2, ChevronDown, ChevronRight, Loader2, PlayCircle } from "lucide-react";
+import {
+  Award,
+  CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  Clock3,
+  FileText,
+  Infinity,
+  Loader2,
+  PlayCircle,
+  Star,
+  Users,
+} from "lucide-react";
 import { toast } from "react-toastify";
+
 import { useAuth } from "../../Context/AuthContext";
 import API from "../../api/axios";
 
+const testimonials = [
+  {
+    name: "Riya Das",
+    role: "Frontend learner",
+    text: "The lesson structure made difficult ideas feel approachable. I completed my project with confidence.",
+  },
+  {
+    name: "Arjun Saha",
+    role: "Student",
+    text: "Practical, focused and very easy to follow. The resources alongside each lesson are a huge plus.",
+  },
+  {
+    name: "Priya Roy",
+    role: "Career switcher",
+    text: "This course gave me a clear path instead of random tutorials. Worth every minute.",
+  },
+];
+
 export default function CourseDetails() {
-  const { slug } = useParams(); const navigate = useNavigate(); const { user } = useAuth(); const [course, setCourse] = useState(null); const [open, setOpen] = useState({}); const [loading, setLoading] = useState(false);
-  useEffect(() => { API.get(`/course/${slug}`).then(({ data }) => { setCourse(data.course); setOpen({ [data.course.chapters?.[0]?._id]: true }); }).catch((e) => toast.error(e.response?.data?.message || "Course not found.")); }, [slug]);
-  const enroll = async () => { if (!user) return navigate("/login"); if (course.accessType === "paid") return toast.info("Use Buy course after Razorpay is configured."); try { setLoading(true); const { data } = await API.post(`/course/enroll/${course._id}`); toast.success(data.message); navigate("/student/courses"); } catch (e) { toast.error(e.response?.data?.message || "Could not enroll."); } finally { setLoading(false); } };
-  if (!course) return <div className="flex min-h-screen items-center justify-center bg-[#09090B]"><Loader2 className="animate-spin text-orange-500"/></div>;
-  const preview = course.chapters.flatMap((chapter) => chapter.lessons).find((lesson) => lesson.isPreview && lesson.video?.url);
-  return <main className="min-h-screen bg-[#09090B] px-5 pb-16 pt-32 text-white md:px-10"><div className="mx-auto max-w-6xl"><Link to="/courses" className="text-orange-400">← All courses</Link><section className="mt-6 grid gap-8 lg:grid-cols-[1.3fr_.7fr]"><div><span className="rounded-full bg-orange-500/15 px-3 py-1 text-sm text-orange-300">{course.category}</span><h1 className="mt-5 text-4xl font-black">{course.title}</h1><p className="mt-5 leading-8 text-white/60">{course.description}</p><div className="mt-8 grid gap-3 sm:grid-cols-2">{[course.level, course.language, course.instructor, course.duration || "Self paced"].map((item) => <div key={item} className="flex items-center gap-2 text-white/70"><CheckCircle2 size={17} className="text-orange-400"/>{item}</div>)}</div></div><aside className="rounded-3xl border border-orange-500/20 bg-gradient-to-b from-orange-500/[.12] to-white/[.04] p-6 shadow-[0_0_50px_rgba(249,115,22,.08)]"><img src={course.thumbnail?.url || "https://placehold.co/800x450/18181b/f97316?text=Stack+Adda"} alt="" className="h-44 w-full rounded-2xl object-cover"/><p className="mt-5 text-3xl font-bold text-orange-300">{course.accessType === "free" ? "Free" : `₹${course.price}`}</p><button disabled={loading} onClick={enroll} className="mt-5 w-full rounded-xl bg-orange-500 py-3 font-semibold hover:bg-orange-600">{loading ? "Enrolling…" : course.accessType === "free" ? "Enroll now" : "Buy course"}</button>{preview && <Link to={`/courses/${slug}/preview/${preview._id}`} className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 py-3 font-medium hover:border-orange-500"><PlayCircle size={18}/> Watch free preview</Link>}</aside></section><section className="mt-12 max-w-4xl"><h2 className="text-2xl font-bold">Course content</h2><div className="mt-5 space-y-3">{course.chapters.map((chapter, index) => <div key={chapter._id} className="rounded-2xl border border-white/10 bg-white/[.04]"><button onClick={() => setOpen({ ...open, [chapter._id]: !open[chapter._id] })} className="flex w-full items-center gap-3 p-4 text-left"><span className="text-orange-400">{open[chapter._id] ? <ChevronDown size={18}/> : <ChevronRight size={18}/>}</span><span className="flex-1 font-medium">{index + 1}. {chapter.title}</span><span className="text-sm text-white/45">{chapter.lessons.length} lessons</span></button>{open[chapter._id] && <div className="border-t border-white/10 p-3">{chapter.lessons.map((lesson) => <div key={lesson._id} className="flex items-center gap-3 rounded-xl p-2.5 text-sm text-white/60"><PlayCircle size={17} className="text-orange-400"/><span className="flex-1">{lesson.title}</span>{lesson.isPreview && <Link to={`/courses/${slug}/preview/${lesson._id}`} className="text-xs font-medium text-green-300 hover:text-green-200">Watch preview</Link>}</div>)}</div>}</div>)}</div></section></div></main>;
+  const { slug } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const [course, setCourse] = useState(null);
+  const [open, setOpen] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    API.get(`/course/${slug}`)
+      .then(({ data }) => {
+        setCourse(data.course);
+
+        setOpen({
+          [data.course.chapters?.[0]?._id]: true,
+        });
+      })
+      .catch((e) =>
+        toast.error(
+          e.response?.data?.message || "Course not found."
+        )
+      );
+  }, [slug]);
+
+  const enroll = async () => {
+    if (!user) return navigate("/login");
+
+    if (course.accessType === "paid") {
+      return toast.info(
+        "Use Buy course after Razorpay is configured."
+      );
+    }
+
+    try {
+      setLoading(true);
+
+      const { data } = await API.post(
+        `/course/enroll/${course._id}`
+      );
+
+      toast.success(data.message);
+      navigate("/student/courses");
+    } catch (e) {
+      toast.error(
+        e.response?.data?.message ||
+          "Could not enroll."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!course) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#09090B]">
+        <Loader2 className="animate-spin text-orange-500" />
+      </div>
+    );
+  }
+
+  const lessons = course.chapters.reduce(
+    (sum, chapter) => sum + chapter.lessons.length,
+    0
+  );
+
+  const preview = course.chapters
+    .flatMap((chapter) => chapter.lessons)
+    .find(
+      (lesson) =>
+        lesson.isPreview && lesson.video?.url
+    );
+
+  return (
+    <main className="min-h-screen bg-[#09090B] px-5 pb-20 pt-32 text-white md:px-10">
+      <div className="mx-auto max-w-7xl">
+        <Link
+          to="/courses"
+          className="text-sm font-medium text-orange-400"
+        >
+          ← Browse all courses
+        </Link>
+
+        {/* Hero Section */}
+        <section className="relative mt-6 overflow-hidden rounded-[2rem] border border-orange-500/20 bg-gradient-to-br from-orange-500/[.14] via-white/[.045] to-transparent p-6 md:p-10">
+          <div className="absolute -right-28 -top-24 h-96 w-96 rounded-full bg-orange-500/20 blur-[120px]" />
+
+          <div className="relative grid gap-9 lg:grid-cols-[1.25fr_.75fr]">
+            <div>
+              <div className="flex flex-wrap gap-2">
+                <span className="rounded-full bg-orange-500/15 px-3 py-1 text-sm text-orange-200">
+                  {course.category}
+                </span>
+
+                <span className="rounded-full border border-white/15 px-3 py-1 text-sm text-white/65">
+                  {course.level}
+                </span>
+              </div>
+
+              <h1 className="mt-5 text-4xl font-black leading-tight md:text-6xl">
+                {course.title}
+              </h1>
+
+              <p className="mt-5 max-w-3xl text-lg leading-8 text-white/65">
+                {course.description}
+              </p>
+
+              <div className="mt-7 flex flex-wrap gap-5 text-sm text-white/70">
+                <span className="flex items-center gap-2">
+                  <Star
+                    size={17}
+                    fill="currentColor"
+                    className="text-orange-400"
+                  />
+                  {course.averageRating?.toFixed(1) || "4.8"} rating
+                </span>
+
+                <span className="flex items-center gap-2">
+                  <Users
+                    size={17}
+                    className="text-orange-400"
+                  />
+                  {course.students?.length || "500+"} learners
+                </span>
+
+                <span className="flex items-center gap-2">
+                  <Clock3
+                    size={17}
+                    className="text-orange-400"
+                  />
+                  {course.duration || "Self paced"}
+                </span>
+              </div>
+            </div>
+
+            <aside className="rounded-3xl border border-white/15 bg-[#15110f]/80 p-5 shadow-2xl backdrop-blur">
+              <img
+                src={
+                  course.thumbnail?.url ||
+                  "https://placehold.co/900x500/18181b/f97316?text=Stack+Adda"
+                }
+                alt=""
+                className="h-48 w-full rounded-2xl object-cover"
+              />
+
+              <p className="mt-5 text-3xl font-black text-orange-300">
+                {course.accessType === "free"
+                  ? "Free"
+                  : `₹${course.price}`}
+              </p>
+
+              <p className="mt-1 text-sm text-white/45">
+                One-time payment · Lifetime access
+              </p>
+
+              <button
+                disabled={loading}
+                onClick={enroll}
+                className="mt-5 w-full rounded-xl bg-orange-500 py-3.5 font-bold hover:bg-orange-600"
+              >
+                {loading
+                  ? "Enrolling…"
+                  : course.accessType === "free"
+                  ? "Enroll now"
+                  : "Buy course"}
+              </button>
+
+              {preview && (
+                <Link
+                  to={`/courses/${slug}/preview/${preview._id}`}
+                  className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 py-3 font-medium hover:border-orange-500"
+                >
+                  <PlayCircle size={18} />
+                  Watch free preview
+                </Link>
+              )}
+            </aside>
+          </div>
+        </section>
+
+        {/* Content */}
+        <section className="mt-12 grid gap-10 lg:grid-cols-[1.2fr_.8fr]">
+          <div>
+            <h2 className="text-3xl font-black">
+              What you'll get
+            </h2>
+
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              {[
+                `${lessons || "12"} structured lessons`,
+                "Downloadable lesson resources",
+                "Progress tracking dashboard",
+                "Lifetime course access",
+                "Practical project-based learning",
+                "Premium student learning workspace",
+              ].map((item) => (
+                <div
+                  key={item}
+                  className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[.035] p-4 text-white/75"
+                >
+                  <CheckCircle2
+                    className="text-orange-400"
+                    size={18}
+                  />
+                  {item}
+                </div>
+              ))}
+            </div>
+
+            <h2 className="mt-12 text-3xl font-black">
+              Course curriculum
+            </h2>
+
+            <div className="mt-5 space-y-3">
+              {course.chapters.map((chapter, index) => (
+                <div
+                  key={chapter._id}
+                  className="overflow-hidden rounded-2xl border border-white/10 bg-white/[.035]"
+                >
+                  <button
+                    onClick={() =>
+                      setOpen({
+                        ...open,
+                        [chapter._id]:
+                          !open[chapter._id],
+                      })
+                    }
+                    className="flex w-full items-center gap-3 p-5 text-left"
+                  >
+                    <span className="text-orange-400">
+                      {open[chapter._id] ? (
+                        <ChevronDown size={19} />
+                      ) : (
+                        <ChevronRight size={19} />
+                      )}
+                    </span>
+
+                    <span className="flex-1 font-semibold">
+                      {index + 1}. {chapter.title}
+                    </span>
+
+                    <span className="text-sm text-white/45">
+                      {chapter.lessons.length} lessons
+                    </span>
+                  </button>
+
+                  {open[chapter._id] && (
+                    <div className="border-t border-white/10 p-3">
+                      {chapter.lessons.map((lesson) => (
+                        <div
+                          key={lesson._id}
+                          className="flex items-center gap-3 rounded-xl p-3 text-sm text-white/65"
+                        >
+                          <PlayCircle
+                            size={17}
+                            className="text-orange-400"
+                          />
+
+                          <span className="flex-1">
+                            {lesson.title}
+                          </span>
+
+                          {lesson.isPreview && (
+                            <Link
+                              to={`/courses/${slug}/preview/${lesson._id}`}
+                              className="text-xs font-semibold text-green-300"
+                            >
+                              Preview
+                            </Link>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <aside>
+            <div className="rounded-3xl border border-white/10 bg-white/[.035] p-6">
+              <h3 className="text-xl font-bold">
+                This course includes
+              </h3>
+
+              <div className="mt-5 space-y-4 text-sm text-white/65">
+                <p className="flex gap-3">
+                  <FileText
+                    size={18}
+                    className="text-orange-400"
+                  />
+                  Notes and downloadable resources
+                </p>
+
+                <p className="flex gap-3">
+                  <Infinity
+                    size={18}
+                    className="text-orange-400"
+                  />
+                  Lifetime access
+                </p>
+
+                <p className="flex gap-3">
+                  <Award
+                    size={18}
+                    className="text-orange-400"
+                  />
+                  Learn at your own pace
+                </p>
+              </div>
+            </div>
+          </aside>
+        </section>
+
+        {/* Testimonials */}
+        <section className="mt-16">
+          <p className="text-sm font-semibold tracking-[.2em] text-orange-400">
+            STUDENT REVIEWS
+          </p>
+
+          <h2 className="mt-3 text-3xl font-black">
+            What learners are saying
+          </h2>
+
+          <div className="mt-7 grid gap-5 md:grid-cols-3">
+            {testimonials.map((review) => (
+              <article
+                key={review.name}
+                className="rounded-3xl border border-white/10 bg-white/[.04] p-6"
+              >
+                <div className="flex gap-1 text-orange-400">
+                  {Array.from({ length: 5 }).map(
+                    (_, i) => (
+                      <Star
+                        key={i}
+                        size={16}
+                        fill="currentColor"
+                      />
+                    )
+                  )}
+                </div>
+
+                <p className="mt-5 leading-7 text-white/70">
+                  “{review.text}”
+                </p>
+
+                <h3 className="mt-6 font-bold">
+                  {review.name}
+                </h3>
+
+                <p className="text-sm text-white/45">
+                  {review.role}
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+      </div>
+    </main>
+  );
 }

@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { BookOpen, LayoutDashboard, ReceiptText, Tag, Users } from "lucide-react";
+import { BookOpen, LayoutDashboard, Mail, ReceiptText, Tag, Users } from "lucide-react";
 
 const links = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, end: true },
@@ -7,6 +7,7 @@ const links = [
   { to: "/admin/courses", label: "Courses", icon: BookOpen },
   { to: "/admin/coupons", label: "Coupons", icon: Tag },
   { to: "/admin/orders", label: "Orders", icon: ReceiptText },
+  { to: "/admin/contacts", label: "Messages", icon: Mail },
 ];
 
 export default function AdminNav() {

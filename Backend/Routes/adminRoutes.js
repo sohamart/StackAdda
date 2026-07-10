@@ -16,6 +16,7 @@ const {
   getVerifiedStudents,
   getUnverifiedStudents,
   uploadStudentProfileImage,
+  emailStudent,
 } = require("../Controllers/adminController");
 
 router.get(
@@ -59,6 +60,13 @@ router.put(
   roleMiddleware("admin"),
   upload.single("image"),
   uploadStudentProfileImage
+);
+
+router.post(
+  "/student/:id/email",
+  authMiddleware,
+  roleMiddleware("admin"),
+  emailStudent
 );
 
 router.put(

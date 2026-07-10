@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import DeleteStudentModal from "../../Components/Admin/DeleteStudentModal";
 import EditStudentModal from "../../Components/Admin/EditStudentModal";
+import SendStudentEmailModal from "../../Components/Admin/SendStudentEmailModal";
 
 const StudentDetails = () => {
 
@@ -22,6 +23,7 @@ const StudentDetails = () => {
   useState(false);
   const [student, setStudent] = useState(null);
   const [openEdit, setOpenEdit] = useState(false);
+  const [openEmail, setOpenEmail] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -242,6 +244,7 @@ object-cover
 
            
 
+              <button onClick={() => setOpenEmail(true)} className="rounded-2xl border border-cyan-500/20 bg-cyan-500/10 px-6 py-3 font-medium text-cyan-300 transition hover:bg-cyan-500 hover:text-white">Send Email</button>
               <button
   onClick={() => setOpenDelete(true)}
   className="
@@ -442,6 +445,7 @@ lg:col-span-2
     student={student}
     onSuccess={fetchStudent}
 />
+<SendStudentEmailModal open={openEmail} onClose={() => setOpenEmail(false)} student={student}/>
           </div>
   );
 };

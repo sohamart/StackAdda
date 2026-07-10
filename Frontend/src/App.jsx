@@ -40,6 +40,7 @@ import CourseManager from "./Pages/Admin/CourseManager";
 import Coupons from "./Pages/Admin/Coupons";
 import Orders from "./Pages/Admin/Orders";
 import ResourceManager from "./Pages/Admin/ResourceManager";
+import Contacts from "./Pages/Admin/Contacts";
 
 
 function App() {
@@ -97,6 +98,7 @@ function App() {
         <Route path="course/:id/resources" element={<ResourceManager />} />
         <Route path="coupons" element={<Coupons />} />
         <Route path="orders" element={<Orders />} />
+        <Route path="contacts" element={<Contacts />} />
       </Route>
 
       {/* 404 */}

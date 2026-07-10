@@ -5,16 +5,11 @@ import HeroSection from "../Components/HomeComponents/HeroSection";
 import API from "../api/axios";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import HomeExtras from "../Components/HomeComponents/HomeExtras";
 
 
 
 const Home = () => {
-  useEffect(() => {
-    API.get("/auth/me")
-      .then((res) => console.log(res.data))
-      .catch((err) => console.log(err.response?.data));
-  }, []);
-
   return (
     <>
 
@@ -36,9 +31,11 @@ const Home = () => {
       {/* Third Screen */}
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl text-center uppercase text-white font-bold">
-          Our Courses
+        <p className="pt-4 text-center text-sm font-semibold tracking-[.25em] text-orange-400">LEARN WITH STACK ADDA</p>
+        <h1 className="mt-3 text-3xl sm:text-4xl lg:text-5xl text-center uppercase text-white font-black">
+          Featured Courses
         </h1>
+        <p className="mx-auto mt-4 max-w-2xl text-center leading-7 text-white/55">Practical, structured learning paths designed to help you build real skills and complete meaningful projects.</p>
 
         {/* Courses */}
         <Courses />
@@ -72,6 +69,7 @@ const Home = () => {
 
 
       </div>
+      <HomeExtras />
     </>
   );
 };

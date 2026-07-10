@@ -2,6 +2,7 @@ const User = require("../Models/User");
 const asyncHandler = require("express-async-handler");
 const cloudinary = require("../Config/cloudinary");
 const streamifier = require("streamifier");
+const sendEmail = require("../Utils/sendEmail");
 
 /* Upload to Cloudinary */
 const uploadToCloudinary = (buffer) => {
@@ -327,6 +328,16 @@ try {
 
 });
 
+const emailStudent = asyncHandler(async (req, res) => {
+  const student = await User.findOne({ _id: req.params.id, role: "student" });
+  const { subject, message } = req.body;
+  if (!student) return res.status(404).json({ success: false, message: "Student not found." });
+  if (!subject || !message) return res.status(400).json({ success: false, message: "Subject and message are required." });
+  const sent = await sendEmail({ to: student.email, subject, html: `<p>${message.replace(/\n/g, "<br/>")}</p>` });
+  if (!sent) return res.status(503).json({ success: false, message: "Email service is not configured. Add SMTP settings in Backend/.env." });
+  res.json({ success: true, message: `Email sent to ${student.email}.` });
+});
+
 module.exports = {
   dashboard,
   getStudents,
@@ -338,4 +349,5 @@ module.exports = {
   getVerifiedStudents,
   getUnverifiedStudents,
   uploadStudentProfileImage,
+  emailStudent,
 };

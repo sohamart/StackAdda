@@ -16,6 +16,7 @@ const orderRoutes = require("./Routes/orderRoutes");
 const couponRoutes = require("./Routes/couponRoutes");
 const reviewRoutes = require("./Routes/reviewRoutes");
 const progressRoutes = require("./Routes/progressRoutes");
+const contactRoutes = require("./Routes/contactRoutes");
 
 
 /* ==========================
@@ -54,6 +55,7 @@ app.use("/api/order", orderRoutes);
 app.use("/api/coupon", couponRoutes);
 app.use("/api/review", reviewRoutes);
 app.use("/api/progress", progressRoutes);
+app.use("/api/contact", contactRoutes);
 /* ==========================
    Test Route
 ========================== */
