@@ -2,6 +2,11 @@ const User = require("../Models/User");
 const asyncHandler = require("express-async-handler");
 const generateToken = require("../Utils/generateToken");
 const sendToken = require("../Utils/sendToken");
+const crypto = require("crypto");
+const { OAuth2Client } = require("google-auth-library");
+const sendEmail = require("../Utils/sendEmail");
+
+const googleClient = new OAuth2Client();
 
 
 
@@ -31,6 +36,12 @@ const register = asyncHandler(async (req, res) => {
     email: email.toLowerCase(),
     password,
     role: "student",
+  });
+
+  await sendEmail({
+    to: user.email,
+    subject: "Welcome to Stack Adda",
+    html: `<h2>Welcome, ${user.name}!</h2><p>Your Stack Adda student account is ready. Start exploring courses and building skills.</p>`,
   });
 
   sendToken(user, 201, res, "Registration successful.");
@@ -103,6 +114,58 @@ const adminLogin = asyncHandler(async (req, res) => {
 
     sendToken(user, 200, res, "Admin login successful.");
 });
+
+/* ===========================
+   Student Google Login
+=========================== */
+const googleLogin = asyncHandler(async (req, res) => {
+  const { credential, clientId: browserClientId } = req.body;
+  const clientId = process.env.GOOGLE_CLIENT_ID || (
+    process.env.NODE_ENV !== "production" ? browserClientId : null
+  );
+
+  if (!credential) {
+    return res.status(400).json({ success: false, message: "Google credential is required." });
+  }
+  if (!clientId) {
+    return res.status(500).json({ success: false, message: "Google sign-in is not configured." });
+  }
+
+  const ticket = await googleClient.verifyIdToken({ idToken: credential, audience: clientId });
+  const payload = ticket.getPayload();
+
+  if (!payload?.email || !payload.email_verified) {
+    return res.status(401).json({ success: false, message: "Google account email could not be verified." });
+  }
+
+  let user = await User.findOne({ email: payload.email.toLowerCase() }).select("+password");
+
+  if (user && user.role !== "student") {
+    return res.status(403).json({ success: false, message: "Please use the admin login for this account." });
+  }
+
+  if (!user) {
+    user = await User.create({
+      name: payload.name || payload.email.split("@")[0],
+      email: payload.email.toLowerCase(),
+      password: crypto.randomBytes(32).toString("hex"),
+      googleId: payload.sub,
+      role: "student",
+      profileImage: { url: payload.picture || "", public_id: "" },
+    });
+    await sendEmail({
+      to: user.email,
+      subject: "Welcome to Stack Adda",
+      html: `<h2>Welcome, ${user.name}!</h2><p>Your account was created with Google sign-in. Happy learning!</p>`,
+    });
+  } else if (!user.googleId) {
+    user.googleId = payload.sub;
+    if (!user.profileImage?.url && payload.picture) user.profileImage.url = payload.picture;
+    await user.save();
+  }
+
+  sendToken(user, 200, res, "Google login successful.");
+});
 /* ===========================
    Current User
 =========================== */
@@ -137,4 +200,5 @@ module.exports = {
   getCurrentUser,
   logout,
     adminLogin,
+    googleLogin,
 };

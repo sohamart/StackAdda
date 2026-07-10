@@ -3,6 +3,7 @@ const express = require("express");
 const router = express.Router();
 
 const authMiddleware = require("../Middleware/authMiddleware");
+const roleMiddleware = require("../Middleware/roleMiddleware");
 
 const {
   addReview,
@@ -16,6 +17,7 @@ const {
 router.post(
   "/",
   authMiddleware,
+  roleMiddleware("student"),
   addReview
 );
 
@@ -24,6 +26,7 @@ router.post(
 router.put(
   "/:id",
   authMiddleware,
+  roleMiddleware("student"),
   updateReview
 );
 
@@ -32,6 +35,7 @@ router.put(
 router.delete(
   "/:id",
   authMiddleware,
+  roleMiddleware("student", "admin"),
   deleteReview
 );
 

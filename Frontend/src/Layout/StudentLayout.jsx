@@ -2,6 +2,7 @@ import React from "react";
 import { Outlet, Navigate } from "react-router-dom";
 import { useAuth } from "../Context/AuthContext";
 import Navbar from "../Components/Navbar/Navbar";
+import StudentNav from "../Components/Student/StudentNav";
 
 const StudentLayout = () => {
   const { user, loading } = useAuth();
@@ -33,6 +34,7 @@ const StudentLayout = () => {
       <Navbar />
 
       <main className="pt-28 px-5 md:px-8 lg:px-10">
+        <StudentNav />
         <Outlet />
       </main>
     </div>

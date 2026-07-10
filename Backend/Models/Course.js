@@ -38,20 +38,19 @@ const LessonSchema = new mongoose.Schema(
       type: Number,
       default: 1,
     },
-    averageRating: {
-  type: Number,
-  default: 0,
-},
-
-totalReviews: {
-  type: Number,
-  default: 0,
-},
-
     isPreview: {
       type: Boolean,
       default: false,
     },
+
+    resources: [
+      {
+        title: { type: String, required: true, trim: true },
+        url: { type: String, required: true },
+        public_id: { type: String, default: "" },
+        type: { type: String, default: "link" },
+      },
+    ],
   },
   {
     _id: true,
@@ -167,6 +166,20 @@ const CourseSchema = new mongoose.Schema(
     price: {
       type: Number,
       default: 0,
+      min: 0,
+    },
+
+    averageRating: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 5,
+    },
+
+    totalReviews: {
+      type: Number,
+      default: 0,
+      min: 0,
     },
 
     featured: {

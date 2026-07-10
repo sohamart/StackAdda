@@ -82,6 +82,21 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const studentGoogleLogin = async (credential) => {
+    try {
+      const res = await API.post("/auth/student/google", {
+        credential,
+        clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      });
+      setUser(res.data.user);
+      toast.success(res.data.message);
+      return true;
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Google login failed");
+      return false;
+    }
+  };
+
   // ==========================
   // Admin Login
   // ==========================
@@ -129,6 +144,7 @@ export const AuthProvider = ({ children }) => {
         user,
         loading,
         studentLogin,
+        studentGoogleLogin,
         studentRegister,
         adminLogin,
         logout,

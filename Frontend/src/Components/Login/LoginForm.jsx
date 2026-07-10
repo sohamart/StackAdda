@@ -3,11 +3,12 @@ import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../Context/AuthContext";
+import { GoogleLogin } from "@react-oauth/google";
 
 const LoginForm = ({ isAdmin, setIsRegister }) => {
   const navigate = useNavigate();
 
-  const { studentLogin, adminLogin } = useAuth();
+  const { studentLogin, studentGoogleLogin, adminLogin } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -175,22 +176,19 @@ const LoginForm = ({ isAdmin, setIsRegister }) => {
         {/* Google Login */}
 
         {!isAdmin && (
-          <button
-            type="button"
-            className="
-            w-full
-            rounded-xl
-            border
-            border-white/10
-            bg-white/5
-            py-2
-            text-white
-            transition
-            hover:bg-white/10
-            "
-          >
-            Continue with Google
-          </button>
+          <div className="flex justify-center rounded-xl bg-white py-1.5">
+            <GoogleLogin
+              theme="outline"
+              shape="rectangular"
+              width="300"
+              text="continue_with"
+              onSuccess={async ({ credential }) => {
+                const success = await studentGoogleLogin(credential);
+                if (success) navigate("/student");
+              }}
+              onError={() => toast.error("Google sign-in was cancelled or failed.")}
+            />
+          </div>
         )}
       </form>
 

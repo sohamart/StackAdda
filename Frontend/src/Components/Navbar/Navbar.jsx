@@ -309,6 +309,17 @@ const Navbar = () => {
 
                     )}
 
+                    {!isAdmin && (
+                      <Link
+                        to="/student/courses"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-3 rounded-xl px-4 py-3 text-white transition hover:bg-white/5"
+                      >
+                        <BookOpen size={20} />
+                        My Courses
+                      </Link>
+                    )}
+
                     {isAdmin && (
 
                       <Link
@@ -526,6 +537,11 @@ const Navbar = () => {
                       <User size={20} />
                       My Profile
                     </div>
+                  </NavLink>
+                )}
+                {!isAdmin && (
+                  <NavLink to="/student/courses" onClick={() => setOpen(false)} className={menuClass}>
+                    <div className="flex items-center gap-3"><BookOpen size={20} />My Courses</div>
                   </NavLink>
                 )}
                 {isAdmin && (

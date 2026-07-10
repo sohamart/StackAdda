@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Users,
   ShieldCheck,
@@ -16,6 +17,7 @@ import QuickAction from "../../Components/Admin/QuickAction";
 import RecentStudents from "../../Components/Admin/RecentStudents";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalStudents: 0,
     totalAdmins: 0,
@@ -92,16 +94,19 @@ const Dashboard = () => {
           <QuickAction
             title="Add Course"
             icon={<Plus size={18} />}
+            onClick={() => navigate("/admin/course/create")}
           />
 
           <QuickAction
             title="Add Student"
             icon={<UserPlus size={18} />}
+            onClick={() => navigate("/admin/students")}
           />
 
           <QuickAction
             title="Notifications"
             icon={<Bell size={18} />}
+            onClick={() => navigate("/admin/orders")}
           />
 
         </div>

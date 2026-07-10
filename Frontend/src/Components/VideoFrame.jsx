@@ -1,0 +1,8 @@
+import { Download, FileText } from "lucide-react";
+
+const getYoutubeEmbed = (url) => { try { const parsed = new URL(url); if (parsed.hostname.includes("youtu.be")) return `https://www.youtube.com/embed/${parsed.pathname.slice(1)}`; if (parsed.hostname.includes("youtube.com")) return `https://www.youtube.com/embed/${parsed.searchParams.get("v") || parsed.pathname.split("/").pop()}`; } catch {} return null; };
+
+export default function VideoFrame({ url, title = "Course video", resources = [] }) {
+  const embed = url ? getYoutubeEmbed(url) : null;
+  return <div className="relative h-full">{embed ? <iframe className="h-full w-full" src={embed} title={title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen/> : url ? <video className="h-full w-full" controls src={url}/> : <div className="flex h-full items-center justify-center text-white/45">No video added for this lesson.</div>}{resources.length > 0 && <div className="absolute bottom-3 left-3 right-3 rounded-2xl border border-white/15 bg-black/75 p-3 backdrop-blur-xl"><p className="mb-2 flex items-center gap-2 text-xs font-semibold text-white/80"><FileText size={14} className="text-orange-400"/> Lesson resources</p><div className="flex flex-wrap gap-2">{resources.map((resource) => <a key={resource._id} href={resource.url} target="_blank" rel="noreferrer" download className="inline-flex max-w-full items-center gap-1.5 rounded-lg bg-white/10 px-2.5 py-1.5 text-xs text-white hover:bg-orange-500"><Download size={13}/><span className="max-w-40 truncate">{resource.title}</span></a>)}</div></div>}</div>;
+}

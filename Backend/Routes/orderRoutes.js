@@ -3,6 +3,7 @@ const express = require("express");
 const router = express.Router();
 
 const authMiddleware = require("../Middleware/authMiddleware");
+const roleMiddleware = require("../Middleware/roleMiddleware");
 
 const {
   getMyOrders,
@@ -15,6 +16,7 @@ const {
 router.get(
   "/my-orders",
   authMiddleware,
+  roleMiddleware("student"),
   getMyOrders
 );
 
@@ -23,6 +25,7 @@ router.get(
 router.put(
   "/cancel/:orderId",
   authMiddleware,
+  roleMiddleware("student"),
   cancelOrder
 );
 
@@ -31,6 +34,7 @@ router.put(
 router.get(
   "/all",
   authMiddleware,
+  roleMiddleware("admin"),
   getAllOrders
 );
 

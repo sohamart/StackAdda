@@ -3,6 +3,7 @@ const express = require("express");
 const router = express.Router();
 
 const authMiddleware = require("../Middleware/authMiddleware");
+const roleMiddleware = require("../Middleware/roleMiddleware");
 
 const upload = require("../Config/multer");
 
@@ -10,6 +11,8 @@ const {
   createCourse,
   updateCourse,
   deleteCourse,
+  getCourseById,
+
   getAllCourses,
   getHomeCourses,
     getPublishedCourses,
@@ -20,10 +23,13 @@ const {
     addLesson,
     updateLesson,
     deleteLesson,
+    addLessonResource,
+    deleteLessonResource,
     assignCourse,
     removeAssignedCourse,
     enrollFreeCourse,
     getMyCourses,
+    getEnrolledCourse,
 } = require("../Controllers/courseController");
 
 
@@ -34,6 +40,7 @@ const {
 router.post(
   "/admin/course",
   authMiddleware,
+  roleMiddleware("admin"),
   upload.single("thumbnail"),
   createCourse
 );
@@ -41,6 +48,7 @@ router.post(
 router.put(
   "/course/:id",
   authMiddleware,
+  roleMiddleware("admin"),
   upload.single("thumbnail"),
   updateCourse
 );
@@ -48,13 +56,21 @@ router.put(
 router.delete(
   "/course/:id",
   authMiddleware,
+  roleMiddleware("admin"),
   deleteCourse
 );
 
 router.get(
   "/courses",
   authMiddleware,
+  roleMiddleware("admin"),
   getAllCourses
+);
+router.get(
+  "/course/:id",
+  authMiddleware,
+  roleMiddleware("admin"),
+  getCourseById
 );
 // Home Courses
 
@@ -69,32 +85,31 @@ router.get(
 );
 
 
-router.get(
-  "/:slug",
-  getSingleCourse
-);
-
 router.post(
   "/course/:courseId/chapter",
   authMiddleware,
+  roleMiddleware("admin"),
   addChapter
 );
 
 router.put(
   "/course/:courseId/chapter/:chapterId",
   authMiddleware,
+  roleMiddleware("admin"),
   updateChapter
 );
 
 router.delete(
   "/course/:courseId/chapter/:chapterId",
   authMiddleware,
+  roleMiddleware("admin"),
   deleteChapter
 );
 
 router.post(
   "/course/:courseId/chapter/:chapterId/lesson",
   authMiddleware,
+  roleMiddleware("admin"),
   upload.single("video"),
   addLesson
 );
@@ -102,34 +117,61 @@ router.post(
 router.put(
   "/course/:courseId/chapter/:chapterId/lesson/:lessonId",
   authMiddleware,
+  roleMiddleware("admin"),
   upload.single("video"),
   updateLesson
 );
 router.delete(
   "/course/:courseId/chapter/:chapterId/lesson/:lessonId",
   authMiddleware,
+  roleMiddleware("admin"),
   deleteLesson
 );
 router.post(
   "/course/assign",
   authMiddleware,
+  roleMiddleware("admin"),
   assignCourse
 );
 router.delete(
   "/course/remove",
   authMiddleware,
+  roleMiddleware("admin"),
   removeAssignedCourse
 );
 
 router.post(
   "/enroll/:courseId",
   authMiddleware,
+  roleMiddleware("student"),
   enrollFreeCourse
 );
 router.get(
   "/my-courses",
   authMiddleware,
+  roleMiddleware("student"),
   getMyCourses
 );
+router.post(
+  "/course/:courseId/chapter/:chapterId/lesson/:lessonId/resource",
+  authMiddleware,
+  roleMiddleware("admin"),
+  upload.single("resource"),
+  addLessonResource
+);
+router.delete(
+  "/course/:courseId/chapter/:chapterId/lesson/:lessonId/resource/:resourceId",
+  authMiddleware,
+  roleMiddleware("admin"),
+  deleteLessonResource
+);
+router.get(
+  "/learn/:id",
+  authMiddleware,
+  roleMiddleware("student"),
+  getEnrolledCourse
+);
+
+router.get("/:slug", getSingleCourse);
 
 module.exports = router;

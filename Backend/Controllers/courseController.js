@@ -1,10 +1,31 @@
 const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
+const streamifier = require("streamifier");
+const validator = require("validator");
 
 const Course = require("../Models/Course");
 const User = require("../Models/User");
 
 const cloudinary = require("../Config/cloudinary");
+const sendEmail = require("../Utils/sendEmail");
+
+
+const uploadToCloudinary = (buffer, folder, resource_type = "image") => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder,
+        resource_type,
+      },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+
+    streamifier.createReadStream(buffer).pipe(stream);
+  });
+};
 
 const createCourse = asyncHandler(async (req, res) => {
 
@@ -58,12 +79,10 @@ const createCourse = asyncHandler(async (req, res) => {
 
   if (req.file) {
 
-    const result = await cloudinary.uploader.upload(
-      req.file.path,
-      {
-        folder: "stackadda/courses",
-      }
-    );
+    const result = await uploadToCloudinary(
+  req.file.buffer,
+  "stackadda/courses"
+);
 
     thumbnail = {
       url: result.secure_url,
@@ -176,9 +195,9 @@ const getSingleCourse = asyncHandler(async (req, res) => {
 
   const course = await Course.findOne({
     slug: req.params.slug,
+    status: "published",
   })
-    .populate("createdBy", "name email")
-    .populate("students", "name email profileImage");
+    .populate("createdBy", "name");
 
   if (!course) {
     return res.status(404).json({
@@ -187,9 +206,19 @@ const getSingleCourse = asyncHandler(async (req, res) => {
     });
   }
 
+  const publicCourse = course.toObject();
+  publicCourse.chapters = publicCourse.chapters.map((chapter) => ({
+    ...chapter,
+    lessons: chapter.lessons.map((lesson) => ({
+      ...lesson,
+      video: lesson.isPreview ? lesson.video : { url: "", public_id: "" },
+      resources: lesson.isPreview ? lesson.resources : [],
+    })),
+  }));
+
   res.status(200).json({
     success: true,
-    course,
+    course: publicCourse,
   });
 
 });
@@ -333,7 +362,16 @@ const addLesson = asyncHandler(async (req, res) => {
     description,
     duration,
     isPreview,
+    videoUrl,
   } = req.body;
+
+  if (!title) {
+    return res.status(400).json({ success: false, message: "Lesson title is required." });
+  }
+
+  if (req.file && videoUrl) {
+    return res.status(400).json({ success: false, message: "Upload a video file or provide a video URL, not both." });
+  }
 
   const course = await Course.findById(
     req.params.courseId
@@ -362,16 +400,17 @@ const addLesson = asyncHandler(async (req, res) => {
     public_id: "",
   };
 
-  if (req.file) {
-
-    const result =
-      await cloudinary.uploader.upload(
-        req.file.path,
-        {
-          resource_type: "video",
-          folder: "stackadda/lessons",
-        }
-      );
+  if (videoUrl) {
+    if (!validator.isURL(videoUrl, { protocols: ["http", "https"], require_protocol: true })) {
+      return res.status(400).json({ success: false, message: "Please provide a valid video URL." });
+    }
+    video = { url: videoUrl, public_id: "" };
+  } else if (req.file) {
+    const result = await uploadToCloudinary(
+      req.file.buffer,
+      "stackadda/lessons",
+      "video"
+    );
 
     video = {
       url: result.secure_url,
@@ -411,6 +450,7 @@ const updateLesson = asyncHandler(async (req, res) => {
     description,
     duration,
     isPreview,
+    videoUrl,
   } = req.body;
 
   const course = await Course.findById(
@@ -457,7 +497,19 @@ const updateLesson = asyncHandler(async (req, res) => {
   if (isPreview !== undefined)
     lesson.isPreview = isPreview;
 
-  if (req.file) {
+  if (req.file && videoUrl) {
+    return res.status(400).json({ success: false, message: "Upload a video file or provide a video URL, not both." });
+  }
+
+  if (videoUrl !== undefined) {
+    if (videoUrl && !validator.isURL(videoUrl, { protocols: ["http", "https"], require_protocol: true })) {
+      return res.status(400).json({ success: false, message: "Please provide a valid video URL." });
+    }
+    if (lesson.video.public_id) {
+      await cloudinary.uploader.destroy(lesson.video.public_id, { resource_type: "video" });
+    }
+    lesson.video = { url: videoUrl || "", public_id: "" };
+  } else if (req.file) {
 
     if (lesson.video.public_id) {
 
@@ -470,14 +522,11 @@ const updateLesson = asyncHandler(async (req, res) => {
 
     }
 
-    const result =
-      await cloudinary.uploader.upload(
-        req.file.path,
-        {
-          resource_type: "video",
-          folder: "stackadda/lessons",
-        }
-      );
+    const result = await uploadToCloudinary(
+      req.file.buffer,
+      "stackadda/lessons",
+      "video"
+    );
 
     lesson.video = {
       url: result.secure_url,
@@ -592,13 +641,25 @@ const updateCourse = asyncHandler(async (req, res) => {
   } = req.body;
 
   if (title) {
-
-    course.title = title;
-
-    course.slug = slugify(title, {
+    const slug = slugify(title, {
       lower: true,
       strict: true,
     });
+
+    const existingCourse = await Course.findOne({
+      slug,
+      _id: { $ne: course._id },
+    });
+
+    if (existingCourse) {
+      return res.status(409).json({
+        success: false,
+        message: "Another course already uses this title.",
+      });
+    }
+
+    course.title = title;
+    course.slug = slug;
 
   }
 
@@ -620,14 +681,18 @@ const updateCourse = asyncHandler(async (req, res) => {
   if (duration !== undefined)
     course.duration = duration;
 
+  const effectiveAccessType = accessType ?? course.accessType;
+
   if (accessType !== undefined)
     course.accessType = accessType;
 
   if (price !== undefined)
     course.price =
-      accessType === "paid"
+      effectiveAccessType === "paid"
         ? Number(price)
         : 0;
+  else if (effectiveAccessType !== "paid")
+    course.price = 0;
 
   if (featured !== undefined)
     course.featured = featured;
@@ -650,13 +715,10 @@ const updateCourse = asyncHandler(async (req, res) => {
 
     }
 
-    const result =
-      await cloudinary.uploader.upload(
-        req.file.path,
-        {
-          folder: "stackadda/courses",
-        }
-      );
+    const result = await uploadToCloudinary(
+  req.file.buffer,
+  "stackadda/courses"
+);
 
     course.thumbnail = {
       url: result.secure_url,
@@ -795,6 +857,12 @@ const assignCourse = asyncHandler(async (req, res) => {
 
   await course.save();
 
+  await sendEmail({
+    to: student.email,
+    subject: `New course assigned: ${course.title}`,
+    html: `<h2>You've been enrolled!</h2><p>${course.title} was assigned to your Stack Adda account. Log in to start learning.</p>`,
+  });
+
   res.status(200).json({
     success: true,
     message: "Course assigned successfully.",
@@ -900,6 +968,12 @@ const enrollFreeCourse = asyncHandler(async (req, res) => {
 
   await course.save();
 
+  await sendEmail({
+    to: student.email,
+    subject: `Enrollment confirmed: ${course.title}`,
+    html: `<h2>You're enrolled in ${course.title}</h2><p>Your free course access is ready. Open My Courses and start learning.</p>`,
+  });
+
   res.status(200).json({
     success: true,
     message: "Enrolled successfully.",
@@ -936,10 +1010,92 @@ const getMyCourses = asyncHandler(async (req, res) => {
 
 });
 
+// ==========================
+// Add / Delete Lesson Resource
+// ==========================
+const addLessonResource = asyncHandler(async (req, res) => {
+  const { title, url } = req.body;
+  const course = await Course.findById(req.params.courseId);
+  if (!course) return res.status(404).json({ success: false, message: "Course not found." });
+  const chapter = course.chapters.id(req.params.chapterId);
+  const lesson = chapter?.lessons.id(req.params.lessonId);
+  if (!lesson) return res.status(404).json({ success: false, message: "Lesson not found." });
+  if (!title) return res.status(400).json({ success: false, message: "Resource title is required." });
+  if (req.file && url) return res.status(400).json({ success: false, message: "Upload a file or provide a resource URL, not both." });
+  let resourceUrl = url;
+  let publicId = "";
+  let type = "link";
+  if (req.file) {
+    const result = await uploadToCloudinary(req.file.buffer, "stackadda/resources", "raw");
+    resourceUrl = result.secure_url;
+    publicId = result.public_id;
+    type = req.file.mimetype;
+  } else if (!url || !validator.isURL(url, { protocols: ["http", "https"], require_protocol: true })) {
+    return res.status(400).json({ success: false, message: "Upload a file or provide a valid resource URL." });
+  }
+  lesson.resources.push({ title, url: resourceUrl, public_id: publicId, type });
+  await course.save();
+  res.status(201).json({ success: true, message: "Resource added successfully.", resources: lesson.resources });
+});
+
+const deleteLessonResource = asyncHandler(async (req, res) => {
+  const course = await Course.findById(req.params.courseId);
+  if (!course) return res.status(404).json({ success: false, message: "Course not found." });
+  const lesson = course.chapters.id(req.params.chapterId)?.lessons.id(req.params.lessonId);
+  const resource = lesson?.resources.id(req.params.resourceId);
+  if (!resource) return res.status(404).json({ success: false, message: "Resource not found." });
+  if (resource.public_id) await cloudinary.uploader.destroy(resource.public_id, { resource_type: "raw" });
+  resource.deleteOne();
+  await course.save();
+  res.status(200).json({ success: true, message: "Resource deleted successfully." });
+});
+
+// ==========================
+// Get Enrolled Course (Student)
+// ==========================
+const getEnrolledCourse = asyncHandler(async (req, res) => {
+  const student = await User.findById(req.user._id).select("enrolledCourses");
+  const course = await Course.findOne({ _id: req.params.id, status: "published" });
+
+  if (!course) {
+    return res.status(404).json({ success: false, message: "Course not found." });
+  }
+
+  if (!student.enrolledCourses.some((courseId) => courseId.equals(course._id))) {
+    return res.status(403).json({ success: false, message: "You are not enrolled in this course." });
+  }
+
+  res.status(200).json({ success: true, course });
+});
+// ==========================
+// Get Course By ID
+// ==========================
+
+const getCourseById = asyncHandler(async (req, res) => {
+
+  const course = await Course.findById(req.params.id)
+    .populate("students", "name email profileImage");
+
+  if (!course) {
+    return res.status(404).json({
+      success: false,
+      message: "Course not found.",
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    course,
+  });
+
+});
+
 module.exports = {
   createCourse,
   updateCourse,
   deleteCourse,
+  getCourseById,
+
     getAllCourses,
     getHomeCourses,
     getPublishedCourses,
@@ -950,9 +1106,13 @@ module.exports = {
     addLesson,
     updateLesson,
     deleteLesson,
+    addLessonResource,
+    deleteLessonResource,
     assignCourse,
     removeAssignedCourse,
     enrollFreeCourse,
-    getMyCourses,
+  getMyCourses,
+  getEnrolledCourse,
+
 };
 

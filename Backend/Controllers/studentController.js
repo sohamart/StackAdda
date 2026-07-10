@@ -10,6 +10,7 @@ const dashboard = asyncHandler(async (req, res) => {
     success: true,
     message: `Welcome ${student.name}`,
     student,
+    dashboard: student,
   });
 });
 

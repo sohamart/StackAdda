@@ -2,6 +2,7 @@ import React from "react";
 import { Outlet, Navigate } from "react-router-dom";
 import { useAuth } from "../Context/AuthContext";
 import Navbar from "../Components/Navbar/Navbar";
+import AdminNav from "../Components/Admin/AdminNav";
 
 const AdminLayout = () => {
   const { user, loading } = useAuth();
@@ -36,6 +37,7 @@ const AdminLayout = () => {
       <Navbar />
 
       <main className="pt-28 px-5 md:px-8 lg:px-10">
+        <AdminNav />
         <Outlet />
       </main>
     </div>

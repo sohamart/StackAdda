@@ -4,6 +4,7 @@ import Courses from "../Components/HomeComponents/Courses";
 import HeroSection from "../Components/HomeComponents/HeroSection";
 import API from "../api/axios";
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 
 
 
@@ -45,7 +46,8 @@ const Home = () => {
 
         {/* Button */}
         <div className="flex justify-center mt-5">
-          <button
+          <Link
+            to="/courses"
             className="
                       rounded-xl
                       border
@@ -65,7 +67,7 @@ const Home = () => {
                     ">
                       
             View All Courses →
-          </button>
+          </Link>
         </div>
 
 

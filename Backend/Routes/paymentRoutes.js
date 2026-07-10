@@ -3,6 +3,7 @@ const express = require("express");
 const router = express.Router();
 
 const authMiddleware = require("../Middleware/authMiddleware");
+const roleMiddleware = require("../Middleware/roleMiddleware");
 
 const {
   createOrder,
@@ -18,6 +19,7 @@ const {
 router.post(
   "/create-order",
   authMiddleware,
+  roleMiddleware("student"),
   createOrder
 );
 
@@ -28,6 +30,7 @@ router.post(
 router.post(
   "/verify",
   authMiddleware,
+  roleMiddleware("student"),
   verifyPayment
 );
 
@@ -38,6 +41,7 @@ router.post(
 router.get(
   "/history",
   authMiddleware,
+  roleMiddleware("student"),
   paymentHistory
 );
 
@@ -48,6 +52,7 @@ router.get(
 router.post(
   "/refund/:paymentId",
   authMiddleware,
+  roleMiddleware("admin"),
   refundPayment
 );
 

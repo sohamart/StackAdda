@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   BookOpen,
   GraduationCap,
@@ -9,14 +9,16 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../Context/AuthContext";
+import API from "../../api/axios";
 
 const Dashboard = () => {
-  const { user, StudentDashboard } = useAuth();
+  const { user } = useAuth();
+  const [courses, setCourses] = useState([]);
 
   const stats = [
     {
       title: "Enrolled Courses",
-      value: 0,
+      value: courses.length,
       icon: <BookOpen size={28} />,
     },
     {
@@ -37,7 +39,9 @@ const Dashboard = () => {
   ];
 
   useEffect(() => {
-    
+    API.get("/course/my-courses")
+      .then(({ data }) => setCourses(data.courses || []))
+      .catch(() => setCourses([]));
   }, []);
 
   return (
@@ -111,7 +115,7 @@ const Dashboard = () => {
                 </Link>
 
                 <Link
-                  to="/courses"
+                  to={courses.length ? "/student/courses" : "/courses"}
                   className="
                   rounded-xl
                   border
@@ -230,7 +234,7 @@ const Dashboard = () => {
           </h2>
 
           <p className="mt-3 text-white/60">
-            You haven't enrolled in any course yet.
+            {courses.length ? `You are enrolled in ${courses.length} course${courses.length > 1 ? "s" : ""}.` : "You haven't enrolled in any course yet."}
           </p>
 
           <Link
@@ -250,7 +254,7 @@ const Dashboard = () => {
             hover:bg-orange-500
             "
           >
-            Explore Courses
+            {courses.length ? "View My Courses" : "Explore Courses"}
 
             <ArrowRight size={18} />
           </Link>

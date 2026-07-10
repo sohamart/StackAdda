@@ -3,6 +3,7 @@ const express = require("express");
 const router = express.Router();
 
 const authMiddleware = require("../Middleware/authMiddleware");
+const roleMiddleware = require("../Middleware/roleMiddleware");
 
 const {
   createCoupon,
@@ -21,6 +22,7 @@ const {
 router.post(
   "/validate",
   authMiddleware,
+  roleMiddleware("student"),
   validateCoupon
 );
 
@@ -33,6 +35,7 @@ router.post(
 router.post(
   "/",
   authMiddleware,
+  roleMiddleware("admin"),
   createCoupon
 );
 
@@ -41,6 +44,7 @@ router.post(
 router.get(
   "/",
   authMiddleware,
+  roleMiddleware("admin"),
   getCoupons
 );
 
@@ -49,6 +53,7 @@ router.get(
 router.put(
   "/:id",
   authMiddleware,
+  roleMiddleware("admin"),
   updateCoupon
 );
 
@@ -57,6 +62,7 @@ router.put(
 router.delete(
   "/:id",
   authMiddleware,
+  roleMiddleware("admin"),
   deleteCoupon
 );
 

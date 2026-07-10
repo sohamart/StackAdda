@@ -8,6 +8,7 @@ const {
   getCurrentUser,
   logout,
     adminLogin,
+  googleLogin,
 } = require("../Controllers/authController");
 
 const authMiddleware = require("../Middleware/authMiddleware");
@@ -15,6 +16,7 @@ const authMiddleware = require("../Middleware/authMiddleware");
 // Student
 router.post("/student/register", register);
 router.post("/student/login", login);
+router.post("/student/google", googleLogin);
 
 // Admin
 router.post("/admin/login", adminLogin);

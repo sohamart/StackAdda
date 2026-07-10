@@ -7,6 +7,7 @@ const User = require("../Models/User");
 const Order = require("../Models/Order");
 const Payment = require("../Models/Payment");
 const Coupon = require("../Models/Coupon");
+const sendEmail = require("../Utils/sendEmail");
 
 let razorpay = null;
 
@@ -284,6 +285,21 @@ const verifyPayment = asyncHandler(async (req, res) => {
     });
   }
 
+  if (payment.student.toString() !== req.user._id.toString()) {
+    return res.status(403).json({
+      success: false,
+      message: "You cannot verify another user's payment.",
+    });
+  }
+
+  if (payment.status === "success") {
+    return res.status(200).json({
+      success: true,
+      message: "Payment was already verified.",
+      courseId: payment.course,
+    });
+  }
+
   const order = await Order.findOne({
     payment: payment._id,
   });
@@ -369,6 +385,12 @@ const verifyPayment = asyncHandler(async (req, res) => {
   await student.save();
 
   await course.save();
+
+  await sendEmail({
+    to: student.email,
+    subject: `Payment confirmed: ${course.title}`,
+    html: `<h2>Payment successful</h2><p>We received your payment of ₹${payment.amount} for <strong>${course.title}</strong>. Your course access is now active.</p>`,
+  });
 
   res.status(200).json({
     success: true,
@@ -486,6 +508,12 @@ const refundPayment = asyncHandler(async (req, res) => {
   await student.save();
 
   await course.save();
+
+  await sendEmail({
+    to: student.email,
+    subject: `Refund processed: ${course.title}`,
+    html: `<h2>Refund processed</h2><p>Your refund for <strong>${course.title}</strong> has been processed. Course access has been removed.</p>`,
+  });
 
   res.status(200).json({
     success: true,
