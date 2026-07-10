@@ -113,13 +113,13 @@ md:justify-between
                   className="h-16 w-16 rounded-full border-2 border-orange-500 object-cover"
                 />
 
-                <div>
+                <div className="overflow-auto text-ellipsis ">
 
                   <h3 className="text-lg font-semibold text-white">
                     {student.name}
                   </h3>
 
-                  <p className="text-sm text-white/50">
+                  <p className="text-sm    text-white/50">
                     {student.email}
                   </p>
 

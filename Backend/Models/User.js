@@ -53,6 +53,10 @@ const UserSchema = new mongoose.Schema(
       default: "",
       maxlength: 300,
     },
+    isVerified: {
+      type: Boolean,
+      default: false, 
+    },
 
     role: {
       type: String,

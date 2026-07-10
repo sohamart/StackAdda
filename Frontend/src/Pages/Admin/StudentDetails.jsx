@@ -13,6 +13,7 @@ import { Trash2, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import DeleteStudentModal from "../../Components/Admin/DeleteStudentModal";
+import EditStudentModal from "../../Components/Admin/EditStudentModal";
 
 const StudentDetails = () => {
 
@@ -20,7 +21,7 @@ const StudentDetails = () => {
     const [openDelete, setOpenDelete] =
   useState(false);
   const [student, setStudent] = useState(null);
-
+  const [openEdit, setOpenEdit] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -206,7 +207,7 @@ object-cover
 "
               />
 
-              <div>
+              <div className="text-center lg:text-left  lg:w-120">
 
                 <h2 className="text-3xl font-bold text-white">
                   {student.name}
@@ -237,25 +238,9 @@ object-cover
             </div>
                         {/* Right */}
 
-            <div className="flex gap-3">
+            <div className="flex  w-full lg:justify-end justify-center gap-3">
 
-              <button
-                className="
-rounded-2xl
-border
-border-orange-500/20
-bg-orange-500/10
-px-6
-py-3
-font-medium
-text-orange-400
-transition
-hover:bg-orange-500
-hover:text-white
-"
-              >
-                Edit Student
-              </button>
+           
 
               <button
   onClick={() => setOpenDelete(true)}
@@ -264,16 +249,35 @@ rounded-2xl
 border
 border-red-500/20
 bg-red-500/10
-px-6
+px-12
 py-3
 font-medium
 text-red-400
 transition
 hover:bg-red-500
 hover:text-white
+
 "
 >
   Delete
+</button>
+<button
+  onClick={() => setOpenEdit(true)}
+  className="
+rounded-2xl
+border
+border-orange-500/20
+bg-orange-500/10
+px-12
+py-3
+font-medium
+text-orange-400
+transition
+hover:bg-orange-500
+hover:text-white
+"
+>
+  Edit
 </button>
             </div>
 
@@ -431,6 +435,12 @@ lg:col-span-2
   onConfirm={handleDelete}
   loading={deleteLoading}
   studentName={student?.name}
+/>
+<EditStudentModal
+    open={openEdit}
+    onClose={() => setOpenEdit(false)}
+    student={student}
+    onSuccess={fetchStudent}
 />
           </div>
   );

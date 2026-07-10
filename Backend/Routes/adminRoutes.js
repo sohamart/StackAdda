@@ -9,6 +9,12 @@ const {
   getStudents,
   getStudent,
   deleteStudent,
+  editStudent,
+  verifyStudent,
+  unverifyStudent,
+  getVerifiedStudents,
+  getUnverifiedStudents,
+  uploadStudentProfileImage,
 } = require("../Controllers/adminController");
 
 router.get(
@@ -39,4 +45,44 @@ router.delete(
   deleteStudent
 );
 
+router.put(
+  "/student/:id",
+  authMiddleware,
+  roleMiddleware("admin"),
+  editStudent
+);
+
+router.put(
+  "/student/:id/profile-image",
+  authMiddleware,
+  roleMiddleware("admin"),
+  uploadStudentProfileImage
+);
+
+router.put(
+  "/student/:id/verify",
+  authMiddleware,
+  roleMiddleware("admin"),
+  verifyStudent
+);
+
+router.put(
+  "/student/:id/unverify",
+  authMiddleware,
+  roleMiddleware("admin"),
+  unverifyStudent
+);
+
+router.get(
+  "/verified-students",
+  authMiddleware,
+  roleMiddleware("admin"),
+  getVerifiedStudents
+);
+router.get(
+  "/unverified-students",
+  authMiddleware,
+  roleMiddleware("admin"),
+  getUnverifiedStudents
+);
 module.exports = router;
