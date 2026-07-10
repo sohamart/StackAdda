@@ -3,6 +3,7 @@ const router = express.Router();
 
 const authMiddleware = require("../Middleware/authMiddleware");
 const roleMiddleware = require("../Middleware/roleMiddleware");
+const upload = require("../Config/multer");
 
 const {
   dashboard,
@@ -56,6 +57,7 @@ router.put(
   "/student/:id/profile-image",
   authMiddleware,
   roleMiddleware("admin"),
+  upload.single("image"),
   uploadStudentProfileImage
 );
 

@@ -1,7 +1,29 @@
 const User = require("../Models/User");
 const asyncHandler = require("express-async-handler");
 const cloudinary = require("../Config/cloudinary");
-const uploadToCloudinary = require("../Utils/uploadToCloudinary");
+const streamifier = require("streamifier");
+
+/* Upload to Cloudinary */
+const uploadToCloudinary = (buffer) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: "stackadda/profiles",
+        width: 400,
+        height: 400,
+        crop: "fill",
+        quality: "auto",
+        fetch_format: "auto",
+      },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+
+    streamifier.createReadStream(buffer).pipe(stream);
+  });
+};
 
 // Dashboard
 const dashboard = asyncHandler(async (req, res) => {
