@@ -44,7 +44,7 @@ const Dashboard = () => {
     <div className="relative min-h-screen overflow-hidden text-white">
       {/* Background Glow */}
 
-      <div className="absolute -top-20 left-1/2 h-[350px] w-[350px] -translate-x-1/2 rounded-full bg-orange-500/20 blur-[140px]" />
+      <div className="absolute -top-20 rounded-t-3xl left-1/2 h-[350px] w-[350px] -translate-x-1/2 rounded-full bg-orange-500/20 blur-[140px]" />
 
       <div className="relative z-10 space-y-10">
 
