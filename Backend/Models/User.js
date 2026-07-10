@@ -19,10 +19,10 @@ const UserSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
       trim: true,
-        validate: {
-    validator: validator.isEmail,
-    message: "Please provide a valid email address.",
-  },
+      validate: {
+        validator: validator.isEmail,
+        message: "Please provide a valid email address.",
+      },
     },
 
     password: {
@@ -53,10 +53,7 @@ const UserSchema = new mongoose.Schema(
       default: "",
       maxlength: 300,
     },
-    isVerified: {
-      type: Boolean,
-      default: false, 
-    },
+
 
     role: {
       type: String,
@@ -64,15 +61,26 @@ const UserSchema = new mongoose.Schema(
       default: "student",
     },
     enrolledCourses: [
-  {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Course",
-  },
-],
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Course",
+      },
+    ],
 
     isVerified: {
       type: Boolean,
       default: false,
+    },
+
+    verifiedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+
+    verifiedAt: {
+      type: Date,
+      default: null,
     },
   },
   {

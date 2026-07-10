@@ -1,5 +1,7 @@
 const User = require("../Models/User");
 const asyncHandler = require("express-async-handler");
+const cloudinary = require("../Config/cloudinary");
+const uploadToCloudinary = require("../Utils/uploadToCloudinary");
 
 // Dashboard
 const dashboard = asyncHandler(async (req, res) => {
@@ -56,9 +58,11 @@ const getStudents = asyncHandler(async (req, res) => {
 // Get Single Student
 const getStudent = asyncHandler(async (req, res) => {
   const student = await User.findOne({
-    _id: req.params.id,
-    role: "student",
-  }).select("-password");
+  _id: req.params.id,
+  role: "student",
+})
+.populate("verifiedBy", "name email profileImage")
+.select("-password");
 
   if (!student) {
     res.status(404);
@@ -124,46 +128,105 @@ const editStudent = asyncHandler(async (req, res) => {
     student: updatedStudent,
   });
 });
+const verifyStudent = async (req, res) => {
+  try {
+    const { id } = req.params;
 
-const verifyStudent = asyncHandler(async (req, res) => {
-  const student = await User.findOne({
-    _id: req.params.id,
-    role: "student",
-  });
+    const student = await User.findById(id);
 
-  if (!student) {
-    res.status(404);
-    throw new Error("Student not found");
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found",
+      });
+    }
+
+    if (student.role !== "student") {
+      return res.status(400).json({
+        success: false,
+        message: "This user is not a student.",
+      });
+    }
+
+    if (student.isVerified) {
+      return res.status(400).json({
+        success: false,
+        message: "Student is already verified.",
+      });
+    }
+
+    student.isVerified = true;
+    student.verifiedBy = req.user._id;
+    student.verifiedAt = new Date();
+
+    await student.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Student verified successfully.",
+      student,
+    });
+  } catch (error) {
+    console.error("Verify Student Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
   }
+};
 
-  student.isVerified = true;
-  await student.save();
 
-  res.status(200).json({
-    success: true,
-    message: "Student verified successfully",
-  });
-});
 
-const unverifyStudent = asyncHandler(async (req, res) => {
-  const student = await User.findOne({
-    _id: req.params.id,
-    role: "student",
-  });
 
-  if (!student) {
-    res.status(404);
-    throw new Error("Student not found");
+const unverifyStudent = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const student = await User.findById(id);
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found",
+      });
+    }
+
+    if (student.role !== "student") {
+      return res.status(400).json({
+        success: false,
+        message: "This user is not a student.",
+      });
+    }
+
+    if (!student.isVerified) {
+      return res.status(400).json({
+        success: false,
+        message: "Student is already unverified.",
+      });
+    }
+
+    student.isVerified = false;
+    student.verifiedBy = null;
+    student.verifiedAt = null;
+
+    await student.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Student verification removed successfully.",
+      student,
+    });
+  } catch (error) {
+    console.error("Unverify Student Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
   }
+};
 
-  student.isVerified = false;
-  await student.save();
-
-  res.status(200).json({
-    success: true,
-    message: "Student unverified successfully",
-  });
-});
 
 
 const getVerifiedStudents = asyncHandler(async (req, res) => {  
