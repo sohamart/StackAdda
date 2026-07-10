@@ -93,7 +93,7 @@ const Dashboard = () => {
                 </Link>
 
                 <Link
-                  to="/student/courses"
+                  to="/courses"
                   className="
                   rounded-xl
                   border
