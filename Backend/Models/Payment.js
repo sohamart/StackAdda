@@ -44,6 +44,11 @@ const PaymentSchema = new mongoose.Schema(
       default: "",
     },
 
+    upiReferenceId: {
+      type: String,
+      default: "",
+    },
+
     status: {
       type: String,
       enum: [
