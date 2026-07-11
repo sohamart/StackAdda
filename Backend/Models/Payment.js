@@ -26,7 +26,7 @@ const PaymentSchema = new mongoose.Schema(
         "manual",
         "free",
       ],
-      default: "razorpay",
+      default: "manual",
     },
 
     razorpayOrderId: {

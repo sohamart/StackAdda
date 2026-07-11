@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   ChevronDown,
   ChevronRight,
+  ExternalLink,
   Download,
   FileText,
   Loader2,
@@ -13,8 +14,8 @@ import { toast } from "react-toastify";
 import API from "../../api/axios";
 import VideoFrame from "../../Components/VideoFrame";
 import {
-  getResourceDownloadUrl,
   getResourceFileName,
+  downloadResourceFile,
 } from "../../utils/resourceDownloads";
 
 const addLessonMeta = (course) =>
@@ -75,7 +76,7 @@ export default function LearnCourse() {
       </Link>
 
       <div className="grid gap-6 xl:grid-cols-[1.65fr_.8fr]">
-        <main className="min-w-0 overflow-hidden rounded-3xl border border-white/10 bg-white/[.045]">
+        <main className="min-w-0 overflow-hidden rounded-3xl border border-white/10 bg-white/4.5">
           <div className="aspect-video bg-black">
             <VideoFrame url={active?.video?.url} title={active?.title} />
           </div>
@@ -90,21 +91,39 @@ export default function LearnCourse() {
               <div className="grid gap-2 sm:grid-cols-2">
                 {resources.map((resource) => {
                   const fileName = getResourceFileName(resource);
-                  const downloadUrl = getResourceDownloadUrl({
-                    courseId: course._id,
-                    chapterId: active.chapterId,
-                    lessonId: active._id,
-                    resourceId: resource._id,
-                  });
+                  const isLinkResource = resource.type !== "file";
 
                   return (
                     <a
                       key={resource._id}
-                      href={downloadUrl}
-                      download={fileName}
+                      href={isLinkResource ? resource.url : "#"}
+                      target={isLinkResource ? "_blank" : undefined}
+                      rel={isLinkResource ? "noreferrer" : undefined}
+                      onClick={async (event) => {
+                        if (isLinkResource) return;
+
+                        event.preventDefault();
+                        try {
+                          await downloadResourceFile({
+                            courseId: course._id,
+                            chapterId: active.chapterId,
+                            lessonId: active._id,
+                            resourceId: resource._id,
+                            fileName,
+                          });
+                        } catch (error) {
+                          toast.error(
+                            error.message || "Could not download resource."
+                          );
+                        }
+                      }}
                       className="inline-flex min-w-0 items-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-sm text-white transition hover:bg-orange-500"
                     >
-                      <Download size={15} className="shrink-0" />
+                      {isLinkResource ? (
+                        <ExternalLink size={15} className="shrink-0" />
+                      ) : (
+                        <Download size={15} className="shrink-0" />
+                      )}
                       <span className="min-w-0 flex-1 truncate">
                         {resource.title}
                       </span>
@@ -121,7 +140,7 @@ export default function LearnCourse() {
           <div className="p-5 sm:p-6">
             <p className="text-sm text-orange-300">{course.title}</p>
 
-            <h1 className="mt-2 break-words text-2xl font-bold">
+            <h1 className="mt-2 wrap-break-word text-2xl font-bold">
               {active?.title || "No lesson selected"}
             </h1>
 
@@ -131,7 +150,7 @@ export default function LearnCourse() {
           </div>
         </main>
 
-        <aside className="h-fit rounded-3xl border border-white/10 bg-white/[.045] p-4">
+        <aside className="h-fit rounded-3xl border border-white/10 bg-white/4.5 p-4">
           <h2 className="mb-4 font-semibold">Course content</h2>
 
           {course.chapters.map((chapter, index) => (
@@ -153,7 +172,7 @@ export default function LearnCourse() {
                   )}
                 </span>
 
-                <span className="min-w-0 flex-1 break-words">
+                <span className="min-w-0 flex-1 wrap-break-word">
                   {index + 1}. {chapter.title}
                 </span>
               </button>
@@ -170,7 +189,7 @@ export default function LearnCourse() {
                           : "text-white/65 hover:bg-white/5 hover:text-white"
                       }`}
                     >
-                      <span className="block break-words">{lesson.title}</span>
+                      <span className="block wrap-break-word">{lesson.title}</span>
 
                       {lesson.resources?.length > 0 && (
                         <span className="mt-1 block text-xs text-orange-300">

@@ -179,7 +179,7 @@ export default function CourseDetails() {
           Back to courses
         </Link>
 
-        <section className="relative mt-6 overflow-hidden rounded-3xl border border-orange-500/20 bg-gradient-to-br from-orange-500/[.14] via-white/[.045] to-transparent p-5 sm:p-7 md:p-10">
+        <section className="relative mt-6 overflow-hidden rounded-3xl border border-orange-500/20 bg-linear-to-br from-orange-500/[.14] via-white/4.5 to-transparent p-5 sm:p-7 md:p-10">
           <div className="absolute -right-28 -top-24 h-96 w-96 rounded-full bg-orange-500/20 blur-[120px]" />
 
           <div className="relative grid gap-8 lg:grid-cols-[1.25fr_.75fr]">
@@ -194,7 +194,7 @@ export default function CourseDetails() {
                 </span>
               </div>
 
-              <h1 className="mt-5 break-words text-3xl font-black leading-tight sm:text-4xl md:text-6xl">
+              <h1 className="mt-5 wrap-break-word text-3xl font-black leading-tight sm:text-4xl md:text-6xl">
                 {course.title}
               </h1>
 
@@ -317,7 +317,7 @@ export default function CourseDetails() {
                       )}
                     </span>
 
-                    <span className="min-w-0 flex-1 break-words font-semibold">
+                    <span className="min-w-0 flex-1 wrap-break-word font-semibold">
                       {index + 1}. {chapter.title}
                     </span>
 
@@ -338,7 +338,7 @@ export default function CourseDetails() {
                             className="shrink-0 text-orange-400"
                           />
 
-                          <span className="min-w-0 flex-1 break-words">
+                          <span className="min-w-0 flex-1 wrap-break-word">
                             {lesson.title}
                           </span>
 
@@ -399,7 +399,7 @@ export default function CourseDetails() {
             {testimonials.map((review) => (
               <article
                 key={review.name}
-                className="rounded-3xl border border-white/10 bg-white/[.04] p-6"
+                className="rounded-3xl border border-white/10 bg-white/4 p-6"
               >
                 <div className="flex gap-1 text-orange-400">
                   {Array.from({ length: 5 }).map((_, i) => (
@@ -422,7 +422,7 @@ export default function CourseDetails() {
 
       {paymentRequest && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-md">
-          <div className="w-full max-w-xl rounded-[2rem] border border-orange-500/20 bg-[#111113] p-5 shadow-2xl sm:p-7">
+          <div className="w-full max-w-xl rounded-4xl border border-orange-500/20 bg-[#111113] p-5 shadow-2xl sm:p-7">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm font-semibold tracking-[.2em] text-orange-400">
@@ -442,7 +442,7 @@ export default function CourseDetails() {
               </button>
             </div>
 
-            <div className="mt-6 rounded-3xl border border-white/10 bg-white/[.04] p-5">
+            <div className="mt-6 rounded-3xl border border-white/10 bg-white/4 p-5">
               <p className="text-sm text-white/55">Amount to pay</p>
               <p className="mt-1 text-3xl font-black text-orange-300">
                 ₹{Number(paymentRequest.amount || 0).toFixed(2)}
@@ -454,7 +454,7 @@ export default function CourseDetails() {
                   <p className="mt-1 text-lg font-semibold text-white">
                     {paymentRequest.upi?.payeeName || "Stack Adda"}
                   </p>
-                  <p className="mt-1 break-words text-orange-300">
+                  <p className="mt-1 wrap-break-word text-orange-300">
                     {paymentRequest.upi?.payeeVpa}
                   </p>
                 </div>

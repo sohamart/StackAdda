@@ -1,6 +1,6 @@
 const asyncHandler = require("express-async-handler");
+const fs = require("fs");
 const path = require("path");
-const { Readable } = require("stream");
 const slugify = require("slugify");
 const streamifier = require("streamifier");
 const validator = require("validator");
@@ -1063,57 +1063,38 @@ const addLessonResource = asyncHandler(async (req, res) => {
   if (!course) return res.status(404).json({ success: false, message: "Course not found." });
   const chapter = course.chapters.id(req.params.chapterId);
   const lesson = chapter?.lessons.id(req.params.lessonId);
+  if (!chapter) return res.status(404).json({ success: false, message: "Chapter not found." });
   if (!lesson) return res.status(404).json({ success: false, message: "Lesson not found." });
   if (!title) return res.status(400).json({ success: false, message: "Resource title is required." });
-  if (req.file && url) return res.status(400).json({ success: false, message: "Upload a file or provide a resource URL, not both." });
+  if (req.file) return res.status(400).json({ success: false, message: "Resource uploads are disabled. Add a link instead." });
+  if (!url || !validator.isURL(url, { protocols: ["http", "https"], require_protocol: true })) {
+    return res.status(400).json({ success: false, message: "Add a valid resource link." });
+  }
   let resourceUrl = url;
   let publicId = "";
+  let filePath = "";
   let type = "link";
   let fileName = "";
   let mimeType = "";
   let size = 0;
+  fileName = buildDownloadFileName({ title, url });
 
-  if (req.file) {
-    mimeType = req.file.mimetype;
-    size = req.file.size || 0;
-    fileName = buildDownloadFileName({
-      title,
-      fileName: req.file.originalname,
-      mimeType,
-    });
-
-    const parsed = path.parse(fileName);
-    const publicName = sanitizeFileName(
-      `${Date.now()}-${parsed.name}${parsed.ext}`
-    );
-
-    const result = await uploadToCloudinary(
-      req.file.buffer,
-      "stackadda/resources",
-      "raw",
-      {
-        public_id: publicName,
-      }
-    );
-
-    resourceUrl = result.secure_url;
-    publicId = result.public_id;
-    type = "file";
-  } else if (!url || !validator.isURL(url, { protocols: ["http", "https"], require_protocol: true })) {
-    return res.status(400).json({ success: false, message: "Upload a file or provide a valid resource URL." });
-  } else {
-    fileName = buildDownloadFileName({ title, url });
-  }
-
-  lesson.resources.push({
+  const resource = lesson.resources.create({
     title,
     url: resourceUrl,
     public_id: publicId,
+    filePath,
     type,
     fileName,
     mimeType,
     size,
   });
+  lesson.resources.push(resource);
+
+  if (type === "file") {
+    resource.url = `/api/course/course/${course._id}/chapter/${chapter._id}/lesson/${lesson._id}/resource/${resource._id}/download`;
+  }
+
   await course.save();
   res.status(201).json({ success: true, message: "Resource added successfully.", resources: lesson.resources });
 });
@@ -1122,8 +1103,12 @@ const deleteLessonResource = asyncHandler(async (req, res) => {
   const course = await Course.findById(req.params.courseId);
   if (!course) return res.status(404).json({ success: false, message: "Course not found." });
   const lesson = course.chapters.id(req.params.chapterId)?.lessons.id(req.params.lessonId);
+  if (!lesson) return res.status(404).json({ success: false, message: "Lesson not found." });
   const resource = lesson?.resources.id(req.params.resourceId);
   if (!resource) return res.status(404).json({ success: false, message: "Resource not found." });
+  if (resource.filePath) {
+    await fs.promises.unlink(resource.filePath).catch(() => {});
+  }
   if (resource.public_id) await cloudinary.uploader.destroy(resource.public_id, { resource_type: "raw" });
   resource.deleteOne();
   await course.save();
@@ -1167,37 +1152,48 @@ const downloadLessonResource = asyncHandler(async (req, res) => {
     url: resource.url,
   });
 
-  const upstream = await fetch(resource.url);
+  if (resource.type === "file") {
+    if (resource.filePath) {
+      const exists = await fs.promises
+        .access(resource.filePath, fs.constants.F_OK)
+        .then(() => true)
+        .catch(() => false);
 
-  if (!upstream.ok || !upstream.body) {
-    return res.status(502).json({
+      if (!exists) {
+        return res.status(404).json({
+          success: false,
+          message: "Resource file not found.",
+        });
+      }
+
+      return res.download(resource.filePath, fileName, (error) => {
+        if (error && !res.headersSent) {
+          res.status(500).json({
+            success: false,
+            message: "Could not download the resource file.",
+          });
+        }
+      });
+    }
+
+    if (resource.url && validator.isURL(resource.url, { protocols: ["http", "https"], require_protocol: true })) {
+      return res.redirect(302, resource.url);
+    }
+
+    return res.status(404).json({
       success: false,
-      message: "Could not fetch the resource file.",
+      message: "Resource file not found.",
     });
   }
 
-  const asciiFileName = fileName.replace(/[^\x20-\x7E]/g, "_").replace(/"/g, "'");
-
-  const savedMimeType =
-    resource.mimeType || (String(resource.type).includes("/") ? resource.type : "");
-
-  res.setHeader(
-    "Content-Type",
-    savedMimeType ||
-      upstream.headers.get("content-type") ||
-      "application/octet-stream"
-  );
-  res.setHeader(
-    "Content-Disposition",
-    `attachment; filename="${asciiFileName}"; filename*=UTF-8''${encodeURIComponent(fileName)}`
-  );
-
-  const contentLength = upstream.headers.get("content-length");
-  if (contentLength) {
-    res.setHeader("Content-Length", contentLength);
+  if (!resource.url || !validator.isURL(resource.url, { protocols: ["http", "https"], require_protocol: true })) {
+    return res.status(400).json({
+      success: false,
+      message: "Resource link is invalid.",
+    });
   }
 
-  Readable.fromWeb(upstream.body).pipe(res);
+  return res.redirect(302, resource.url);
 });
 
 // ==========================

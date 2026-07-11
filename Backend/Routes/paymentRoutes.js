@@ -13,7 +13,7 @@ const {
 } = require("../Controllers/paymentController");
 
 // ==========================
-// Create Razorpay Order
+// Create UPI Payment Request
 // ==========================
 
 router.post(

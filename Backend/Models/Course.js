@@ -48,6 +48,7 @@ const LessonSchema = new mongoose.Schema(
         title: { type: String, required: true, trim: true },
         url: { type: String, required: true },
         public_id: { type: String, default: "" },
+        filePath: { type: String, default: "" },
         type: { type: String, default: "link" },
         fileName: { type: String, default: "" },
         mimeType: { type: String, default: "" },
