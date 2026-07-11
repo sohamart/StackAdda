@@ -1,18 +1,37 @@
-const getYoutubeEmbed = (url) => {
+const getEmbedUrl = (url) => {
+  if (!url) return null;
+
   try {
     const parsed = new URL(url);
 
-    let videoId = "";
+    // YouTube
+    if (
+      parsed.hostname.includes("youtube.com") ||
+      parsed.hostname.includes("youtu.be")
+    ) {
+      let id = "";
 
-    if (parsed.hostname.includes("youtu.be")) {
-      videoId = parsed.pathname.slice(1);
-    } else if (parsed.hostname.includes("youtube.com")) {
-      videoId =
-        parsed.searchParams.get("v") ||
-        parsed.pathname.split("/").pop();
+      if (parsed.hostname.includes("youtu.be")) {
+        id = parsed.pathname.slice(1);
+      } else {
+        id =
+          parsed.searchParams.get("v") ||
+          parsed.pathname.split("/").pop();
+      }
+
+      return `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1&playsinline=1`;
     }
 
-    return `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&playsinline=1&fs=1&iv_load_policy=3&cc_load_policy=0&disablekb=0`;
+    // Google Drive
+    if (parsed.hostname.includes("drive.google.com")) {
+      const match = parsed.pathname.match(/\/d\/([^/]+)/);
+
+      if (match) {
+        return `https://drive.google.com/file/d/${match[1]}/preview`;
+      }
+    }
+
+    return null;
   } catch {
     return null;
   }
@@ -20,21 +39,35 @@ const getYoutubeEmbed = (url) => {
 
 export default function VideoFrame({
   url,
-  title = "Course video",
+  title = "Course Video",
 }) {
-  const embed = url ? getYoutubeEmbed(url) : null;
+  const embedUrl = getEmbedUrl(url);
 
   return (
-    <div className="relative h-full">
-      {embed ? (
+    <div className="relative h-full w-full bg-black rounded-xl overflow-hidden">
+      {embedUrl ? (
         <iframe
-          className="h-full w-full"
-          src={embed}
+          src={embedUrl}
           title={title}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          className="w-full h-full"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
           allowFullScreen
         />
       ) : url ? (
+        <video
+          src={url}
+          controls
+          className="w-full h-full"
+          playsInline
+        />
+      ) : (
+        <div className="flex h-full items-center justify-center text-white/50">
+          No video available
+        </div>
+      )}
+    </div>
+  );
+}      ) : url ? (
         <video
           className="h-full w-full"
           controls
