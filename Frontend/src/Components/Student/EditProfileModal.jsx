@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import API from "../../api/axios";
 import { toast } from "react-toastify";
@@ -14,6 +14,16 @@ const EditProfileModal = ({ open, onClose }) => {
     phone: user?.phone || "",
     bio: user?.bio || "",
   });
+
+  useEffect(() => {
+    if (!open) return;
+
+    setFormData({
+      name: user?.name || "",
+      phone: user?.phone || "",
+      bio: user?.bio || "",
+    });
+  }, [open, user]);
 
   if (!open) return null;
 
@@ -37,7 +47,6 @@ const EditProfileModal = ({ open, onClose }) => {
           withCredentials: true,
         }
       );
-      console.log(data);
 
       setUser(data.user);
 
@@ -52,27 +61,26 @@ const EditProfileModal = ({ open, onClose }) => {
           "Something went wrong"
 
       );
-     
-      console.log(error.response?.data|| "Not done");
     } finally {
       setLoading(false);
-      console.log(data);
-
     }
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4 py-6 backdrop-blur-sm">
 
       <div
         className="
 w-full
 max-w-xl
+max-h-[90vh]
+overflow-y-auto
 rounded-3xl
 border
 border-white/10
 bg-[#111111]
-p-8
+p-5
+sm:p-8
 shadow-[0_0_60px_rgba(249,115,22,.15)]
 "
       >

@@ -3,7 +3,6 @@ import {
   Link,
   NavLink,
   useNavigate,
-  useLocation,
 } from "react-router-dom";
 
 import {
@@ -13,8 +12,6 @@ import {
   User,
   LayoutDashboard,
   GraduationCap,
-  Shield,
-  Settings,
   BookOpen,
   Phone,
   Info,
@@ -29,16 +26,16 @@ const Navbar = () => {
   const [profileOpen, setProfileOpen] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
 
   const { user, logout } = useAuth();
 
-  const isStudent = user?.role === "student";
   const isAdmin = user?.role === "admin";
+  const dashboardPath = isAdmin ? "/admin" : "/student";
+  const profilePath = isAdmin ? "/admin/profile" : "/student/profile";
 
   const avatar =
     user?.profileImage?.url ||
-    `https://ui-avatars.com/api/?background=f97316&color=fff&name=${user?.name}`;
+    `https://ui-avatars.com/api/?background=f97316&color=fff&name=${encodeURIComponent(user?.name || "Stack Adda")}`;
 
   const handleLogout = async () => {
   try {
@@ -52,6 +49,7 @@ const Navbar = () => {
   } finally {
     setLogoutLoading(false);
     setOpen(false);
+    setProfileOpen(false);
   }
 };
   const menuClass = ({ isActive }) =>
@@ -85,7 +83,7 @@ const Navbar = () => {
 
         <Link
           to="/"
-          className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent"
+          className="shrink-0 bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-xl font-bold text-transparent sm:text-2xl"
         >
           Stack Adda
         </Link>
@@ -227,13 +225,13 @@ const Navbar = () => {
                       className="w-16 h-16 rounded-full border-2 border-orange-500 object-cover"
                     />
 
-                    <div>
+                    <div className="min-w-0">
 
-                      <h2 className="text-white font-semibold text-lg">
+                      <h2 className="truncate text-lg font-semibold text-white">
                         {user.name}
                       </h2>
 
-                      <p className="text-white/50 text-sm">
+                      <p className="break-all text-sm text-white/50">
                         {user.email}
                       </p>
 
@@ -266,7 +264,7 @@ const Navbar = () => {
                   <div className="p-3 space-y-2">
 
                     <Link
-                      to={isAdmin ? "/admin" : "/student"}
+                      to={dashboardPath}
                       onClick={() => setProfileOpen(false)}
                       className="
                       flex
@@ -285,29 +283,25 @@ const Navbar = () => {
                       {isAdmin ? "Admin Dashboard" : "Dashboard"}
                     </Link>
 
-                    {!isAdmin && (
+                    <Link
+                      to={profilePath}
+                      onClick={() => setProfileOpen(false)}
+                      className="
+                      flex
+                      items-center
+                      gap-3
+                      rounded-xl
+                      px-4
+                      py-3
+                      text-white
+                      hover:bg-white/5
+                      transition
+                      "
+                    >
+                      <User size={20} />
 
-                      <Link
-                        to="/student/profile"
-                        onClick={() => setProfileOpen(false)}
-                        className="
-                        flex
-                        items-center
-                        gap-3
-                        rounded-xl
-                        px-4
-                        py-3
-                        text-white
-                        hover:bg-white/5
-                        transition
-                        "
-                      >
-                        <User size={20} />
-
-                        My Profile
-                      </Link>
-
-                    )}
+                      My Profile
+                    </Link>
 
                     {!isAdmin && (
                       <Link
@@ -343,26 +337,6 @@ const Navbar = () => {
                       </Link>
 
                     )}
-
-                    <Link
-                      to="/admin/profile"
-                      onClick={() => setProfileOpen(false)}
-                      className="
-                      flex
-                      items-center
-                      gap-3
-                      rounded-xl
-                      px-4
-                      py-3
-                      text-white
-                      hover:bg-white/5
-                      transition
-                      "
-                    >
-                      <User size={20} />
-
-                      My Profile
-                    </Link>
 
                     <button
   onClick={handleLogout}
@@ -411,6 +385,7 @@ const Navbar = () => {
 
           <button
             onClick={() => setOpen(!open)}
+            aria-label="Toggle menu"
             className="text-white md:hidden"
           >
             {open ? <X size={28} /> : <Menu size={28} />}
@@ -434,13 +409,13 @@ const Navbar = () => {
                 className="h-16 w-16 rounded-full border-2 border-orange-500 object-cover"
               />
 
-              <div>
+              <div className="min-w-0">
 
-                <h2 className="text-lg font-semibold text-white">
+                <h2 className="truncate text-lg font-semibold text-white">
                   {user.name}
                 </h2>
 
-                <p className="text-sm text-white/50">
+                <p className="break-all text-sm text-white/50">
                   {user.email}
                 </p>
                 <div className="mt-1 gap-2 flex">
@@ -517,7 +492,7 @@ const Navbar = () => {
             {user ? (
               <>
                 <NavLink
-                  to={isAdmin ? "/admin" : "/student"}
+                  to={dashboardPath}
                   onClick={() => setOpen(false)}
                   className={menuClass}
                 >
@@ -527,36 +502,21 @@ const Navbar = () => {
                   </div>
                 </NavLink>
 
-                {!isAdmin && (
-                  <NavLink
-                    to="/student/profile"
-                    onClick={() => setOpen(false)}
-                    className={menuClass}
-                  >
-                    <div className="flex items-center gap-3">
-                      <User size={20} />
-                      My Profile
-                    </div>
-                  </NavLink>
-                )}
+                <NavLink
+                  to={profilePath}
+                  onClick={() => setOpen(false)}
+                  className={menuClass}
+                >
+                  <div className="flex items-center gap-3">
+                    <User size={20} />
+                    My Profile
+                  </div>
+                </NavLink>
                 {!isAdmin && (
                   <NavLink to="/student/courses" onClick={() => setOpen(false)} className={menuClass}>
                     <div className="flex items-center gap-3"><BookOpen size={20} />My Courses</div>
                   </NavLink>
                 )}
-                {isAdmin && (
-                  <NavLink
-                    to="/admin/profile"
-                    onClick={() => setOpen(false)}
-                    className={menuClass}
-                  >
-                    <div className="flex items-center gap-3">
-                      <User size={20} />
-                      My Profile
-                    </div>
-                  </NavLink>
-                )}
-
                 {isAdmin && (
                   <NavLink
                     to="/admin/students"

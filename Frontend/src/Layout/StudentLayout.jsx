@@ -1,4 +1,3 @@
-import React from "react";
 import { Outlet, Navigate } from "react-router-dom";
 import { useAuth } from "../Context/AuthContext";
 import Navbar from "../Components/Navbar/Navbar";
@@ -33,7 +32,7 @@ const StudentLayout = () => {
     <div className="min-h-screen bg-[#09090B]">
       <Navbar />
 
-      <main className="pt-28 px-5 md:px-8 lg:px-10">
+      <main className="mx-auto w-full max-w-7xl px-4 pb-10 pt-24 sm:px-6 md:pt-28 lg:px-8">
         <StudentNav />
         <Outlet />
       </main>

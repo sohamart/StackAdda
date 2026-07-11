@@ -7,7 +7,7 @@ import {
   ChevronRight,
   Clock3,
   FileText,
-  Infinity,
+  Infinity as InfinityIcon,
   Loader2,
   PlayCircle,
   Star,
@@ -36,6 +36,21 @@ const testimonials = [
   },
 ];
 
+const loadRazorpayCheckout = () =>
+  new Promise((resolve, reject) => {
+    if (window.Razorpay) {
+      resolve();
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = resolve;
+    script.onerror = () =>
+      reject(new Error("Payment checkout could not be loaded."));
+    document.body.appendChild(script);
+  });
+
 export default function CourseDetails() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -48,42 +63,88 @@ export default function CourseDetails() {
   useEffect(() => {
     API.get(`/course/${slug}`)
       .then(({ data }) => {
-        setCourse(data.course);
-
+        const nextCourse = data.course;
+        setCourse(nextCourse);
         setOpen({
-          [data.course.chapters?.[0]?._id]: true,
+          [nextCourse.chapters?.[0]?._id]: true,
         });
       })
       .catch((e) =>
-        toast.error(
-          e.response?.data?.message || "Course not found."
-        )
+        toast.error(e.response?.data?.message || "Course not found.")
       );
   }, [slug]);
+
+  const startPaidCheckout = async () => {
+    if (!user) return navigate("/login");
+
+    try {
+      setLoading(true);
+      await loadRazorpayCheckout();
+
+      const { data } = await API.post("/payment/create-order", {
+        courseId: course._id,
+      });
+
+      const checkout = new window.Razorpay({
+        key: data.key,
+        amount: data.amount,
+        currency: data.currency,
+        name: "Stack Adda",
+        description: course.title,
+        order_id: data.orderId,
+        prefill: {
+          name: user.name || "",
+          email: user.email || "",
+          contact: user.phone || "",
+        },
+        theme: {
+          color: "#f97316",
+        },
+        handler: async (response) => {
+          try {
+            const verify = await API.post("/payment/verify", response);
+            toast.success(verify.data.message);
+            navigate(`/student/course/${verify.data.courseId || course._id}`);
+          } catch (e) {
+            toast.error(
+              e.response?.data?.message || "Payment verification failed."
+            );
+          } finally {
+            setLoading(false);
+          }
+        },
+        modal: {
+          ondismiss: () => setLoading(false),
+        },
+      });
+
+      checkout.open();
+    } catch (e) {
+      toast.error(
+        e.response?.data?.message ||
+          e.message ||
+          "Payment could not be started."
+      );
+      setLoading(false);
+    }
+  };
 
   const enroll = async () => {
     if (!user) return navigate("/login");
 
     if (course.accessType === "paid") {
-      return toast.info(
-        "Use Buy course after Razorpay is configured."
-      );
+      return startPaidCheckout();
     }
 
     try {
       setLoading(true);
 
-      const { data } = await API.post(
-        `/course/enroll/${course._id}`
-      );
+      const { data } = await API.post(`/course/enroll/${course._id}`);
 
       toast.success(data.message);
       navigate("/student/courses");
     } catch (e) {
-      toast.error(
-        e.response?.data?.message ||
-          "Could not enroll."
-      );
+      toast.error(e.response?.data?.message || "Could not enroll.");
     } finally {
       setLoading(false);
     }
@@ -97,34 +158,27 @@ export default function CourseDetails() {
     );
   }
 
-  const lessons = course.chapters.reduce(
-    (sum, chapter) => sum + chapter.lessons.length,
+  const chapters = course.chapters || [];
+  const lessons = chapters.reduce(
+    (sum, chapter) => sum + (chapter.lessons?.length || 0),
     0
   );
-
-  const preview = course.chapters
-    .flatMap((chapter) => chapter.lessons)
-    .find(
-      (lesson) =>
-        lesson.isPreview && lesson.video?.url
-    );
+  const preview = chapters
+    .flatMap((chapter) => chapter.lessons || [])
+    .find((lesson) => lesson.isPreview && lesson.video?.url);
 
   return (
-    <main className="min-h-screen bg-[#09090B] px-5 pb-20 pt-32 text-white md:px-10">
+    <main className="min-h-screen bg-[#09090B] px-4 pb-20 pt-28 text-white sm:px-6 md:px-10 md:pt-32">
       <div className="mx-auto max-w-7xl">
-        <Link
-          to="/courses"
-          className="text-sm font-medium text-orange-400"
-        >
-          ← Browse all courses
+        <Link to="/courses" className="text-sm font-medium text-orange-400">
+          Back to courses
         </Link>
 
-        {/* Hero Section */}
-        <section className="relative mt-6 overflow-hidden rounded-[2rem] border border-orange-500/20 bg-gradient-to-br from-orange-500/[.14] via-white/[.045] to-transparent p-6 md:p-10">
+        <section className="relative mt-6 overflow-hidden rounded-3xl border border-orange-500/20 bg-gradient-to-br from-orange-500/[.14] via-white/[.045] to-transparent p-5 sm:p-7 md:p-10">
           <div className="absolute -right-28 -top-24 h-96 w-96 rounded-full bg-orange-500/20 blur-[120px]" />
 
-          <div className="relative grid gap-9 lg:grid-cols-[1.25fr_.75fr]">
-            <div>
+          <div className="relative grid gap-8 lg:grid-cols-[1.25fr_.75fr]">
+            <div className="min-w-0">
               <div className="flex flex-wrap gap-2">
                 <span className="rounded-full bg-orange-500/15 px-3 py-1 text-sm text-orange-200">
                   {course.category}
@@ -135,15 +189,15 @@ export default function CourseDetails() {
                 </span>
               </div>
 
-              <h1 className="mt-5 text-4xl font-black leading-tight md:text-6xl">
+              <h1 className="mt-5 break-words text-3xl font-black leading-tight sm:text-4xl md:text-6xl">
                 {course.title}
               </h1>
 
-              <p className="mt-5 max-w-3xl text-lg leading-8 text-white/65">
+              <p className="mt-5 max-w-3xl text-base leading-7 text-white/65 sm:text-lg sm:leading-8">
                 {course.description}
               </p>
 
-              <div className="mt-7 flex flex-wrap gap-5 text-sm text-white/70">
+              <div className="mt-7 flex flex-wrap gap-4 text-sm text-white/70 sm:gap-5">
                 <span className="flex items-center gap-2">
                   <Star
                     size={17}
@@ -154,50 +208,44 @@ export default function CourseDetails() {
                 </span>
 
                 <span className="flex items-center gap-2">
-                  <Users
-                    size={17}
-                    className="text-orange-400"
-                  />
+                  <Users size={17} className="text-orange-400" />
                   {course.students?.length || "500+"} learners
                 </span>
 
                 <span className="flex items-center gap-2">
-                  <Clock3
-                    size={17}
-                    className="text-orange-400"
-                  />
+                  <Clock3 size={17} className="text-orange-400" />
                   {course.duration || "Self paced"}
                 </span>
               </div>
             </div>
 
-            <aside className="rounded-3xl border border-white/15 bg-[#15110f]/80 p-5 shadow-2xl backdrop-blur">
+            <aside className="rounded-3xl border border-white/15 bg-[#15110f]/80 p-4 shadow-2xl backdrop-blur sm:p-5">
               <img
                 src={
                   course.thumbnail?.url ||
                   "https://placehold.co/900x500/18181b/f97316?text=Stack+Adda"
                 }
-                alt=""
-                className="h-48 w-full rounded-2xl object-cover"
+                alt={course.title}
+                className="aspect-video w-full rounded-2xl object-cover"
               />
 
               <p className="mt-5 text-3xl font-black text-orange-300">
-                {course.accessType === "free"
-                  ? "Free"
-                  : `₹${course.price}`}
+                {course.accessType === "free" ? "Free" : `Rs ${course.price}`}
               </p>
 
               <p className="mt-1 text-sm text-white/45">
-                One-time payment · Lifetime access
+                One-time payment - Lifetime access
               </p>
 
               <button
                 disabled={loading}
                 onClick={enroll}
-                className="mt-5 w-full rounded-xl bg-orange-500 py-3.5 font-bold hover:bg-orange-600"
+                className="mt-5 w-full rounded-xl bg-orange-500 py-3.5 font-bold transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loading
-                  ? "Enrolling…"
+                  ? course.accessType === "paid"
+                    ? "Processing..."
+                    : "Enrolling..."
                   : course.accessType === "free"
                   ? "Enroll now"
                   : "Buy course"}
@@ -206,7 +254,7 @@ export default function CourseDetails() {
               {preview && (
                 <Link
                   to={`/courses/${slug}/preview/${preview._id}`}
-                  className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 py-3 font-medium hover:border-orange-500"
+                  className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 py-3 font-medium transition hover:border-orange-500"
                 >
                   <PlayCircle size={18} />
                   Watch free preview
@@ -216,12 +264,9 @@ export default function CourseDetails() {
           </div>
         </section>
 
-        {/* Content */}
         <section className="mt-12 grid gap-10 lg:grid-cols-[1.2fr_.8fr]">
-          <div>
-            <h2 className="text-3xl font-black">
-              What you'll get
-            </h2>
+          <div className="min-w-0">
+            <h2 className="text-3xl font-black">What you'll get</h2>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               {[
@@ -236,21 +281,16 @@ export default function CourseDetails() {
                   key={item}
                   className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[.035] p-4 text-white/75"
                 >
-                  <CheckCircle2
-                    className="text-orange-400"
-                    size={18}
-                  />
-                  {item}
+                  <CheckCircle2 className="text-orange-400" size={18} />
+                  <span className="min-w-0">{item}</span>
                 </div>
               ))}
             </div>
 
-            <h2 className="mt-12 text-3xl font-black">
-              Course curriculum
-            </h2>
+            <h2 className="mt-12 text-3xl font-black">Course curriculum</h2>
 
             <div className="mt-5 space-y-3">
-              {course.chapters.map((chapter, index) => (
+              {chapters.map((chapter, index) => (
                 <div
                   key={chapter._id}
                   className="overflow-hidden rounded-2xl border border-white/10 bg-white/[.035]"
@@ -259,11 +299,10 @@ export default function CourseDetails() {
                     onClick={() =>
                       setOpen({
                         ...open,
-                        [chapter._id]:
-                          !open[chapter._id],
+                        [chapter._id]: !open[chapter._id],
                       })
                     }
-                    className="flex w-full items-center gap-3 p-5 text-left"
+                    className="flex w-full items-center gap-3 p-4 text-left sm:p-5"
                   >
                     <span className="text-orange-400">
                       {open[chapter._id] ? (
@@ -273,35 +312,35 @@ export default function CourseDetails() {
                       )}
                     </span>
 
-                    <span className="flex-1 font-semibold">
+                    <span className="min-w-0 flex-1 break-words font-semibold">
                       {index + 1}. {chapter.title}
                     </span>
 
-                    <span className="text-sm text-white/45">
-                      {chapter.lessons.length} lessons
+                    <span className="shrink-0 text-sm text-white/45">
+                      {chapter.lessons?.length || 0} lessons
                     </span>
                   </button>
 
                   {open[chapter._id] && (
                     <div className="border-t border-white/10 p-3">
-                      {chapter.lessons.map((lesson) => (
+                      {(chapter.lessons || []).map((lesson) => (
                         <div
                           key={lesson._id}
                           className="flex items-center gap-3 rounded-xl p-3 text-sm text-white/65"
                         >
                           <PlayCircle
                             size={17}
-                            className="text-orange-400"
+                            className="shrink-0 text-orange-400"
                           />
 
-                          <span className="flex-1">
+                          <span className="min-w-0 flex-1 break-words">
                             {lesson.title}
                           </span>
 
                           {lesson.isPreview && (
                             <Link
                               to={`/courses/${slug}/preview/${lesson._id}`}
-                              className="text-xs font-semibold text-green-300"
+                              className="shrink-0 text-xs font-semibold text-green-300"
                             >
                               Preview
                             </Link>
@@ -317,32 +356,24 @@ export default function CourseDetails() {
 
           <aside>
             <div className="rounded-3xl border border-white/10 bg-white/[.035] p-6">
-              <h3 className="text-xl font-bold">
-                This course includes
-              </h3>
+              <h3 className="text-xl font-bold">This course includes</h3>
 
               <div className="mt-5 space-y-4 text-sm text-white/65">
                 <p className="flex gap-3">
-                  <FileText
-                    size={18}
-                    className="text-orange-400"
-                  />
+                  <FileText size={18} className="shrink-0 text-orange-400" />
                   Notes and downloadable resources
                 </p>
 
                 <p className="flex gap-3">
-                  <Infinity
+                  <InfinityIcon
                     size={18}
-                    className="text-orange-400"
+                    className="shrink-0 text-orange-400"
                   />
                   Lifetime access
                 </p>
 
                 <p className="flex gap-3">
-                  <Award
-                    size={18}
-                    className="text-orange-400"
-                  />
+                  <Award size={18} className="shrink-0 text-orange-400" />
                   Learn at your own pace
                 </p>
               </div>
@@ -350,7 +381,6 @@ export default function CourseDetails() {
           </aside>
         </section>
 
-        {/* Testimonials */}
         <section className="mt-16">
           <p className="text-sm font-semibold tracking-[.2em] text-orange-400">
             STUDENT REVIEWS
@@ -367,28 +397,18 @@ export default function CourseDetails() {
                 className="rounded-3xl border border-white/10 bg-white/[.04] p-6"
               >
                 <div className="flex gap-1 text-orange-400">
-                  {Array.from({ length: 5 }).map(
-                    (_, i) => (
-                      <Star
-                        key={i}
-                        size={16}
-                        fill="currentColor"
-                      />
-                    )
-                  )}
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} size={16} fill="currentColor" />
+                  ))}
                 </div>
 
                 <p className="mt-5 leading-7 text-white/70">
-                  “{review.text}”
+                  "{review.text}"
                 </p>
 
-                <h3 className="mt-6 font-bold">
-                  {review.name}
-                </h3>
+                <h3 className="mt-6 font-bold">{review.name}</h3>
 
-                <p className="text-sm text-white/45">
-                  {review.role}
-                </p>
+                <p className="text-sm text-white/45">{review.role}</p>
               </article>
             ))}
           </div>

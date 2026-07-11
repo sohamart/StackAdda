@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
-  
   Camera,
   LoaderCircle,
   Mail,
@@ -13,22 +12,23 @@ import {
   GraduationCap,
   Award,
 } from "lucide-react";
-import { Link } from "react-router-dom";
 import { useAuth } from "../../Context/AuthContext";
 import EditProfileModal from "../../Components/Student/EditProfileModal";
 import API from "../../api/axios";
 import { toast } from "react-toastify";
 import ChangePasswordModal from "../../Components/Student/ChangePasswordModal";
-import { useEffect } from "react";
 
 
 const Profile = () => {
-  const { user, setUser, getCurrentUser } = useAuth();
+  const { user, getCurrentUser } = useAuth();
   const [openPassword, setOpenPassword] = useState(false);
-  const [ProfileUpdatedMassage, setProfileUpdatedMessage] = useState(null);
-  
   const [openEdit, setOpenEdit] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const enrolledCourses = user?.enrolledCourses?.length || 0;
+  const joinedYear = user?.createdAt
+    ? new Date(user.createdAt).getFullYear()
+    : new Date().getFullYear();
+
  const handleImageUpload = async (e) => {
   const file = e.target.files[0];
 
@@ -98,9 +98,9 @@ bg-gradient-to-r
 from-orange-600/40
 via-orange-500/10
 to-black
-h-52
-sm:h-64
-lg:h-20
+h-36
+sm:h-48
+lg:h-56
 shadow-[0_0_80px_rgba(249,115,22,.15)]
 "
         >
@@ -113,7 +113,7 @@ shadow-[0_0_80px_rgba(249,115,22,.15)]
 
         {/* Card */}
 
-        <div className="-mt-52 sm:-mt-24">
+        <div className="-mt-16 sm:-mt-24">
 
           <div
             className="
@@ -215,7 +215,7 @@ shadow-lg
                     />
 
                     <h2 className="text-xl font-bold text-center mt-2">
-                      0
+                      {enrolledCourses}
                     </h2>
 
                     <p className="text-xs text-center text-white/60">
@@ -249,7 +249,7 @@ shadow-lg
                     />
 
                     <h2 className="text-sm font-bold text-center mt-2">
-                      2026
+                      {joinedYear}
                     </h2>
 
                     <p className="text-xs text-center text-white/60">

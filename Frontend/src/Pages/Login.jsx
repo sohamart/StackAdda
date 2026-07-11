@@ -1,57 +1,46 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import LoginForm from "..//Components//Login//LoginForm";
 import RegisterForm from "..//Components//Login//RegisterForm";
 import { GraduationCap, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../Context/AuthContext";
-import { useEffect } from "react";
 import { toast } from "react-toastify";
+import { GoogleLogin } from "@react-oauth/google";
  
 const Login = () => {
   const [isRegister, setIsRegister] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const { user, loading } = useAuth();
+  const { user, loading, studentGoogleLogin } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-  console.log("Loading:", loading);
-  console.log("User:", user);
+    if (loading || !user) return;
 
-  if (loading) return;
-
-  if (user) {
-    console.log("Navigating...");
-    
-
-setTimeout(() => {
-  navigate(user.role === "admin" ? "/admin" : "/student", {
+    navigate(user.role === "admin" ? "/admin" : "/student", {
       replace: true,
     });
-}, 0);
-    
-  }
-}, [user, loading, navigate]);
+  }, [user, loading, navigate]);
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-4  overflow-hidden relative">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-black px-4 py-28 sm:px-6 lg:py-32">
 
       {/* Background Glow */}
       <div className="absolute  left-0 top-0 w-96 h-96 lg:bg-orange-500/20 bg-orange-500/5 blur-[140px]" />
       <div className="absolute right-0 bottom-0 w-96 h-96 lg:bg-orange-500/20 bg-orange-500/5 blur-[140px]" />
 
-      <div className="relative mt-24  lg:mb-0 z-10 w-full max-w-5xl rounded-3xl overflow-hidden border border-orange-500/20 bg-white/[0.04] backdrop-blur-3xl">
+      <div className="relative z-10 w-full max-w-5xl overflow-hidden rounded-2xl border border-orange-500/20 bg-white/[0.04] backdrop-blur-3xl sm:rounded-3xl">
 
         <div className="grid lg:grid-cols-2">
 
           {/* ================= LEFT ================= */}
 
-          <div className="hidden lg:flex flex-col justify-center p-10 border-r border-orange-500/10">
+          <div className="hidden flex-col justify-center border-r border-orange-500/10 p-8 lg:flex xl:p-10">
 
             <span className="text-orange-400 uppercase tracking-[6px] text-sm">
               Stack Adda
             </span>
 
-            <h1 className="text-6xl font-black text-white mt-2 leading-tight">
+            <h1 className="mt-2 text-5xl font-black leading-tight text-white xl:text-6xl">
               Learn.
               <br />
               Build.
@@ -66,10 +55,10 @@ setTimeout(() => {
 
             {/* Stats */}
 
-            <div className="grid grid-cols-3 gap-2 mt-5">
+            <div className="mt-5 grid grid-cols-3 gap-3">
 
               <div>
-                <h2 className="text-4xl font-bold text-orange-400">
+                <h2 className="text-3xl font-bold text-orange-400 xl:text-4xl">
                   1000+
                 </h2>
 
@@ -79,7 +68,7 @@ setTimeout(() => {
               </div>
 
               <div>
-                <h2 className="text-4xl font-bold text-orange-400">
+                <h2 className="text-3xl font-bold text-orange-400 xl:text-4xl">
                   50+
                 </h2>
 
@@ -89,7 +78,7 @@ setTimeout(() => {
               </div>
 
               <div>
-                <h2 className="text-4xl font-bold text-orange-400">
+                <h2 className="text-3xl font-bold text-orange-400 xl:text-4xl">
                   95%
                 </h2>
 
@@ -104,7 +93,7 @@ setTimeout(() => {
 
           {/* ================= RIGHT ================= */}
 
-          <div className="p-5 sm:p-6 lg:px-8 lg:py-2 ">
+          <div className="p-5 sm:p-7 lg:p-8">
 
             {/* Logo */}
 
@@ -118,14 +107,14 @@ setTimeout(() => {
 
             {/* Student/Admin Toggle */}
 
-            <div className="flex bg-white/5 rounded-xl p-2 mb-3 mt-2">
+            <div className="mb-4 mt-2 flex rounded-xl bg-white/5 p-2">
 
               <button
                 onClick={() => {
                   setIsAdmin(false);
                   setIsRegister(false);
                 }}
-                className={`flex-1 flex items-center justify-center gap-2 py-1 rounded-lg transition ${
+                className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-2.5 transition ${
                   !isAdmin
                     ? "bg-orange-500 text-white"
                     : "text-white/60 hover:text-white"
@@ -140,7 +129,7 @@ setTimeout(() => {
                   setIsAdmin(true);
                   setIsRegister(false);
                 }}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg transition ${
+                className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-2.5 transition ${
                   isAdmin
                     ? "bg-orange-500 text-white"
                     : "text-white/60 hover:text-white"
@@ -163,6 +152,28 @@ setTimeout(() => {
                 isAdmin={isAdmin}
                 setIsRegister={setIsRegister}
               />
+            )}
+
+
+            {!isAdmin && !isRegister && (
+              <div className="mt-5 flex flex-col items-center justify-center rounded-xl py-1.5">
+                <p className="mb-4 text-sm text-white/60">Or continue with</p>
+                <div className="w-full max-w-[320px] overflow-hidden rounded-xl bg-orange-500/20 p-2">
+                  <GoogleLogin
+                    theme="outline"
+                    shape="rectangular"
+                    width="300"
+                    text="continue_with"
+                    onSuccess={async ({ credential }) => {
+                      const success = await studentGoogleLogin(credential);
+                      if (success) navigate("/student");
+                    }}
+                    onError={() =>
+                      toast.error("Google sign-in was cancelled or failed.")
+                    }
+                  />
+                </div>
+              </div>
             )}
 
           </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Eye, EyeOff, User, Mail, Lock } from "lucide-react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -58,7 +58,7 @@ const RegisterForm = ({ setIsRegister }) => {
 
       <form
         onSubmit={handleSubmit}
-        className="mt-4 space-y-4"
+        className="mt-5 space-y-4"
       >
         {/* Name */}
 
@@ -80,7 +80,7 @@ const RegisterForm = ({ setIsRegister }) => {
             border
             border-white/10
             bg-white/5
-            py-2
+            py-3
             pl-12
             pr-4
             text-white
@@ -111,7 +111,7 @@ const RegisterForm = ({ setIsRegister }) => {
             border
             border-white/10
             bg-white/5
-            py-2
+            py-3
             pl-12
             pr-4
             text-white
@@ -142,7 +142,7 @@ const RegisterForm = ({ setIsRegister }) => {
             border
             border-white/10
             bg-white/5
-            py-2
+            py-3
             pl-12
             pr-12
             text-white
@@ -174,7 +174,7 @@ const RegisterForm = ({ setIsRegister }) => {
           w-full
           rounded-xl
           bg-orange-600
-          py-2
+          py-3
           font-semibold
           text-white
           transition
@@ -186,6 +186,7 @@ const RegisterForm = ({ setIsRegister }) => {
         >
           {loading ? "Creating Account..." : "Register"}
         </button>
+        
       </form>
 
       <p className="mt-4 text-center text-white/60">

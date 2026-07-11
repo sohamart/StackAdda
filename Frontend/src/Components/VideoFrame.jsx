@@ -1,5 +1,3 @@
-import { Download, FileText } from "lucide-react";
-
 const getYoutubeEmbed = (url) => {
   try {
     const parsed = new URL(url);
@@ -14,7 +12,9 @@ const getYoutubeEmbed = (url) => {
         parsed.pathname.split("/").pop()
       }`;
     }
-  } catch {}
+  } catch {
+    return null;
+  }
 
   return null;
 };
@@ -22,7 +22,6 @@ const getYoutubeEmbed = (url) => {
 export default function VideoFrame({
   url,
   title = "Course video",
-  resources = [],
 }) {
   const embed = url ? getYoutubeEmbed(url) : null;
 

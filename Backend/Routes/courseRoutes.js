@@ -25,6 +25,7 @@ const {
     deleteLesson,
     addLessonResource,
     deleteLessonResource,
+    downloadLessonResource,
     assignCourse,
     removeAssignedCourse,
     enrollFreeCourse,
@@ -164,6 +165,11 @@ router.delete(
   authMiddleware,
   roleMiddleware("admin"),
   deleteLessonResource
+);
+router.get(
+  "/course/:courseId/chapter/:chapterId/lesson/:lessonId/resource/:resourceId/download",
+  authMiddleware,
+  downloadLessonResource
 );
 router.get(
   "/learn/:id",

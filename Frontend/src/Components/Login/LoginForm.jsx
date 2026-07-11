@@ -1,14 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../Context/AuthContext";
-import { GoogleLogin } from "@react-oauth/google";
 
 const LoginForm = ({ isAdmin, setIsRegister }) => {
   const navigate = useNavigate();
 
-  const { studentLogin, studentGoogleLogin, adminLogin } = useAuth();
+  const { studentLogin, adminLogin } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -68,7 +67,7 @@ const LoginForm = ({ isAdmin, setIsRegister }) => {
           : "Login to continue learning."}
       </p>
 
-      <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+      <form onSubmit={handleSubmit} className="mt-5 space-y-4">
         {/* Email */}
 
         <div className="relative">
@@ -89,7 +88,7 @@ const LoginForm = ({ isAdmin, setIsRegister }) => {
             border
             border-white/10
             bg-white/5
-            py-2
+            py-3
             pl-12
             pr-4
             text-white
@@ -120,7 +119,7 @@ const LoginForm = ({ isAdmin, setIsRegister }) => {
             border
             border-white/10
             bg-white/5
-            py-2
+            py-3
             pl-12
             pr-12
             text-white
@@ -156,7 +155,7 @@ const LoginForm = ({ isAdmin, setIsRegister }) => {
           w-full
           rounded-xl
           bg-orange-600
-          py-2
+          py-3
           font-semibold
           text-white
           transition
@@ -173,23 +172,6 @@ const LoginForm = ({ isAdmin, setIsRegister }) => {
             : "Login"}
         </button>
 
-        {/* Google Login */}
-
-        {!isAdmin && (
-          <div className="flex justify-center rounded-xl bg-white py-1.5">
-            <GoogleLogin
-              theme="outline"
-              shape="rectangular"
-              width="300"
-              text="continue_with"
-              onSuccess={async ({ credential }) => {
-                const success = await studentGoogleLogin(credential);
-                if (success) navigate("/student");
-              }}
-              onError={() => toast.error("Google sign-in was cancelled or failed.")}
-            />
-          </div>
-        )}
       </form>
 
       {/* Register */}

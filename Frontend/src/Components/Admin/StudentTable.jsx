@@ -1,7 +1,5 @@
-import React from "react";
 import {
   Eye,
-  Trash2,
   Mail,
   Phone,
   Calendar,
@@ -26,7 +24,8 @@ border
 border-white/10
 bg-white/[0.04]
 backdrop-blur-3xl
-p-6
+p-4
+sm:p-6
 transition-all
 duration-300
 hover:-translate-y-1
@@ -43,7 +42,7 @@ hover:shadow-[0_0_40px_rgba(249,115,22,.12)]
 
             {/* Left */}
 
-            <div className="flex items-center gap-5">
+            <div className="flex items-start gap-4 sm:items-center sm:gap-5">
 
               <img
                 src={
@@ -52,8 +51,10 @@ hover:shadow-[0_0_40px_rgba(249,115,22,.12)]
                 }
                 alt=""
                 className="
-h-20
-w-20
+h-16
+w-16
+sm:h-20
+sm:w-20
 rounded-full
 border-2
 border-orange-500
@@ -63,7 +64,7 @@ object-cover
 
               <div>
 
-                <h2 className="text-2xl font-bold text-white">
+                <h2 className="break-words text-xl font-bold text-white sm:text-2xl">
                   {student.name}
                 </h2>
 
@@ -92,7 +93,7 @@ object-cover
             </div>
                         {/* Right */}
 
-            <div className="grid flex-1 gap-4 md:grid-cols-3">
+            <div className="grid min-w-0 flex-1 gap-4 md:grid-cols-3">
 
               {/* Email */}
 
@@ -187,7 +188,7 @@ p-4
               className="
 flex
 flex-wrap
-items-center
+items-stretch
 justify-end
 gap-3
 lg:w-[220px]
@@ -200,6 +201,7 @@ lg:w-[220px]
 group
 flex
 items-center
+justify-center
 gap-2
 rounded-2xl
 border
@@ -213,6 +215,8 @@ transition-all
 duration-300
 hover:bg-blue-500
 hover:text-white
+w-full
+sm:w-auto
 "
               >
                 <Eye

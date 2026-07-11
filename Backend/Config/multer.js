@@ -17,6 +17,7 @@ const fileFilter = (req, file, cb) => {
   const resourceTypes = [
     "application/pdf",
     "application/zip",
+    "application/x-zip-compressed",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "application/msword",
     "text/plain",

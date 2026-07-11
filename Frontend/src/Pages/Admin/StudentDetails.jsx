@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ArrowLeft,
   Mail,
@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import API from "../../api/axios";
-import { Trash2, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import DeleteStudentModal from "../../Components/Admin/DeleteStudentModal";
@@ -30,13 +29,7 @@ const StudentDetails = () => {
 const [deleteLoading, setDeleteLoading] =
   useState(false);
 
-  useEffect(() => {
-
-    fetchStudent();
-
-  }, []);
-
-  const fetchStudent = async () => {
+  const fetchStudent = useCallback(async () => {
 
     try {
 
@@ -61,7 +54,11 @@ const [deleteLoading, setDeleteLoading] =
 
     }
 
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchStudent();
+  }, [fetchStudent]);
   const handleDelete = async () => {
 
   const confirmDelete = window.confirm(
@@ -117,6 +114,18 @@ const [deleteLoading, setDeleteLoading] =
       </div>
     );
   }
+
+  if (!student) {
+    return (
+      <div className="flex h-[65vh] flex-col items-center justify-center text-center text-white">
+        <h1 className="text-2xl font-bold">Student not found</h1>
+        <Link to="/admin/students" className="mt-4 text-orange-400">
+          Back to students
+        </Link>
+      </div>
+    );
+  }
+
     return (
     <div className="space-y-8">
 
@@ -126,7 +135,7 @@ const [deleteLoading, setDeleteLoading] =
 
         <div>
 
-          <h1 className="text-4xl font-bold text-white">
+          <h1 className="text-3xl font-bold text-white sm:text-4xl">
             Student Details
           </h1>
 
@@ -209,9 +218,9 @@ object-cover
 "
               />
 
-              <div className="text-center lg:text-left  lg:w-120">
+              <div className="min-w-0 text-center lg:w-120 lg:text-left">
 
-                <h2 className="text-3xl font-bold text-white">
+                <h2 className="break-words text-2xl font-bold text-white sm:text-3xl">
                   {student.name}
                 </h2>
 
@@ -240,7 +249,7 @@ object-cover
             </div>
                         {/* Right */}
 
-            <div className="flex  w-full lg:justify-end justify-center gap-3">
+            <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-3 lg:flex lg:justify-end">
 
            
 
@@ -252,7 +261,7 @@ rounded-2xl
 border
 border-red-500/20
 bg-red-500/10
-px-12
+px-6
 py-3
 font-medium
 text-red-400
@@ -271,7 +280,7 @@ rounded-2xl
 border
 border-orange-500/20
 bg-orange-500/10
-px-12
+px-6
 py-3
 font-medium
 text-orange-400

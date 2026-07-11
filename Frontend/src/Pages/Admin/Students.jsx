@@ -1,19 +1,14 @@
-import React, { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Search, Users } from "lucide-react";
 import API from "../../api/axios";
 import StudentTable from "../../Components/Admin/StudentTable";
 
 const Students = () => {
   const [students, setStudents] = useState([]);
-  const [filteredStudents, setFilteredStudents] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchStudents();
-  }, []);
-
-  const fetchStudents = async () => {
+  const fetchStudents = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -24,25 +19,27 @@ const Students = () => {
         }
       );
 
-      setStudents(data.students);
-      setFilteredStudents(data.students);
+      setStudents(data.students || []);
 
     } catch (error) {
       console.log(error);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    const value = search.toLowerCase();
+    fetchStudents();
+  }, [fetchStudents]);
 
-    setFilteredStudents(
-      students.filter((student) =>
-        student.name.toLowerCase().includes(value) ||
-        student.email.toLowerCase().includes(value) ||
-        student.phone?.includes(value)
-      )
+  const filteredStudents = useMemo(() => {
+    const value = search.trim().toLowerCase();
+    if (!value) return students;
+
+    return students.filter((student) =>
+      `${student.name || ""} ${student.email || ""} ${student.phone || ""}`
+        .toLowerCase()
+        .includes(value)
     );
   }, [search, students]);
 
@@ -60,7 +57,7 @@ const Students = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-6">
 
       {/* Header */}
 
@@ -68,7 +65,7 @@ const Students = () => {
 
         <div>
 
-          <h1 className="text-4xl font-bold text-white">
+          <h1 className="text-3xl font-bold text-white sm:text-4xl">
             Students
           </h1>
 
@@ -78,7 +75,7 @@ const Students = () => {
 
         </div>
 
-        <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3">
+        <div className="flex w-full items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 lg:max-w-sm">
 
           <Search
             size={18}
@@ -92,7 +89,7 @@ const Students = () => {
             onChange={(e) =>
               setSearch(e.target.value)
             }
-            className="bg-transparent text-white outline-none placeholder:text-white/40"
+            className="min-w-0 flex-1 bg-transparent text-white outline-none placeholder:text-white/40"
           />
 
         </div>

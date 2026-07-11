@@ -1,4 +1,6 @@
 const asyncHandler = require("express-async-handler");
+const path = require("path");
+const { Readable } = require("stream");
 const slugify = require("slugify");
 const streamifier = require("streamifier");
 const validator = require("validator");
@@ -9,13 +11,55 @@ const User = require("../Models/User");
 const cloudinary = require("../Config/cloudinary");
 const sendEmail = require("../Utils/sendEmail");
 
+const mimeExtensions = {
+  "application/pdf": ".pdf",
+  "application/zip": ".zip",
+  "application/x-zip-compressed": ".zip",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ".docx",
+  "application/msword": ".doc",
+  "text/plain": ".txt",
+};
 
-const uploadToCloudinary = (buffer, folder, resource_type = "image") => {
+const sanitizeFileName = (value, fallback = "resource") => {
+  const safe = String(value || fallback)
+    .replace(/[<>:"/\\|?*\x00-\x1F]/g, "-")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return (safe || fallback).slice(0, 140);
+};
+
+const extensionFrom = (fileName = "", mimeType = "") => {
+  const extension = path.extname(fileName).toLowerCase();
+  return extension || mimeExtensions[mimeType] || "";
+};
+
+const buildDownloadFileName = ({ title, fileName, mimeType, url }) => {
+  const sourceName =
+    fileName ||
+    title ||
+    (() => {
+      try {
+        return path.basename(new URL(url).pathname);
+      } catch {
+        return "";
+      }
+    })();
+
+  const cleanName = sanitizeFileName(sourceName);
+  if (path.extname(cleanName)) return cleanName;
+
+  const extension = extensionFrom(fileName || url, mimeType);
+  return extension ? `${cleanName}${extension}` : cleanName;
+};
+
+const uploadToCloudinary = (buffer, folder, resource_type = "image", options = {}) => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
         folder,
         resource_type,
+        ...options,
       },
       (error, result) => {
         if (error) return reject(error);
@@ -1025,15 +1069,51 @@ const addLessonResource = asyncHandler(async (req, res) => {
   let resourceUrl = url;
   let publicId = "";
   let type = "link";
+  let fileName = "";
+  let mimeType = "";
+  let size = 0;
+
   if (req.file) {
-    const result = await uploadToCloudinary(req.file.buffer, "stackadda/resources", "raw");
+    mimeType = req.file.mimetype;
+    size = req.file.size || 0;
+    fileName = buildDownloadFileName({
+      title,
+      fileName: req.file.originalname,
+      mimeType,
+    });
+
+    const parsed = path.parse(fileName);
+    const publicName = sanitizeFileName(
+      `${Date.now()}-${parsed.name}${parsed.ext}`
+    );
+
+    const result = await uploadToCloudinary(
+      req.file.buffer,
+      "stackadda/resources",
+      "raw",
+      {
+        public_id: publicName,
+      }
+    );
+
     resourceUrl = result.secure_url;
     publicId = result.public_id;
-    type = req.file.mimetype;
+    type = "file";
   } else if (!url || !validator.isURL(url, { protocols: ["http", "https"], require_protocol: true })) {
     return res.status(400).json({ success: false, message: "Upload a file or provide a valid resource URL." });
+  } else {
+    fileName = buildDownloadFileName({ title, url });
   }
-  lesson.resources.push({ title, url: resourceUrl, public_id: publicId, type });
+
+  lesson.resources.push({
+    title,
+    url: resourceUrl,
+    public_id: publicId,
+    type,
+    fileName,
+    mimeType,
+    size,
+  });
   await course.save();
   res.status(201).json({ success: true, message: "Resource added successfully.", resources: lesson.resources });
 });
@@ -1048,6 +1128,76 @@ const deleteLessonResource = asyncHandler(async (req, res) => {
   resource.deleteOne();
   await course.save();
   res.status(200).json({ success: true, message: "Resource deleted successfully." });
+});
+
+const downloadLessonResource = asyncHandler(async (req, res) => {
+  const course = await Course.findById(req.params.courseId).select(
+    "title students chapters"
+  );
+
+  if (!course) {
+    return res.status(404).json({ success: false, message: "Course not found." });
+  }
+
+  const isAdmin = req.user.role === "admin";
+  const isEnrolled = course.students.some((studentId) =>
+    studentId.equals(req.user._id)
+  );
+
+  if (!isAdmin && !isEnrolled) {
+    return res.status(403).json({
+      success: false,
+      message: "You are not allowed to download this resource.",
+    });
+  }
+
+  const lesson = course.chapters
+    .id(req.params.chapterId)
+    ?.lessons.id(req.params.lessonId);
+  const resource = lesson?.resources.id(req.params.resourceId);
+
+  if (!resource) {
+    return res.status(404).json({ success: false, message: "Resource not found." });
+  }
+
+  const fileName = buildDownloadFileName({
+    title: resource.title,
+    fileName: resource.fileName,
+    mimeType: resource.mimeType || resource.type,
+    url: resource.url,
+  });
+
+  const upstream = await fetch(resource.url);
+
+  if (!upstream.ok || !upstream.body) {
+    return res.status(502).json({
+      success: false,
+      message: "Could not fetch the resource file.",
+    });
+  }
+
+  const asciiFileName = fileName.replace(/[^\x20-\x7E]/g, "_").replace(/"/g, "'");
+
+  const savedMimeType =
+    resource.mimeType || (String(resource.type).includes("/") ? resource.type : "");
+
+  res.setHeader(
+    "Content-Type",
+    savedMimeType ||
+      upstream.headers.get("content-type") ||
+      "application/octet-stream"
+  );
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename="${asciiFileName}"; filename*=UTF-8''${encodeURIComponent(fileName)}`
+  );
+
+  const contentLength = upstream.headers.get("content-length");
+  if (contentLength) {
+    res.setHeader("Content-Length", contentLength);
+  }
+
+  Readable.fromWeb(upstream.body).pipe(res);
 });
 
 // ==========================
@@ -1108,6 +1258,7 @@ module.exports = {
     deleteLesson,
     addLessonResource,
     deleteLessonResource,
+    downloadLessonResource,
     assignCourse,
     removeAssignedCourse,
     enrollFreeCourse,
