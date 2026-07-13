@@ -858,7 +858,8 @@ const deleteCourse = asyncHandler(async (req, res) => {
 
 const assignCourse = asyncHandler(async (req, res) => {
 
-  const { studentId, courseId } = req.body;
+  const { id: courseId } = req.params;
+  const { studentId } = req.body;
 
   if (!studentId || !courseId) {
     return res.status(400).json({
@@ -914,7 +915,7 @@ const assignCourse = asyncHandler(async (req, res) => {
 
 const removeAssignedCourse = asyncHandler(async (req, res) => {
 
-  const { studentId, courseId } = req.body;
+  const { id: courseId, studentId } = req.params;
 
   if (!studentId || !courseId) {
     return res.status(400).json({

@@ -134,11 +134,11 @@ export default function CourseManager() {
   const assignStudent = (event) => {
     event.preventDefault();
     if (!studentId) return toast.error("Select a student first.");
-    request(() => API.post(`/course/course/${id}/assign`, { studentId }), "Student assigned to this course.");
+    request(() => API.post(`/course/${id}/assign`, { studentId }), "Student assigned to this course.");
     setStudentId("");
   };
   
-  const removeStudent = (idToRemove) => request(() => API.delete(`/course/course/${id}/remove/${idToRemove}`), "Student removed from course.");
+  const removeStudent = (idToRemove) => request(() => API.delete(`/course/${id}/remove/${idToRemove}`), "Student removed from course.");
 
 
 
