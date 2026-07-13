@@ -14,6 +14,11 @@ import { toast } from "react-toastify";
 import API from "../../api/axios";
 import { useAuth } from "../../Context/AuthContext";
 import VideoFrame from "../../Components/VideoFrame";
+import io from "socket.io-client";
+import LiveClassCard from "../../Components/LiveClass/LiveClassCard";
+import WaitingRoom from "../../Components/LiveClass/WaitingRoom";
+import LiveClassPlayer from "../../Components/LiveClass/LiveClassPlayer";
+import LiveAlert from "../../Components/LiveClass/LiveAlert";
 import {
   getResourceFileName,
   downloadResourceFile,
@@ -37,6 +42,12 @@ export default function LearnCourse() {
   const [active, setActive] = useState(null);
   const [open, setOpen] = useState({});
 
+  // Live Class State
+  const [activeLiveClasses, setActiveLiveClasses] = useState([]);
+  const [currentLiveSession, setCurrentLiveSession] = useState(null); // The specific class object the student is trying to view
+  const [liveViewMode, setLiveViewMode] = useState(null); // null | "waiting" | "live"
+
+  // Load course data
   useEffect(() => {
     API.get(`/course/learn/${id}`)
       .then(({ data }) => {
@@ -57,7 +68,83 @@ export default function LearnCourse() {
       );
   }, [id]);
 
+  // Load live class data and setup sockets
+  useEffect(() => {
+    API.get(`/live-class/course/${id}`)
+      .then((res) => setActiveLiveClasses(res.data.liveClasses || []))
+      .catch(console.error);
 
+    const socket = io(API.defaults.baseURL.replace("/api", ""));
+    socket.emit("join_course_room", id);
+
+    socket.on("class_created", (newClass) => {
+      setActiveLiveClasses((prev) => [newClass, ...prev]);
+    });
+
+    socket.on("class_updated", (updatedClass) => {
+      setActiveLiveClasses((prev) => prev.map((c) => (c._id === updatedClass._id ? updatedClass : c)));
+      setCurrentLiveSession((prev) => (prev?._id === updatedClass._id ? updatedClass : prev));
+    });
+
+    socket.on("class_started", (startedClass) => {
+      setActiveLiveClasses((prev) => prev.map((c) => (c._id === startedClass._id ? startedClass : c)));
+      setCurrentLiveSession((prev) => {
+        if (prev?._id === startedClass._id) {
+          setLiveViewMode("live"); // Auto-join from waiting room!
+          return startedClass;
+        }
+        return prev;
+      });
+    });
+
+    socket.on("class_ended", (endedClass) => {
+      setActiveLiveClasses((prev) => prev.map((c) => (c._id === endedClass._id ? endedClass : c)));
+      setCurrentLiveSession((prev) => {
+        if (prev?._id === endedClass._id) {
+          setLiveViewMode(null); // Kick out of player
+          toast.info("The live class has ended.");
+          return null;
+        }
+        return prev;
+      });
+    });
+
+    socket.on("class_cancelled", (classId) => {
+      setActiveLiveClasses((prev) => prev.filter((c) => c._id !== classId));
+      setCurrentLiveSession((prev) => {
+        if (prev?._id === classId) {
+          setLiveViewMode(null);
+          toast.error("The live class was cancelled.");
+          return null;
+        }
+        return prev;
+      });
+    });
+
+    socket.on("class_status_changed", (updatedClass) => {
+      setActiveLiveClasses((prev) => prev.map((c) => (c._id === updatedClass._id ? updatedClass : c)));
+    });
+
+    return () => {
+      socket.emit("leave_course_room", id);
+      socket.disconnect();
+    };
+  }, [id]);
+
+  // Handle Join button click on the card
+  const handleJoinClass = (liveClass) => {
+    setCurrentLiveSession(liveClass);
+    if (liveClass.status === "Live") {
+      setLiveViewMode("live");
+    } else {
+      setLiveViewMode("waiting");
+    }
+  };
+
+  const handleLeaveClass = () => {
+    setCurrentLiveSession(null);
+    setLiveViewMode(null);
+  };
 
   const resources = useMemo(() => active?.resources || [], [active]);
 
@@ -71,21 +158,52 @@ export default function LearnCourse() {
 
   return (
     <section className="space-y-6 text-white">
-      <Link
-        to="/student/courses"
-        className="inline-flex items-center gap-2 text-orange-400"
-      >
-        <ArrowLeft size={18} />
-        My courses
-      </Link>
+      <LiveAlert activeLiveClasses={activeLiveClasses} />
+      
+      <div className="flex items-center justify-between">
+        <Link
+          to="/student/courses"
+          className="inline-flex items-center gap-2 text-orange-400"
+        >
+          <ArrowLeft size={18} />
+          My courses
+        </Link>
+
+        {currentLiveSession && liveViewMode && (
+          <button 
+            onClick={handleLeaveClass}
+            className="rounded-lg bg-red-500/20 px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-500/30"
+          >
+            Leave {liveViewMode === "waiting" ? "Waiting Room" : "Live Class"}
+          </button>
+        )}
+      </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.65fr_.8fr]">
-        <main className="min-w-0 overflow-hidden rounded-3xl border border-white/10 bg-white/4.5">
-          <div className="aspect-video bg-black relative">
-            <VideoFrame url={active?.video?.url} title={active?.title} />
-          </div>
+        <main className="min-w-0 overflow-hidden rounded-3xl border border-white/10 bg-white/4.5 flex flex-col">
+          {currentLiveSession && liveViewMode === "waiting" ? (
+            <div className="flex-1 p-6">
+              <WaitingRoom liveClass={currentLiveSession} />
+            </div>
+          ) : currentLiveSession && liveViewMode === "live" ? (
+            <div className="aspect-video w-full bg-black">
+               <LiveClassPlayer liveClass={currentLiveSession} user={user} onLeave={handleLeaveClass} />
+            </div>
+          ) : (
+            <div className="aspect-video bg-black relative">
+              <VideoFrame url={active?.video?.url} title={active?.title} />
+            </div>
+          )}
 
-          {resources.length > 0 && (
+          {!currentLiveSession && activeLiveClasses.length > 0 && (
+            <div className="p-4 sm:p-6 pb-0">
+               {activeLiveClasses.filter(c => c.status !== "Completed" && c.status !== "Ended").map(cls => (
+                 <LiveClassCard key={cls._id} liveClass={cls} onJoin={handleJoinClass} />
+               ))}
+            </div>
+          )}
+
+          {!currentLiveSession && resources.length > 0 && (
             <div className="mx-3 mt-3 rounded-2xl border border-white/15 bg-black/75 p-3 backdrop-blur-xl sm:mx-4 sm:p-4">
               <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-white/80">
                 <FileText size={16} className="text-orange-400" />

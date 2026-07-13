@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 
 import API from "../../api/axios";
 import { useAuth } from "../../Context/AuthContext";
+import AdminLiveClasses from "../../Components/LiveClass/AdminLiveClasses";
 
 const emptyChapter = { title: "", description: "" };
 const emptyLesson = { title: "", description: "", duration: "", isPreview: false, video: null, videoUrl: "" };
@@ -15,6 +16,7 @@ export default function CourseManager() {
   
   const [course, setCourse] = useState(null);
   const [students, setStudents] = useState([]);
+  const [activeTab, setActiveTab] = useState("curriculum");
 
   const [chapterForm, setChapterForm] = useState(emptyChapter);
   const [lessonForms, setLessonForms] = useState({});
@@ -132,11 +134,11 @@ export default function CourseManager() {
   const assignStudent = (event) => {
     event.preventDefault();
     if (!studentId) return toast.error("Select a student first.");
-    request(() => API.post("/course/course/assign", { studentId, courseId: id }), "Student assigned to this course.");
+    request(() => API.post(`/course/course/${id}/assign`, { studentId }), "Student assigned to this course.");
     setStudentId("");
   };
   
-  const removeStudent = (idToRemove) => request(() => API.delete("/course/course/remove", { data: { studentId: idToRemove, courseId: id } }), "Student removed from course.");
+  const removeStudent = (idToRemove) => request(() => API.delete(`/course/course/${id}/remove/${idToRemove}`), "Student removed from course.");
 
 
 
@@ -175,7 +177,13 @@ export default function CourseManager() {
         </div>
       </header>
 
-      <div className="grid gap-7 xl:grid-cols-[1.65fr_.85fr]">
+      <div className="flex flex-wrap gap-1 rounded-2xl bg-white/[0.03] p-1 border border-white/10 w-full sm:w-fit">
+        <button onClick={() => setActiveTab("curriculum")} className={`flex-1 sm:flex-none rounded-xl px-5 py-2 text-sm font-medium transition-all ${activeTab === "curriculum" ? "bg-orange-500 text-white shadow-lg" : "text-white/60 hover:text-white"}`}>Curriculum</button>
+        <button onClick={() => setActiveTab("live")} className={`flex-1 sm:flex-none rounded-xl px-5 py-2 text-sm font-medium transition-all ${activeTab === "live" ? "bg-orange-500 text-white shadow-lg" : "text-white/60 hover:text-white"}`}>Live Classes</button>
+        <button onClick={() => setActiveTab("students")} className={`flex-1 sm:flex-none rounded-xl px-5 py-2 text-sm font-medium transition-all ${activeTab === "students" ? "bg-orange-500 text-white shadow-lg" : "text-white/60 hover:text-white"}`}>Students</button>
+      </div>
+
+      {activeTab === "curriculum" && (
         <div className="space-y-5">
               <form onSubmit={addChapter} className="rounded-3xl border border-white/10 bg-white/[.045] p-5 backdrop-blur-2xl">
                 <h2 className="mb-4 flex items-center gap-2 font-semibold text-white"><Plus className="text-orange-400" size={18}/> Add chapter</h2>
@@ -235,8 +243,13 @@ export default function CourseManager() {
                 })
               )}
         </div>
+      )}
+      {activeTab === "live" && (
+        <AdminLiveClasses courseId={id} course={course} />
+      )}
 
-        <aside className="h-fit rounded-3xl border border-white/10 bg-white/[.045] p-5 backdrop-blur-2xl">
+      {activeTab === "students" && (
+        <div className="max-w-2xl h-fit rounded-3xl border border-white/10 bg-white/[.045] p-5 backdrop-blur-2xl">
           <h2 className="flex items-center gap-2 text-lg font-semibold text-white"><Users className="text-orange-400" size={19}/> Enrolled students</h2>
           <p className="mt-1 text-sm text-white/50">{course.students?.length || 0} learners enrolled</p>
           <form onSubmit={assignStudent} className="mt-5 flex gap-2">
@@ -260,8 +273,8 @@ export default function CourseManager() {
               </div>
             ))}
           </div>
-        </aside>
-      </div>
+        </div>
+      )}
 
       {editingLesson && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-md">

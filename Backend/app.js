@@ -17,6 +17,7 @@ const couponRoutes = require("./Routes/couponRoutes");
 const reviewRoutes = require("./Routes/reviewRoutes");
 const progressRoutes = require("./Routes/progressRoutes");
 const contactRoutes = require("./Routes/contactRoutes");
+const liveClassRoutes = require("./Routes/liveClassRoutes");
 
 
 /* ==========================
@@ -56,6 +57,7 @@ app.use("/api/coupon", couponRoutes);
 app.use("/api/review", reviewRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/contact", contactRoutes);
+app.use("/api/live-class", liveClassRoutes);
 /* ==========================
    Test Route
 ========================== */

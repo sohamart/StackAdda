@@ -17,7 +17,7 @@ export default function VerifyEmail() {
       return;
     }
 
-    API.post("/verify-email", { token })
+    API.post("/auth/verify-email", { token })
       .then((res) => {
         setStatus("success");
         setMessage(res.data.message || "Email verified successfully!");
