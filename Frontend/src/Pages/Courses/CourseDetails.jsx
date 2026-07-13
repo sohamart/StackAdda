@@ -47,9 +47,6 @@ export default function CourseDetails() {
   const [course, setCourse] = useState(null);
   const [open, setOpen] = useState({});
   const [loading, setLoading] = useState(false);
-  const [paymentRequest, setPaymentRequest] = useState(null);
-  const [transactionId, setTransactionId] = useState("");
-  const [confirmingPayment, setConfirmingPayment] = useState(false);
 
   useEffect(() => {
     API.get(`/course/${slug}`)
@@ -75,63 +72,64 @@ export default function CourseDetails() {
         courseId: course._id,
       });
 
-      setPaymentRequest({
-        paymentId: data.paymentId,
-        amount: data.amount,
+      if (data.isFree) {
+        toast.success(data.message || "Enrolled successfully.");
+        navigate(`/student/course/${course._id}`);
+        return;
+      }
+
+      const options = {
+        key: data.key,
+        amount: data.amount * 100, // amount in paise
         currency: data.currency,
-        upi: data.upi,
-      });
-      setTransactionId("");
+        name: "Stack Adda",
+        description: `Payment for ${course.title}`,
+        order_id: data.razorpayOrderId,
+        handler: async function (response) {
+          try {
+            setLoading(true);
+            const verifyRes = await API.post("/payment/verify", {
+              paymentId: data.paymentId,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpayOrderId: response.razorpay_order_id,
+              razorpaySignature: response.razorpay_signature,
+            });
+            toast.success(verifyRes.data.message || "Payment verified successfully.");
+            
+            // Navigate to the learn portal directly
+            navigate(`/student/course/${course._id}`);
+          } catch (err) {
+            toast.error(err.response?.data?.message || "Payment verification failed.");
+          } finally {
+            setLoading(false);
+          }
+        },
+        prefill: {
+          name: user.name,
+          email: user.email,
+          contact: user.phone || "",
+        },
+        theme: {
+          color: "#f97316",
+        },
+        modal: {
+          ondismiss: function () {
+            setLoading(false);
+          }
+        }
+      };
+
+      const razorpayInstance = new window.Razorpay(options);
+      razorpayInstance.open();
     } catch (e) {
       toast.error(
         e.response?.data?.message ||
-          e.message ||
-          "Payment could not be started."
+        e.message ||
+        "Payment could not be started."
       );
-    }
-    setLoading(false);
-  };
-
-  const confirmManualPayment = async () => {
-    if (!paymentRequest?.paymentId) return;
-
-    if (!transactionId.trim()) {
-      toast.error("Enter your UTR or transaction reference.");
-      return;
-    }
-
-    try {
-      setConfirmingPayment(true);
-      const { data } = await API.post("/payment/verify", {
-        paymentId: paymentRequest.paymentId,
-        transactionId: transactionId.trim(),
-      });
-
-      toast.success(data.message);
-      setPaymentRequest(null);
-      setTransactionId("");
-      navigate(`/student/course/${data.courseId || course._id}`);
-    } catch (e) {
-      toast.error(e.response?.data?.message || "Payment verification failed.");
     } finally {
-      setConfirmingPayment(false);
+      setLoading(false);
     }
-  };
-
-  const copyUpiId = async () => {
-    if (!paymentRequest?.upi?.payeeVpa) return;
-
-    try {
-      await navigator.clipboard.writeText(paymentRequest.upi.payeeVpa);
-      toast.success("UPI ID copied.");
-    } catch {
-      toast.error("Could not copy UPI ID.");
-    }
-  };
-
-  const closePaymentModal = () => {
-    setPaymentRequest(null);
-    setTransactionId("");
   };
 
   const enroll = async () => {
@@ -147,7 +145,7 @@ export default function CourseDetails() {
       const { data } = await API.post(`/course/enroll/${course._id}`);
 
       toast.success(data.message);
-      navigate("/student/courses");
+      navigate(`/student/course/${course._id}`);
     } catch (e) {
       toast.error(e.response?.data?.message || "Could not enroll.");
     } finally {
@@ -171,6 +169,8 @@ export default function CourseDetails() {
   const preview = chapters
     .flatMap((chapter) => chapter.lessons || [])
     .find((lesson) => lesson.isPreview && lesson.video?.url);
+
+  const isEnrolled = user && (user.role === "admin" || user.enrolledCourses?.includes(course._id));
 
   return (
     <main className="min-h-screen bg-[#09090B] px-4 pb-20 pt-28 text-white sm:px-6 md:px-10 md:pt-32">
@@ -242,19 +242,28 @@ export default function CourseDetails() {
                 One-time payment - Lifetime access
               </p>
 
-              <button
-                disabled={loading}
-                onClick={enroll}
-                className="mt-5 w-full rounded-xl bg-orange-500 py-3.5 font-bold transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {loading
-                  ? course.accessType === "paid"
-                    ? "Preparing payment..."
-                    : "Enrolling..."
-                  : course.accessType === "free"
-                  ? "Enroll now"
-                  : "Pay via UPI"}
-              </button>
+              {isEnrolled ? (
+                <Link
+                  to={`/student/course/${course._id}`}
+                  className="mt-5 block w-full text-center rounded-xl bg-orange-500 py-3.5 font-bold transition hover:bg-orange-600 text-white"
+                >
+                  Go to Course
+                </Link>
+              ) : (
+                <button
+                  disabled={loading}
+                  onClick={enroll}
+                  className="mt-5 w-full rounded-xl bg-orange-500 py-3.5 font-bold transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {loading
+                    ? course.accessType === "paid"
+                      ? "Preparing payment..."
+                      : "Enrolling..."
+                    : course.accessType === "free"
+                      ? "Enroll now"
+                      : "Pay with Razorpay"}
+                </button>
+              )}
 
               {preview && (
                 <Link
@@ -420,91 +429,7 @@ export default function CourseDetails() {
         </section>
       </div>
 
-      {paymentRequest && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-md">
-          <div className="w-full max-w-xl rounded-4xl border border-orange-500/20 bg-[#111113] p-5 shadow-2xl sm:p-7">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-sm font-semibold tracking-[.2em] text-orange-400">
-                  UPI PAYMENT
-                </p>
-                <h3 className="mt-2 text-2xl font-black text-white">
-                  Complete payment for {course.title}
-                </h3>
-              </div>
 
-              <button
-                onClick={closePaymentModal}
-                className="rounded-full border border-white/10 p-2 text-white/60 transition hover:border-white/20 hover:text-white"
-                aria-label="Close payment dialog"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <div className="mt-6 rounded-3xl border border-white/10 bg-white/4 p-5">
-              <p className="text-sm text-white/55">Amount to pay</p>
-              <p className="mt-1 text-3xl font-black text-orange-300">
-                ₹{Number(paymentRequest.amount || 0).toFixed(2)}
-              </p>
-
-              <div className="mt-5 space-y-3 text-sm text-white/70">
-                <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                  <p className="text-white/45">Pay to</p>
-                  <p className="mt-1 text-lg font-semibold text-white">
-                    {paymentRequest.upi?.payeeName || "Stack Adda"}
-                  </p>
-                  <p className="mt-1 wrap-break-word text-orange-300">
-                    {paymentRequest.upi?.payeeVpa}
-                  </p>
-                </div>
-
-                <a
-                  href={paymentRequest.upi?.intentUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-orange-500 px-4 py-3 font-bold text-black transition hover:bg-orange-400"
-                >
-                  Open UPI app
-                  <ExternalLink size={17} />
-                </a>
-
-                <button
-                  onClick={copyUpiId}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/15 px-4 py-3 font-semibold text-white transition hover:border-orange-400/50 hover:text-orange-200"
-                >
-                  <Copy size={17} />
-                  Copy UPI ID
-                </button>
-              </div>
-
-              <p className="mt-5 text-sm leading-6 text-white/50">
-                After sending the payment, paste your UTR or transaction reference below and submit it. We will unlock the course after confirmation.
-              </p>
-
-              <div className="mt-5 space-y-3">
-                <label className="block text-sm font-medium text-white/70">
-                  Transaction / UTR number
-                </label>
-                <input
-                  value={transactionId}
-                  onChange={(event) => setTransactionId(event.target.value)}
-                  placeholder="Enter UTR or transaction ID"
-                  className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none transition placeholder:text-white/30 focus:border-orange-500"
-                />
-
-                <button
-                  disabled={confirmingPayment}
-                  onClick={confirmManualPayment}
-                  className="w-full rounded-2xl bg-orange-500 py-3.5 font-bold text-black transition hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {confirmingPayment ? "Submitting..." : "I have paid"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </main>
   );
 }

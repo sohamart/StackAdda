@@ -119,14 +119,14 @@ const createCourse = asyncHandler(async (req, res) => {
     url: "",
     public_id: "",
   };
-    // Upload Thumbnail
+  // Upload Thumbnail
 
   if (req.file) {
 
     const result = await uploadToCloudinary(
-  req.file.buffer,
-  "stackadda/courses"
-);
+      req.file.buffer,
+      "stackadda/courses"
+    );
 
     thumbnail = {
       url: result.secure_url,
@@ -231,7 +231,7 @@ const getPublishedCourses =
     });
 
   });
-  // ==========================
+// ==========================
 // Get Single Course
 // ==========================
 
@@ -760,9 +760,9 @@ const updateCourse = asyncHandler(async (req, res) => {
     }
 
     const result = await uploadToCloudinary(
-  req.file.buffer,
-  "stackadda/courses"
-);
+      req.file.buffer,
+      "stackadda/courses"
+    );
 
     course.thumbnail = {
       url: result.secure_url,
@@ -1107,7 +1107,7 @@ const deleteLessonResource = asyncHandler(async (req, res) => {
   const resource = lesson?.resources.id(req.params.resourceId);
   if (!resource) return res.status(404).json({ success: false, message: "Resource not found." });
   if (resource.filePath) {
-    await fs.promises.unlink(resource.filePath).catch(() => {});
+    await fs.promises.unlink(resource.filePath).catch(() => { });
   }
   if (resource.public_id) await cloudinary.uploader.destroy(resource.public_id, { resource_type: "raw" });
   resource.deleteOne();
@@ -1207,7 +1207,8 @@ const getEnrolledCourse = asyncHandler(async (req, res) => {
     return res.status(404).json({ success: false, message: "Course not found." });
   }
 
-  if (!student.enrolledCourses.some((courseId) => courseId.equals(course._id))) {
+  const isAdmin = req.user.role === "admin";
+  if (!isAdmin && !student.enrolledCourses.some((courseId) => courseId.equals(course._id))) {
     return res.status(403).json({ success: false, message: "You are not enrolled in this course." });
   }
 
@@ -1242,22 +1243,22 @@ module.exports = {
   deleteCourse,
   getCourseById,
 
-    getAllCourses,
-    getHomeCourses,
-    getPublishedCourses,
-    getSingleCourse,
-    addChapter,
-    updateChapter,
-    deleteChapter,
-    addLesson,
-    updateLesson,
-    deleteLesson,
-    addLessonResource,
-    deleteLessonResource,
-    downloadLessonResource,
-    assignCourse,
-    removeAssignedCourse,
-    enrollFreeCourse,
+  getAllCourses,
+  getHomeCourses,
+  getPublishedCourses,
+  getSingleCourse,
+  addChapter,
+  updateChapter,
+  deleteChapter,
+  addLesson,
+  updateLesson,
+  deleteLesson,
+  addLessonResource,
+  deleteLessonResource,
+  downloadLessonResource,
+  assignCourse,
+  removeAssignedCourse,
+  enrollFreeCourse,
   getMyCourses,
   getEnrolledCourse,
 

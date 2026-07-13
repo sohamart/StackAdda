@@ -183,11 +183,10 @@ export default function LearnCourse() {
                     <button
                       key={lesson._id}
                       onClick={() => setActive(lesson)}
-                      className={`w-full rounded-xl p-2.5 text-left text-sm transition ${
-                        active?._id === lesson._id
+                      className={`w-full rounded-xl p-2.5 text-left text-sm transition ${active?._id === lesson._id
                           ? "bg-orange-500/15 text-orange-200"
                           : "text-white/65 hover:bg-white/5 hover:text-white"
-                      }`}
+                        }`}
                     >
                       <span className="block wrap-break-word">{lesson.title}</span>
 

@@ -67,20 +67,6 @@ export default function VideoFrame({
       )}
     </div>
   );
-}      ) : url ? (
-        <video
-          className="h-full w-full"
-          controls
-          src={url}
-        />
-      ) : (
-        <div className="flex h-full items-center justify-center text-white/45">
-          No video added for this lesson.
-        </div>
-      )}
+}      
       
-      
-    </div>
-    
-  );
-}
+ 

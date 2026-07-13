@@ -1,4 +1,6 @@
 const asyncHandler = require("express-async-handler");
+const Razorpay = require("razorpay");
+const crypto = require("crypto");
 
 const Course = require("../Models/Course");
 const User = require("../Models/User");
@@ -7,43 +9,16 @@ const Payment = require("../Models/Payment");
 const Coupon = require("../Models/Coupon");
 const sendEmail = require("../Utils/sendEmail");
 
-const getUpiConfig = () => {
-  const upiId = process.env.UPI_ID;
-  const payeeName = process.env.UPI_NAME || "Stack Adda";
-
-  if (!upiId) {
-    return null;
-  }
-
-  return { upiId, payeeName };
-};
-
-const buildUpiIntentUrl = ({ upiId, payeeName, amount, note }) => {
-  const params = new URLSearchParams({
-    pa: upiId,
-    pn: payeeName,
-    am: amount.toFixed(2),
-    cu: "INR",
-    tn: note,
-  });
-
-  return `upi://pay?${params.toString()}`;
-};
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 
 // ==========================
-// Create UPI Payment Request
+// Create Razorpay Payment Order
 // ==========================
 
 const createOrder = asyncHandler(async (req, res) => {
-  const upiConfig = getUpiConfig();
-
-  if (!upiConfig) {
-    return res.status(500).json({
-      success: false,
-      message: "UPI payment is not configured.",
-    });
-  }
-
   const { courseId, couponCode } = req.body;
 
   const student = await User.findById(req.user._id);
@@ -138,19 +113,72 @@ const createOrder = asyncHandler(async (req, res) => {
   }
 
   const finalPrice = Math.max(originalPrice - discount, 0);
-  const note = `Stack Adda payment for ${course.title}`;
-  const intentUrl = buildUpiIntentUrl({
-    upiId: upiConfig.upiId,
-    payeeName: upiConfig.payeeName,
-    amount: finalPrice,
-    note,
+
+  // If price is 0 (due to coupon or free access), complete enrollment immediately!
+  if (finalPrice === 0) {
+    const payment = await Payment.create({
+      student: student._id,
+      course: course._id,
+      amount: 0,
+      paymentMethod: "free",
+      status: "success",
+      paidAt: new Date(),
+    });
+
+    const order = await Order.create({
+      student: student._id,
+      course: course._id,
+      payment: payment._id,
+      coupon: coupon ? coupon._id : null,
+      originalPrice,
+      discount,
+      finalPrice: 0,
+      paymentStatus: "paid",
+      orderStatus: "completed",
+      purchasedAt: new Date(),
+    });
+
+    if (!student.enrolledCourses.some((id) => id.equals(course._id))) {
+      student.enrolledCourses.push(course._id);
+    }
+    if (!course.students.some((id) => id.equals(student._id))) {
+      course.students.push(student._id);
+    }
+    await student.save();
+    await course.save();
+
+    if (coupon) {
+      await Coupon.findByIdAndUpdate(coupon._id, { $inc: { usedCount: 1 } });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Enrolled successfully.",
+      isFree: true,
+      courseId: course._id,
+    });
+  }
+
+  // Create Razorpay Order
+  if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+    return res.status(500).json({
+      success: false,
+      message: "Razorpay keys are not configured.",
+    });
+  }
+
+  const razorpayOrder = await razorpay.orders.create({
+    amount: Math.round(finalPrice * 100), // Razorpay expects amount in paise
+    currency: "INR",
+    receipt: `receipt_order_${Date.now()}`,
   });
 
   const payment = await Payment.create({
     student: student._id,
     course: course._id,
     amount: finalPrice,
-    paymentMethod: "manual",
+    paymentMethod: "razorpay",
+    razorpayOrderId: razorpayOrder.id,
     status: "pending",
   });
 
@@ -168,30 +196,26 @@ const createOrder = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
+    key: process.env.RAZORPAY_KEY_ID,
+    razorpayOrderId: razorpayOrder.id,
     paymentId: payment._id,
     amount: finalPrice,
     currency: "INR",
-    upi: {
-      payeeVpa: upiConfig.upiId,
-      payeeName: upiConfig.payeeName,
-      note,
-      intentUrl,
-    },
     order,
   });
 });
 
 // ==========================
-// Confirm Manual Payment
+// Verify Razorpay Payment Signature
 // ==========================
 
 const verifyPayment = asyncHandler(async (req, res) => {
-  const { paymentId, transactionId } = req.body;
+  const { paymentId, razorpayPaymentId, razorpayOrderId, razorpaySignature } = req.body;
 
-  if (!paymentId || !transactionId) {
+  if (!paymentId || !razorpayPaymentId || !razorpayOrderId || !razorpaySignature) {
     return res.status(400).json({
       success: false,
-      message: "Payment verification failed.",
+      message: "Payment verification failed. Missing required parameters.",
     });
   }
 
@@ -238,15 +262,22 @@ const verifyPayment = asyncHandler(async (req, res) => {
     });
   }
 
-  if (!student.enrolledCourses.some((id) => id.equals(course._id))) {
-    student.enrolledCourses.push(course._id);
+  // Verify Signature
+  const generatedSignature = crypto
+    .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+    .update(razorpayOrderId + "|" + razorpayPaymentId)
+    .digest("hex");
+
+  if (generatedSignature !== razorpaySignature) {
+    return res.status(400).json({
+      success: false,
+      message: "Payment verification failed. Signature mismatch.",
+    });
   }
 
-  if (!course.students.some((id) => id.equals(student._id))) {
-    course.students.push(student._id);
-  }
-
-  payment.upiReferenceId = transactionId.trim();
+  // Update payment and order documents
+  payment.razorpayPaymentId = razorpayPaymentId;
+  payment.razorpaySignature = razorpaySignature;
   payment.status = "success";
   payment.paidAt = new Date();
 
@@ -266,13 +297,21 @@ const verifyPayment = asyncHandler(async (req, res) => {
     });
   }
 
+  if (!student.enrolledCourses.some((id) => id.equals(course._id))) {
+    student.enrolledCourses.push(course._id);
+  }
+
+  if (!course.students.some((id) => id.equals(student._id))) {
+    course.students.push(student._id);
+  }
+
   await student.save();
   await course.save();
 
   await sendEmail({
     to: student.email,
     subject: `Payment confirmed: ${course.title}`,
-    html: `<h2>Payment successful</h2><p>We received your UPI payment of ₹${payment.amount} for <strong>${course.title}</strong>. Your course access is now active.</p>`,
+    html: `<h2>Payment successful</h2><p>We received your payment of ₹${payment.amount} for <strong>${course.title}</strong>. Your course access is now active.</p>`,
   });
 
   res.status(200).json({
@@ -407,7 +446,7 @@ const refundPayment = asyncHandler(async (req, res) => {
 
 module.exports = {
   createOrder,
-    verifyPayment,
-    paymentHistory,
-    refundPayment,
+  verifyPayment,
+  paymentHistory,
+  refundPayment,
 };
