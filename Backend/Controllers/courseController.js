@@ -7,9 +7,10 @@ const validator = require("validator");
 
 const Course = require("../Models/Course");
 const User = require("../Models/User");
+const sendEmail = require("../Utils/sendEmail");
+const { getEnrollmentEmail, getLiveClassScheduledEmail } = require("../Utils/emailTemplates");
 
 const cloudinary = require("../Config/cloudinary");
-const sendEmail = require("../Utils/sendEmail");
 
 const mimeExtensions = {
   "application/pdf": ".pdf",
@@ -866,9 +867,9 @@ const assignCourse = asyncHandler(async (req, res) => {
     });
   }
 
-  const student = await User.findById(studentId);
+  const user = await User.findById(studentId);
 
-  if (!student || student.role !== "student") {
+  if (!user || user.role !== "student") {
     return res.status(404).json({
       success: false,
       message: "Student not found.",
@@ -884,27 +885,20 @@ const assignCourse = asyncHandler(async (req, res) => {
     });
   }
 
-  // Already Assigned
-
-  if (student.enrolledCourses.includes(course._id)) {
-    return res.status(400).json({
-      success: false,
-      message: "Course already assigned.",
-    });
+  if (!user.enrolledCourses.includes(course._id)) {
+    user.enrolledCourses.push(course._id);
+    await user.save();
   }
 
-  student.enrolledCourses.push(course._id);
-
-  course.students.push(student._id);
-
-  await student.save();
-
-  await course.save();
+  if (!course.students.includes(user._id)) {
+    course.students.push(user._id);
+    await course.save();
+  }
 
   await sendEmail({
-    to: student.email,
-    subject: `New course assigned: ${course.title}`,
-    html: `<h2>You've been enrolled!</h2><p>${course.title} was assigned to your Stack Adda account. Log in to start learning.</p>`,
+    to: user.email,
+    subject: "Course Enrollment Confirmation",
+    html: getEnrollmentEmail(user.name, course.title, course._id),
   });
 
   res.status(200).json({
@@ -1006,16 +1000,17 @@ const enrollFreeCourse = asyncHandler(async (req, res) => {
 
   student.enrolledCourses.push(course._id);
 
-  course.students.push(student._id);
+  if (!course.students.includes(student._id)) {
+    course.students.push(student._id);
+    await course.save();
+  }
 
   await student.save();
 
-  await course.save();
-
   await sendEmail({
     to: student.email,
-    subject: `Enrollment confirmed: ${course.title}`,
-    html: `<h2>You're enrolled in ${course.title}</h2><p>Your free course access is ready. Open My Courses and start learning.</p>`,
+    subject: "Course Enrollment Confirmation",
+    html: getEnrollmentEmail(student.name, course.title, course._id),
   });
 
   res.status(200).json({
@@ -1201,19 +1196,27 @@ const downloadLessonResource = asyncHandler(async (req, res) => {
 // ==========================
 const getEnrolledCourse = asyncHandler(async (req, res) => {
   const student = await User.findById(req.user._id).select("enrolledCourses");
-  const course = await Course.findOne({ _id: req.params.id, status: "published" });
+  const isAdmin = req.user.role === "admin";
+  
+  const query = { _id: req.params.id };
+  if (!isAdmin) {
+    query.status = "published";
+  }
+  
+  const course = await Course.findOne(query);
 
   if (!course) {
     return res.status(404).json({ success: false, message: "Course not found." });
   }
-
-  const isAdmin = req.user.role === "admin";
   if (!isAdmin && !student.enrolledCourses.some((courseId) => courseId.equals(course._id))) {
     return res.status(403).json({ success: false, message: "You are not enrolled in this course." });
   }
 
   res.status(200).json({ success: true, course });
 });
+
+
+
 // ==========================
 // Get Course By ID
 // ==========================
@@ -1261,6 +1264,4 @@ module.exports = {
   enrollFreeCourse,
   getMyCourses,
   getEnrolledCourse,
-
 };
-

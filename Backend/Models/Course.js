@@ -90,7 +90,7 @@ const ChapterSchema = new mongoose.Schema(
   }
 );
 
-// ==========================
+
 // Course Schema
 // ==========================
 

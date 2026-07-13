@@ -8,6 +8,8 @@ const Order = require("../Models/Order");
 const Payment = require("../Models/Payment");
 const Coupon = require("../Models/Coupon");
 const sendEmail = require("../Utils/sendEmail");
+const { getEnrollmentEmail, getRefundEmail } = require("../Utils/emailTemplates");
+const generateInvoice = require("../Utils/generateInvoice");
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -150,6 +152,22 @@ const createOrder = asyncHandler(async (req, res) => {
     if (coupon) {
       await Coupon.findByIdAndUpdate(coupon._id, { $inc: { usedCount: 1 } });
     }
+
+    const invoicePdf = await generateInvoice({
+      invoiceId: order._id.toString().slice(-8).toUpperCase(),
+      date: new Date(),
+      customerName: student.name,
+      customerEmail: student.email,
+      courseTitle: course.title,
+      amount: 0,
+    });
+
+    await sendEmail({
+      to: student.email,
+      subject: "Course Enrollment Confirmation",
+      html: getEnrollmentEmail(student.name, course.title, course._id),
+      attachments: [{ filename: `Invoice_${order._id}.pdf`, content: invoicePdf }],
+    });
 
     return res.status(200).json({
       success: true,
@@ -308,16 +326,25 @@ const verifyPayment = asyncHandler(async (req, res) => {
   await student.save();
   await course.save();
 
+  const invoicePdf = await generateInvoice({
+    invoiceId: order._id.toString().slice(-8).toUpperCase(),
+    date: new Date(),
+    customerName: student.name,
+    customerEmail: student.email,
+    courseTitle: course.title,
+    amount: payment.amount,
+  });
+
   await sendEmail({
     to: student.email,
-    subject: `Payment confirmed: ${course.title}`,
-    html: `<h2>Payment successful</h2><p>We received your payment of ₹${payment.amount} for <strong>${course.title}</strong>. Your course access is now active.</p>`,
+    subject: "Course Enrollment Confirmation",
+    html: getEnrollmentEmail(student.name, course.title, course._id),
+    attachments: [{ filename: `Invoice_${order._id}.pdf`, content: invoicePdf }],
   });
 
   res.status(200).json({
     success: true,
-    message: "Payment verified successfully.",
-    courseId: course._id,
+    message: "Payment verified successfully. Enrolled in course.",
   });
 });
 
@@ -433,7 +460,7 @@ const refundPayment = asyncHandler(async (req, res) => {
   await sendEmail({
     to: student.email,
     subject: `Refund processed: ${course.title}`,
-    html: `<h2>Refund processed</h2><p>Your refund for <strong>${course.title}</strong> has been processed. Course access has been removed.</p>`,
+    html: getRefundEmail(course.title),
   });
 
   res.status(200).json({
@@ -443,10 +470,46 @@ const refundPayment = asyncHandler(async (req, res) => {
 
 });
 
+// ==========================
+// Download Invoice
+// ==========================
+
+const downloadInvoice = asyncHandler(async (req, res) => {
+  const orderId = req.params.orderId;
+  const order = await Order.findById(orderId).populate("student").populate("course").populate("payment");
+
+  if (!order) {
+    return res.status(404).json({ success: false, message: "Order not found." });
+  }
+
+  // Allow admin OR the student who made the order
+  if (req.user.role !== "admin" && order.student._id.toString() !== req.user._id.toString()) {
+    return res.status(403).json({ success: false, message: "Access denied." });
+  }
+
+  if (order.paymentStatus !== "paid") {
+    return res.status(400).json({ success: false, message: "Invoice not available for unpaid orders." });
+  }
+
+  const invoicePdf = await generateInvoice({
+    invoiceId: order._id.toString().slice(-8).toUpperCase(),
+    date: order.purchasedAt || order.createdAt,
+    customerName: order.student.name,
+    customerEmail: order.student.email,
+    courseTitle: order.course.title,
+    amount: order.finalPrice,
+  });
+
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader("Content-Disposition", `attachment; filename=Invoice_${order._id}.pdf`);
+  res.send(invoicePdf);
+});
+
 
 module.exports = {
   createOrder,
   verifyPayment,
   paymentHistory,
   refundPayment,
+  downloadInvoice,
 };

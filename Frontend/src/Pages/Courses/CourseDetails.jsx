@@ -15,6 +15,7 @@ import {
   Users,
   X,
   ExternalLink,
+  Share2,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -47,6 +48,10 @@ export default function CourseDetails() {
   const [course, setCourse] = useState(null);
   const [open, setOpen] = useState({});
   const [loading, setLoading] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
+  const [couponError, setCouponError] = useState("");
 
   useEffect(() => {
     API.get(`/course/${slug}`)
@@ -62,6 +67,15 @@ export default function CourseDetails() {
       );
   }, [slug]);
 
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast.success("Course link copied to clipboard!");
+    } catch (err) {
+      toast.error("Failed to copy link.");
+    }
+  };
+
   const startPaidCheckout = async () => {
     if (!user) return navigate("/login");
 
@@ -70,6 +84,7 @@ export default function CourseDetails() {
 
       const { data } = await API.post("/payment/create-order", {
         courseId: course._id,
+        couponCode: appliedCoupon ? appliedCoupon.code : "",
       });
 
       if (data.isFree) {
@@ -153,6 +168,48 @@ export default function CourseDetails() {
     }
   };
 
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    try {
+      setValidatingCoupon(true);
+      setCouponError("");
+      const { data } = await API.post("/coupon/validate", {
+        code: couponCode.trim(),
+        courseId: course._id,
+      });
+      setAppliedCoupon(data.coupon);
+      toast.success("Coupon applied successfully!");
+    } catch (e) {
+      setAppliedCoupon(null);
+      setCouponError(e.response?.data?.message || "Invalid coupon.");
+      toast.error(e.response?.data?.message || "Invalid coupon.");
+    } finally {
+      setValidatingCoupon(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+    setCouponError("");
+  };
+
+  const calculateFinalPrice = () => {
+    let price = course.price;
+    if (appliedCoupon) {
+      if (appliedCoupon.discountType === "percentage") {
+        let discount = (price * appliedCoupon.discountValue) / 100;
+        if (appliedCoupon.maxDiscount > 0 && discount > appliedCoupon.maxDiscount) {
+          discount = appliedCoupon.maxDiscount;
+        }
+        price -= discount;
+      } else {
+        price -= appliedCoupon.discountValue;
+      }
+    }
+    return Math.max(0, price);
+  };
+
   if (!course) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#09090B]">
@@ -234,13 +291,62 @@ export default function CourseDetails() {
                 className="aspect-video w-full rounded-2xl object-cover"
               />
 
-              <p className="mt-5 text-3xl font-black text-orange-300">
-                {course.accessType === "free" ? "Free" : `Rs ${course.price}`}
-              </p>
+              <div className="mt-5 flex items-start justify-between gap-3">
+                <div className="flex items-end gap-3">
+                  <p className="text-3xl font-black text-orange-300">
+                    {course.accessType === "free" ? "Free" : `Rs ${calculateFinalPrice()}`}
+                  </p>
+                  {appliedCoupon && (
+                    <p className="text-lg text-white/50 line-through pb-1">
+                      Rs {course.price}
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={handleShare}
+                  className="rounded-full border border-white/10 bg-white/5 p-2.5 text-white/70 transition hover:bg-white/10 hover:text-white"
+                  title="Share Course"
+                >
+                  <Share2 size={18} />
+                </button>
+              </div>
 
               <p className="mt-1 text-sm text-white/45">
                 One-time payment - Lifetime access
               </p>
+
+              {!isEnrolled && course.accessType === "paid" && (
+                <div className="mt-5 rounded-xl border border-white/10 bg-black/20 p-4">
+                  {!appliedCoupon ? (
+                    <div className="space-y-3">
+                      <div className="flex gap-2">
+                        <input
+                          value={couponCode}
+                          onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponError(""); }}
+                          placeholder="Enter coupon code"
+                          className="min-w-0 flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none focus:border-orange-500 uppercase placeholder:normal-case"
+                        />
+                        <button
+                          onClick={handleApplyCoupon}
+                          disabled={validatingCoupon || !couponCode.trim()}
+                          className="rounded-lg bg-orange-500/20 px-4 py-2 text-sm font-medium text-orange-400 hover:bg-orange-500/30 disabled:opacity-50"
+                        >
+                          {validatingCoupon ? "..." : "Apply"}
+                        </button>
+                      </div>
+                      {couponError && <p className="text-xs text-red-400">{couponError}</p>}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 text-sm font-medium text-green-400">
+                        <CheckCircle2 size={16} />
+                        Coupon "{appliedCoupon.code}" applied
+                      </div>
+                      <button onClick={removeCoupon} className="text-xs text-white/50 hover:text-white">Remove</button>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {isEnrolled ? (
                 <Link
@@ -259,7 +365,7 @@ export default function CourseDetails() {
                     ? course.accessType === "paid"
                       ? "Preparing payment..."
                       : "Enrolling..."
-                    : course.accessType === "free"
+                    : course.accessType === "free" || (course.accessType === "paid" && calculateFinalPrice() === 0)
                       ? "Enroll now"
                       : "Pay with Razorpay"}
                 </button>

@@ -7,7 +7,6 @@ const Coupon = require("../Models/Coupon");
 // ==========================
 
 const createCoupon = asyncHandler(async (req, res) => {
-
   const {
     code,
     description,
@@ -21,11 +20,7 @@ const createCoupon = asyncHandler(async (req, res) => {
     applicableCourses,
   } = req.body;
 
-  if (
-    !code ||
-    !discountValue ||
-    !validTill
-  ) {
+  if (!code || !discountValue || !validTill) {
     return res.status(400).json({
       success: false,
       message: "Please fill all required fields.",
@@ -61,7 +56,6 @@ const createCoupon = asyncHandler(async (req, res) => {
     message: "Coupon created successfully.",
     coupon,
   });
-
 });
 
 // ==========================
@@ -69,12 +63,8 @@ const createCoupon = asyncHandler(async (req, res) => {
 // ==========================
 
 const getCoupons = asyncHandler(async (req, res) => {
-
   const coupons = await Coupon.find()
-    .populate(
-      "applicableCourses",
-      "title"
-    )
+    .populate("applicableCourses", "title")
     .sort({
       createdAt: -1,
     });
@@ -84,7 +74,6 @@ const getCoupons = asyncHandler(async (req, res) => {
     count: coupons.length,
     coupons,
   });
-
 });
 
 // ==========================
@@ -92,11 +81,7 @@ const getCoupons = asyncHandler(async (req, res) => {
 // ==========================
 
 const validateCoupon = asyncHandler(async (req, res) => {
-
-  const {
-    code,
-    courseId,
-  } = req.body;
+  const { code, courseId } = req.body;
 
   if (!code || !courseId) {
     return res.status(400).json({
@@ -124,10 +109,7 @@ const validateCoupon = asyncHandler(async (req, res) => {
     });
   }
 
-  if (
-    coupon.usageLimit > 0 &&
-    coupon.usedCount >= coupon.usageLimit
-  ) {
+  if (coupon.usageLimit > 0 && coupon.usedCount >= coupon.usageLimit) {
     return res.status(400).json({
       success: false,
       message: "Coupon usage limit exceeded.",
@@ -136,14 +118,11 @@ const validateCoupon = asyncHandler(async (req, res) => {
 
   if (
     coupon.applicableCourses.length > 0 &&
-    !coupon.applicableCourses.some((id) =>
-      id.equals(courseId)
-    )
+    !coupon.applicableCourses.some((id) => id.equals(courseId))
   ) {
     return res.status(400).json({
       success: false,
-      message:
-        "Coupon is not applicable for this course.",
+      message: "Coupon is not applicable for this course.",
     });
   }
 
@@ -151,7 +130,6 @@ const validateCoupon = asyncHandler(async (req, res) => {
     success: true,
     coupon,
   });
-
 });
 
 // ==========================
@@ -159,10 +137,7 @@ const validateCoupon = asyncHandler(async (req, res) => {
 // ==========================
 
 const updateCoupon = asyncHandler(async (req, res) => {
-
-  const coupon = await Coupon.findById(
-    req.params.id
-  );
+  const coupon = await Coupon.findById(req.params.id);
 
   if (!coupon) {
     return res.status(404).json({
@@ -184,7 +159,6 @@ const updateCoupon = asyncHandler(async (req, res) => {
     message: "Coupon updated successfully.",
     coupon,
   });
-
 });
 
 // ==========================
@@ -192,10 +166,7 @@ const updateCoupon = asyncHandler(async (req, res) => {
 // ==========================
 
 const deleteCoupon = asyncHandler(async (req, res) => {
-
-  const coupon = await Coupon.findById(
-    req.params.id
-  );
+  const coupon = await Coupon.findById(req.params.id);
 
   if (!coupon) {
     return res.status(404).json({
@@ -210,7 +181,6 @@ const deleteCoupon = asyncHandler(async (req, res) => {
     success: true,
     message: "Coupon deleted successfully.",
   });
-
 });
 
 module.exports = {

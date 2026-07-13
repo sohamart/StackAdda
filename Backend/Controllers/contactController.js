@@ -1,12 +1,17 @@
 const asyncHandler = require("express-async-handler");
 const Contact = require("../Models/Contact");
 const sendEmail = require("../Utils/sendEmail");
+const { getContactEmail } = require("../Utils/emailTemplates");
 
 const createContact = asyncHandler(async (req, res) => {
   const { name, email, subject, message } = req.body;
   if (!name || !email || !message) return res.status(400).json({ success: false, message: "Name, email and message are required." });
   const contact = await Contact.create({ name, email, subject, message });
-  await sendEmail({ to: email, subject: "We received your Stack Adda message", html: `<h2>Thanks, ${name}!</h2><p>We received your message and will reply soon.</p>` });
+  await sendEmail({ 
+    to: email, 
+    subject: "We received your Stack Adda message", 
+    html: getContactEmail(name)
+  });
   res.status(201).json({ success: true, message: "Message sent successfully. We will get back to you soon.", contact });
 });
 const getContacts = asyncHandler(async (req, res) => { const contacts = await Contact.find().sort({ createdAt: -1 }); res.json({ success: true, contacts }); });

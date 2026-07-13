@@ -17,6 +17,9 @@ import CourseDetails from "./Pages/Courses/CourseDetails";
 import CoursePreview from "./Pages/Courses/CoursePreview";
 import Login from "./Pages/Login";
 import Register from "./Pages/Register";
+import VerifyEmail from "./Pages/Auth/VerifyEmail";
+import ForgotPassword from "./Pages/Auth/ForgotPassword";
+import ResetPassword from "./Pages/Auth/ResetPassword";
 import NotFound from "./Pages/NotFound";
 
 
@@ -43,15 +46,20 @@ import ResourceManager from "./Pages/Admin/ResourceManager";
 import Contacts from "./Pages/Admin/Contacts";
 
 
+
 function App() {
   return (
-    <Routes>
+    <>
+      <Routes>
 
-      {/* Public Routes */}
+        {/* Public Routes */}
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/courses" element={<PublicCourses />} />
         <Route path="/courses/:slug" element={<CourseDetails />} />
         <Route path="/courses/:slug/preview/:lessonId" element={<CoursePreview />} />
@@ -102,8 +110,9 @@ function App() {
       </Route>
 
       {/* 404 */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </>
   );
 }
 

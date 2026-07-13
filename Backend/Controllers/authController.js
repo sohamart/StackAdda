@@ -5,10 +5,9 @@ const sendToken = require("../Utils/sendToken");
 const crypto = require("crypto");
 const { OAuth2Client } = require("google-auth-library");
 const sendEmail = require("../Utils/sendEmail");
+const { getWelcomeEmail } = require("../Utils/emailTemplates");
 
 const googleClient = new OAuth2Client();
-
-
 
 /* ===========================
    Student Register
@@ -36,15 +35,24 @@ const register = asyncHandler(async (req, res) => {
     email: email.toLowerCase(),
     password,
     role: "student",
+    isVerified: false,
   });
+
+  const verificationToken = require("jsonwebtoken").sign(
+    { id: user._id },
+    process.env.JWT_SECRET,
+    { expiresIn: "1d" }
+  );
+
+  const verifyUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/verify-email?token=${verificationToken}`;
 
   await sendEmail({
     to: user.email,
-    subject: "Welcome to Stack Adda",
-    html: `<h2>Welcome, ${user.name}!</h2><p>Your Stack Adda student account is ready. Start exploring courses and building skills.</p>`,
+    subject: "Verify Your Stack Adda Account",
+    html: require("../Utils/emailTemplates").getVerificationEmail(user.name, verifyUrl),
   });
 
-  sendToken(user, 201, res, "Registration successful.");
+  sendToken(user, 201, res, "Registration successful. Please check your email to verify your account.");
 });
 
 /* ===========================
@@ -82,6 +90,11 @@ const login = asyncHandler(async (req, res) => {
 
   sendToken(user, 200, res, "Login successful.");
 });
+
+/* ===========================
+   Admin Login
+=========================== */
+
 const adminLogin = asyncHandler(async (req, res) => {
 
     const { email, password } = req.body;
@@ -145,21 +158,10 @@ const googleLogin = asyncHandler(async (req, res) => {
   }
 
   if (!user) {
-    user = await User.create({
-      name: payload.name || payload.email.split("@")[0],
-      email: payload.email.toLowerCase(),
-      password: crypto.randomBytes(32).toString("hex"),
-      googleId: payload.sub,
-      role: "student",
-      profileImage: { url: payload.picture || "", public_id: "" },
-    });
-    await sendEmail({
-      to: user.email,
-      subject: "Welcome to Stack Adda",
-      html: `<h2>Welcome, ${user.name}!</h2><p>Your account was created with Google sign-in. Happy learning!</p>`,
-    });
+    return res.status(401).json({ success: false, message: "Account not found. Please register first." });
   } else if (!user.googleId) {
     user.googleId = payload.sub;
+    user.isVerified = true;
     if (!user.profileImage?.url && payload.picture) user.profileImage.url = payload.picture;
     await user.save();
   }
@@ -194,11 +196,147 @@ const logout = asyncHandler(async (req, res) => {
   });
 });
 
+/* ===========================
+   Verify Email
+=========================== */
+const verifyEmail = asyncHandler(async (req, res) => {
+  const { token } = req.body;
+  if (!token) {
+    res.status(400);
+    throw new Error("Verification token is missing.");
+  }
+
+  try {
+    const decoded = require("jsonwebtoken").verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+
+    if (!user) {
+      res.status(404);
+      throw new Error("User not found.");
+    }
+
+    if (user.isVerified) {
+      return res.status(200).json({ success: true, message: "Email already verified." });
+    }
+
+    user.isVerified = true;
+    user.verifiedAt = new Date();
+    await user.save();
+
+    res.status(200).json({ success: true, message: "Email successfully verified!" });
+  } catch (error) {
+    res.status(400);
+    throw new Error("Invalid or expired verification token.");
+  }
+});
+
+/* ===========================
+   Resend Verification Email
+=========================== */
+const resendVerificationEmail = asyncHandler(async (req, res) => {
+  const user = req.user;
+
+  if (user.isVerified) {
+    res.status(400);
+    throw new Error("Email is already verified.");
+  }
+
+  const verificationToken = require("jsonwebtoken").sign(
+    { id: user._id },
+    process.env.JWT_SECRET,
+    { expiresIn: "1d" }
+  );
+
+  const verifyUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/verify-email?token=${verificationToken}`;
+
+  await sendEmail({
+    to: user.email,
+    subject: "Verify Your Stack Adda Account",
+    html: require("../Utils/emailTemplates").getVerificationEmail(user.name, verifyUrl),
+  });
+
+  res.status(200).json({ success: true, message: "Verification email sent successfully." });
+});
+
+/* ===========================
+   Forgot Password
+=========================== */
+const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    res.status(400);
+    throw new Error("Please provide an email address.");
+  }
+
+  const user = await User.findOne({ email: email.toLowerCase() });
+  if (!user) {
+    res.status(404);
+    throw new Error("No user found with that email.");
+  }
+
+  const resetToken = crypto.randomBytes(20).toString("hex");
+  user.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+  user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 mins
+  await user.save();
+
+  const resetUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/reset-password/${resetToken}`;
+
+  try {
+    await sendEmail({
+      to: user.email,
+      subject: "Password Reset Request",
+      html: require("../Utils/emailTemplates").getPasswordResetEmail(resetUrl),
+    });
+
+    res.status(200).json({ success: true, message: "Password reset email sent." });
+  } catch (err) {
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
+    res.status(500);
+    throw new Error("Email could not be sent.");
+  }
+});
+
+/* ===========================
+   Reset Password
+=========================== */
+const resetPassword = asyncHandler(async (req, res) => {
+  const resetPasswordToken = crypto.createHash("sha256").update(req.params.token).digest("hex");
+
+  const user = await User.findOne({
+    resetPasswordToken,
+    resetPasswordExpire: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    res.status(400);
+    throw new Error("Invalid or expired reset token.");
+  }
+
+  const { password } = req.body;
+  if (!password || password.length < 6) {
+    res.status(400);
+    throw new Error("Password must be at least 6 characters.");
+  }
+
+  user.password = password;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+  await user.save();
+
+  sendToken(user, 200, res, "Password reset successful.");
+});
+
 module.exports = {
   register,
   login,
   getCurrentUser,
   logout,
-    adminLogin,
-    googleLogin,
+  adminLogin,
+  googleLogin,
+  verifyEmail,
+  resendVerificationEmail,
+  forgotPassword,
+  resetPassword,
 };

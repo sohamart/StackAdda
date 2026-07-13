@@ -12,6 +12,7 @@ import {
 import { toast } from "react-toastify";
 
 import API from "../../api/axios";
+import { useAuth } from "../../Context/AuthContext";
 import VideoFrame from "../../Components/VideoFrame";
 import {
   getResourceFileName,
@@ -30,6 +31,7 @@ const addLessonMeta = (course) =>
 
 export default function LearnCourse() {
   const { id } = useParams();
+  const { user } = useAuth();
 
   const [course, setCourse] = useState(null);
   const [active, setActive] = useState(null);
@@ -55,6 +57,8 @@ export default function LearnCourse() {
       );
   }, [id]);
 
+
+
   const resources = useMemo(() => active?.resources || [], [active]);
 
   if (!course) {
@@ -77,7 +81,7 @@ export default function LearnCourse() {
 
       <div className="grid gap-6 xl:grid-cols-[1.65fr_.8fr]">
         <main className="min-w-0 overflow-hidden rounded-3xl border border-white/10 bg-white/4.5">
-          <div className="aspect-video bg-black">
+          <div className="aspect-video bg-black relative">
             <VideoFrame url={active?.video?.url} title={active?.title} />
           </div>
 
@@ -138,7 +142,9 @@ export default function LearnCourse() {
           )}
 
           <div className="p-5 sm:p-6">
-            <p className="text-sm text-orange-300">{course.title}</p>
+            <p className="text-sm text-orange-300">
+              {course.title}
+            </p>
 
             <h1 className="mt-2 wrap-break-word text-2xl font-bold">
               {active?.title || "No lesson selected"}
@@ -152,6 +158,8 @@ export default function LearnCourse() {
 
         <aside className="h-fit rounded-3xl border border-white/10 bg-white/4.5 p-4">
           <h2 className="mb-4 font-semibold">Course content</h2>
+
+
 
           {course.chapters.map((chapter, index) => (
             <div key={chapter._id} className="mb-2 rounded-2xl bg-black/20">
@@ -182,7 +190,7 @@ export default function LearnCourse() {
                   {chapter.lessons.map((lesson) => (
                     <button
                       key={lesson._id}
-                      onClick={() => setActive(lesson)}
+                      onClick={() => { setActive(lesson); }}
                       className={`w-full rounded-xl p-2.5 text-left text-sm transition ${active?._id === lesson._id
                           ? "bg-orange-500/15 text-orange-200"
                           : "text-white/65 hover:bg-white/5 hover:text-white"

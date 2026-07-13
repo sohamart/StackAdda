@@ -1,10 +1,7 @@
 const express = require("express");
-
 const router = express.Router();
-
 const authMiddleware = require("../Middleware/authMiddleware");
 const roleMiddleware = require("../Middleware/roleMiddleware");
-
 const upload = require("../Config/multer");
 
 const {
@@ -12,27 +9,25 @@ const {
   updateCourse,
   deleteCourse,
   getCourseById,
-
   getAllCourses,
   getHomeCourses,
-    getPublishedCourses,
-    getSingleCourse,
-    addChapter,
-    updateChapter,
-    deleteChapter,
-    addLesson,
-    updateLesson,
-    deleteLesson,
-    addLessonResource,
-    deleteLessonResource,
-    downloadLessonResource,
-    assignCourse,
-    removeAssignedCourse,
-    enrollFreeCourse,
-    getMyCourses,
-    getEnrolledCourse,
+  getPublishedCourses,
+  getSingleCourse,
+  addChapter,
+  updateChapter,
+  deleteChapter,
+  addLesson,
+  updateLesson,
+  deleteLesson,
+  addLessonResource,
+  deleteLessonResource,
+  downloadLessonResource,
+  assignCourse,
+  removeAssignedCourse,
+  enrollFreeCourse,
+  getMyCourses,
+  getEnrolledCourse,
 } = require("../Controllers/courseController");
-
 
 // ============================
 // Admin
@@ -67,24 +62,24 @@ router.get(
   roleMiddleware("admin"),
   getAllCourses
 );
+
 router.get(
   "/course/:id",
   authMiddleware,
   roleMiddleware("admin"),
   getCourseById
 );
-// Home Courses
 
-router.get(
-  "/home",
-  getHomeCourses
-);
+// ============================
+// Public / General
+// ============================
 
-router.get(
-  "/all",
-  getPublishedCourses
-);
+router.get("/home", getHomeCourses);
+router.get("/all", getPublishedCourses);
 
+// ============================
+// Chapters & Lessons (Admin)
+// ============================
 
 router.post(
   "/course/:courseId/chapter",
@@ -111,7 +106,6 @@ router.post(
   "/course/:courseId/chapter/:chapterId/lesson",
   authMiddleware,
   roleMiddleware("admin"),
-  upload.single("video"),
   addLesson
 );
 
@@ -119,40 +113,16 @@ router.put(
   "/course/:courseId/chapter/:chapterId/lesson/:lessonId",
   authMiddleware,
   roleMiddleware("admin"),
-  upload.single("video"),
   updateLesson
 );
+
 router.delete(
   "/course/:courseId/chapter/:chapterId/lesson/:lessonId",
   authMiddleware,
   roleMiddleware("admin"),
   deleteLesson
 );
-router.post(
-  "/course/assign",
-  authMiddleware,
-  roleMiddleware("admin"),
-  assignCourse
-);
-router.delete(
-  "/course/remove",
-  authMiddleware,
-  roleMiddleware("admin"),
-  removeAssignedCourse
-);
 
-router.post(
-  "/enroll/:courseId",
-  authMiddleware,
-  roleMiddleware("student"),
-  enrollFreeCourse
-);
-router.get(
-  "/my-courses",
-  authMiddleware,
-  roleMiddleware("student"),
-  getMyCourses
-);
 router.post(
   "/course/:courseId/chapter/:chapterId/lesson/:lessonId/resource",
   authMiddleware,
@@ -160,24 +130,62 @@ router.post(
   upload.single("resource"),
   addLessonResource
 );
+
 router.delete(
   "/course/:courseId/chapter/:chapterId/lesson/:lessonId/resource/:resourceId",
   authMiddleware,
   roleMiddleware("admin"),
   deleteLessonResource
 );
+
 router.get(
   "/course/:courseId/chapter/:chapterId/lesson/:lessonId/resource/:resourceId/download",
   authMiddleware,
   downloadLessonResource
 );
+
+// ============================
+// Enrollments
+// ============================
+
+router.post(
+  "/:id/assign",
+  authMiddleware,
+  roleMiddleware("admin"),
+  assignCourse
+);
+
+router.delete(
+  "/:id/remove/:studentId",
+  authMiddleware,
+  roleMiddleware("admin"),
+  removeAssignedCourse
+);
+
+router.post(
+  "/enroll/:id",
+  authMiddleware,
+  roleMiddleware("student"),
+  enrollFreeCourse
+);
+
+router.get(
+  "/my-courses",
+  authMiddleware,
+  roleMiddleware("student"),
+  getMyCourses
+);
+
 router.get(
   "/learn/:id",
   authMiddleware,
-  roleMiddleware("student"),
+  roleMiddleware("student", "admin"),
   getEnrolledCourse
 );
 
+
+
+// Catch-all single course get
 router.get("/:slug", getSingleCourse);
 
 module.exports = router;

@@ -75,6 +75,7 @@ object-cover
                 <div className="mt-4 flex flex-wrap gap-3">
 
                   <span
+
                     className={`rounded-full px-3 py-1 text-xs font-semibold ${
                       student.isVerified
                         ? "bg-green-500/20 text-green-400"
@@ -85,6 +86,12 @@ object-cover
                       ? "Verified"
                       : "Pending"}
                   </span>
+
+                  {student.role === "admin" && (
+                    <span className="rounded-full bg-blue-500/20 px-3 py-1 text-xs font-semibold text-blue-400">
+                      Admin
+                    </span>
+                  )}
 
                 </div>
 

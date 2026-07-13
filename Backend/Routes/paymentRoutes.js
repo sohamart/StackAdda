@@ -10,6 +10,7 @@ const {
   verifyPayment,
   paymentHistory,
   refundPayment,
+  downloadInvoice,
 } = require("../Controllers/paymentController");
 
 // ==========================
@@ -54,6 +55,16 @@ router.post(
   authMiddleware,
   roleMiddleware("admin"),
   refundPayment
+);
+
+// ==========================
+// Download Invoice
+// ==========================
+
+router.get(
+  "/invoice/:orderId",
+  authMiddleware,
+  downloadInvoice
 );
 
 module.exports = router;

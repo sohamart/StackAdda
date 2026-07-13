@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../Context/AuthContext";
 
 const LoginForm = ({ isAdmin, setIsRegister }) => {
@@ -143,8 +143,14 @@ const LoginForm = ({ isAdmin, setIsRegister }) => {
         </div>
 
         {/* Forgot Password */}
-
-  
+        <div className="flex justify-end">
+          <Link
+            to="/forgot-password"
+            className="text-sm font-medium text-orange-400 hover:text-orange-300"
+          >
+            Forgot Password?
+          </Link>
+        </div>
 
         {/* Login Button */}
 

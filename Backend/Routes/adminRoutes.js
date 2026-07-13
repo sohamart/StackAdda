@@ -8,6 +8,7 @@ const upload = require("../Config/multer");
 const {
   dashboard,
   getStudents,
+  registerStudent,
   getStudent,
   deleteStudent,
   editStudent,
@@ -17,6 +18,7 @@ const {
   getUnverifiedStudents,
   uploadStudentProfileImage,
   emailStudent,
+  sendBroadcastEmail,
 } = require("../Controllers/adminController");
 
 router.get(
@@ -31,6 +33,13 @@ router.get(
   authMiddleware,
   roleMiddleware("admin"),
   getStudents
+);
+
+router.post(
+  "/student",
+  authMiddleware,
+  roleMiddleware("admin"),
+  registerStudent
 );
 
 router.get(
@@ -67,6 +76,13 @@ router.post(
   authMiddleware,
   roleMiddleware("admin"),
   emailStudent
+);
+
+router.post(
+  "/broadcast",
+  authMiddleware,
+  roleMiddleware("admin"),
+  sendBroadcastEmail
 );
 
 router.put(
