@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@jitsi/react-sdk": "^1.4.4",
     "@react-oauth/google": "^0.13.5",
     "@tailwindcss/vite": "^4.3.2",
     "axios": "^1.18.1",
@@ -21,6 +20,7 @@
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-hot-toast": "^2.6.0",
+    "react-player": "^3.4.0",
     "react-router": "^8.1.0",
     "react-router-dom": "^7.18.1",
     "react-toastify": "^11.1.0",

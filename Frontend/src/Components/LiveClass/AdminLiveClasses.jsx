@@ -12,6 +12,10 @@ export default function AdminLiveClasses({ courseId, course }) {
 
   const [uploadProgress, setUploadProgress] = useState(null);
 
+  const [streamModalOpen, setStreamModalOpen] = useState(false);
+  const [selectedClassId, setSelectedClassId] = useState(null);
+  const [streamUrl, setStreamUrl] = useState("");
+
   // Form State
   const [form, setForm] = useState({
     title: "",
@@ -86,6 +90,18 @@ export default function AdminLiveClasses({ courseId, course }) {
       loadClasses();
     } catch (err) {
       toast.error("Failed to change status");
+    }
+  };
+
+  const startStream = async () => {
+    try {
+      await API.patch(`/live-class/admin/${selectedClassId}/start-stream`, { streamUrl });
+      toast.success("Stream started successfully!");
+      setStreamModalOpen(false);
+      setStreamUrl("");
+      loadClasses();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to start stream");
     }
   };
 
@@ -164,7 +180,7 @@ export default function AdminLiveClasses({ courseId, course }) {
                     </button>
                   )}
                   {cls.status === "Waiting for Host" && (
-                    <button onClick={() => changeStatus(cls._id, "Live")} className="flex items-center gap-2 rounded-lg bg-orange-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-orange-600">
+                    <button onClick={() => { setSelectedClassId(cls._id); setStreamModalOpen(true); }} className="flex items-center gap-2 rounded-lg bg-orange-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-orange-600">
                       <Video size={16} /> Start Broadcast
                     </button>
                   )}
@@ -252,6 +268,27 @@ export default function AdminLiveClasses({ courseId, course }) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {streamModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#111113] p-6 shadow-2xl">
+            <h3 className="mb-4 text-xl font-bold text-white">Start Live Stream</h3>
+            <p className="mb-4 text-sm text-white/60">Paste your YouTube Live, Twitch, or Vimeo stream URL below.</p>
+            <input 
+              type="url" 
+              required 
+              value={streamUrl} 
+              onChange={e => setStreamUrl(e.target.value)} 
+              className="w-full mb-6 rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white focus:border-orange-500 outline-none" 
+              placeholder="https://youtube.com/live/..." 
+            />
+            <div className="flex justify-end gap-3">
+              <button onClick={() => { setStreamModalOpen(false); setStreamUrl(""); }} className="rounded-xl px-5 py-2 font-medium text-white hover:bg-white/10">Cancel</button>
+              <button onClick={startStream} disabled={!streamUrl} className="rounded-xl bg-orange-500 px-6 py-2 font-medium text-white hover:bg-orange-600 disabled:opacity-50">Go Live</button>
+            </div>
           </div>
         </div>
       )}

@@ -43,8 +43,6 @@ const createLiveClass = asyncHandler(async (req, res) => {
     introVideoUrl: finalIntroUrl,
     course: courseId,
     host: req.user._id,
-    // Generate a secure meetLink
-    meetLink: `stackadda-${courseId.slice(-6)}-${Date.now()}`,
   });
 
   // Emit socket event
@@ -159,6 +157,10 @@ const changeClassStatus = asyncHandler(async (req, res) => {
   }
 
   liveClass.status = status;
+  if (req.body.streamUrl) {
+    liveClass.streamUrl = req.body.streamUrl;
+  }
+  
   await liveClass.save();
 
   const io = req.app.get("io");
@@ -173,6 +175,32 @@ const changeClassStatus = asyncHandler(async (req, res) => {
   } else {
     io.to(`course_${liveClass.course}`).emit("class_status_changed", liveClass);
   }
+
+  res.status(200).json({ success: true, liveClass });
+});
+
+// ==========================
+// Start Live Stream
+// ==========================
+const startStream = asyncHandler(async (req, res) => {
+  const { streamUrl } = req.body;
+  const liveClass = await LiveClass.findById(req.params.id);
+
+  if (!liveClass) {
+    return res.status(404).json({ success: false, message: "Live Class not found." });
+  }
+
+  if (!streamUrl) {
+    return res.status(400).json({ success: false, message: "Stream URL is required." });
+  }
+
+  liveClass.streamUrl = streamUrl;
+  liveClass.status = "Live";
+  await liveClass.save();
+
+  const io = req.app.get("io");
+  io.to(`course_${liveClass.course}`).emit("class_started", liveClass);
+  io.to(`course_${liveClass.course}`).emit("class_status_changed", liveClass);
 
   res.status(200).json({ success: true, liveClass });
 });
@@ -227,5 +255,6 @@ module.exports = {
   updateLiveClass,
   deleteLiveClass,
   changeClassStatus,
+  startStream,
   logAttendance,
 };

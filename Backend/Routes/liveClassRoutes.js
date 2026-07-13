@@ -9,6 +9,7 @@ const {
   updateLiveClass,
   deleteLiveClass,
   changeClassStatus,
+  startStream,
   logAttendance,
 } = require("../Controllers/liveClassController");
 
@@ -22,6 +23,7 @@ router.get("/admin/course/:courseId", authMiddleware, roleMiddleware("admin"), g
 router.put("/admin/:id", authMiddleware, roleMiddleware("admin"), updateLiveClass);
 router.delete("/admin/:id", authMiddleware, roleMiddleware("admin"), deleteLiveClass);
 router.patch("/admin/:id/status", authMiddleware, roleMiddleware("admin"), changeClassStatus);
+router.patch("/admin/:id/start-stream", authMiddleware, roleMiddleware("admin"), startStream);
 
 // Student/Common routes
 router.get("/course/:courseId", authMiddleware, getActiveLiveClasses);

@@ -36,6 +36,10 @@ const LiveClassSchema = new mongoose.Schema(
       type: String, // e.g., "10:00 AM"
       required: true,
     },
+    streamUrl: {
+      type: String,
+      default: "",
+    },
     expectedEndTime: {
       type: String,
       required: true,
@@ -77,8 +81,8 @@ const LiveClassSchema = new mongoose.Schema(
     maxParticipants: { type: Number, default: 0 }, // 0 = unlimited
     notificationsEnabled: { type: Boolean, default: true },
 
-    // Generated Meeting Details
-    meetLink: { type: String },
+    // Live Stream details
+    streamUrl: { type: String },
 
     // Analytics
     attendance: [

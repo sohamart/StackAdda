@@ -347,7 +347,7 @@ className="w-full rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-w
 
 <label className="mb-2 block text-white">
 
-Instructor
+Host (Instructor)
 
 </label>
 
@@ -356,6 +356,7 @@ type="text"
 name="instructor"
 value={form.instructor}
 onChange={handleChange}
+placeholder="e.g. Stack Adda (Host)"
 className="w-full rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-white"
 />
 

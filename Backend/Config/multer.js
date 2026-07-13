@@ -23,7 +23,7 @@ const fileFilter = (req, file, cb) => {
     "text/plain",
   ];
 
-  const isVideoUpload = file.fieldname === "video";
+  const isVideoUpload = file.fieldname === "video" || file.fieldname === "introVideo";
   const isResourceUpload = file.fieldname === "resource";
   const isAllowed = isVideoUpload ? videoTypes.includes(file.mimetype) : isResourceUpload ? resourceTypes.includes(file.mimetype) : imageTypes.includes(file.mimetype);
 
@@ -42,7 +42,7 @@ const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB
+    fileSize: 1000 * 1024 * 1024, // 1000MB
   },
 });
 

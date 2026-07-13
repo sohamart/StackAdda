@@ -379,7 +379,7 @@ const CreateCourse = () => {
 
               <label className="mb-2 block text-white">
 
-                Instructor
+                Host (Instructor)
 
               </label>
 
@@ -389,7 +389,7 @@ const CreateCourse = () => {
                 value={form.instructor}
                 onChange={handleChange}
                 required
-                placeholder="Stack Adda"
+                placeholder="e.g. Stack Adda (Host)"
                 className="w-full rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-white outline-none transition focus:border-orange-500"
               />
 

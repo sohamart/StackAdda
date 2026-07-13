@@ -5,7 +5,7 @@ const path = require("path");
 const generateInvoice = (invoiceData) => {
   return new Promise((resolve, reject) => {
     try {
-      const doc = new PDFDocument({ margin: 50 });
+      const doc = new PDFDocument({ size: "A4", margin: 50 });
       const buffers = [];
 
       doc.on("data", (chunk) => buffers.push(chunk));
@@ -14,69 +14,104 @@ const generateInvoice = (invoiceData) => {
         resolve(pdfData);
       });
 
+      // Colors
+      const primaryColor = "#4F46E5"; // Indigo
+      const secondaryColor = "#6B7280"; // Gray
+      const darkColor = "#111827"; // Almost black
+      const lightGray = "#F3F4F6";
+
+      // Top colored bar
+      doc.rect(0, 0, 595, 8).fill(primaryColor);
+
       // Add Logo
       const logoPath = path.join(__dirname, "../../Frontend/public/favicon.png");
       if (fs.existsSync(logoPath)) {
-        doc.image(logoPath, 50, 45, { width: 50 });
+        doc.image(logoPath, 50, 45, { width: 60 });
+      } else {
+        doc.fillColor(primaryColor).fontSize(24).font("Helvetica-Bold").text("STACK", 50, 50).fillColor(darkColor).text("ADDA", 130, 50);
       }
 
-      // Header
+      // Company Details
       doc
-        .fillColor("#444444")
-        .fontSize(20)
+        .fillColor(secondaryColor)
+        .fontSize(10)
+        .font("Helvetica")
+        .text("Stack Adda", 50, 115)
+        .text("contact@stackadda.com", 50, 130)
+        .text("www.stackadda.com", 50, 145);
+
+      // Invoice Header
+      doc
+        .fillColor(primaryColor)
+        .fontSize(28)
+        .font("Helvetica-Bold")
         .text("INVOICE", 50, 50, { align: "right" })
+        .fillColor(secondaryColor)
         .fontSize(10)
-        .text("Stack Adda", 50, 75, { align: "right" })
-        .text("stackadda@example.com", 50, 90, { align: "right" })
-        .moveDown();
+        .font("Helvetica")
+        .text(`Invoice #: ${invoiceData.invoiceId}`, 50, 85, { align: "right" })
+        .text(`Date: ${new Date(invoiceData.date).toLocaleDateString()}`, 50, 100, { align: "right" });
 
-      // Line
-      doc.moveTo(50, 130).lineTo(550, 130).stroke();
+      doc.moveDown(3);
 
-      // Customer Info & Invoice Details
+      // Billed To Section
       doc
+        .fillColor(darkColor)
+        .fontSize(12)
+        .font("Helvetica-Bold")
+        .text("Billed To:", 50, 180)
+        .fillColor(secondaryColor)
         .fontSize(10)
-        .fillColor("#000000")
-        .text(`Invoice Number: ${invoiceData.invoiceId}`, 50, 150)
-        .text(`Date: ${new Date(invoiceData.date).toLocaleDateString()}`, 50, 165)
-        .text(`Billed To:`, 300, 150)
-        .text(invoiceData.customerName, 300, 165)
-        .text(invoiceData.customerEmail, 300, 180)
-        .moveDown();
+        .font("Helvetica")
+        .text(invoiceData.customerName, 50, 200)
+        .text(invoiceData.customerEmail, 50, 215);
 
-      // Table Header
-      doc.moveTo(50, 220).lineTo(550, 220).stroke();
+      // Table Header Background
+      doc.rect(50, 260, 495, 30).fill(primaryColor);
+
+      // Table Header Text
       doc
+        .fillColor("#FFFFFF")
         .fontSize(10)
         .font("Helvetica-Bold")
-        .text("Item", 50, 230)
-        .text("Amount", 450, 230, { align: "right" });
-      doc.moveTo(50, 250).lineTo(550, 250).stroke();
+        .text("Description", 60, 270)
+        .text("Amount", 440, 270, { align: "right" });
 
       // Table Row
       doc
+        .fillColor(darkColor)
+        .fontSize(10)
         .font("Helvetica")
-        .text(invoiceData.courseTitle, 50, 260, { width: 350 })
-        .text(`Rs ${invoiceData.amount}`, 450, 260, { align: "right" });
+        .text(invoiceData.courseTitle, 60, 310, { width: 350 })
+        .text(`Rs ${invoiceData.amount}`, 440, 310, { align: "right" });
 
-      // Total
-      doc.moveTo(50, 300).lineTo(550, 300).stroke();
+      // Table Bottom Border
+      doc.moveTo(50, 340).lineTo(545, 340).lineWidth(1).stroke(lightGray);
+
+      // Total Section
+      doc.rect(345, 360, 200, 40).fill(lightGray);
       doc
+        .fillColor(darkColor)
+        .fontSize(12)
         .font("Helvetica-Bold")
-        .text("Total", 350, 315)
-        .text(`Rs ${invoiceData.amount}`, 450, 315, { align: "right" });
+        .text("Total:", 360, 375)
+        .fillColor(primaryColor)
+        .text(`Rs ${invoiceData.amount}`, 440, 375, { align: "right" });
 
       // Footer
       doc
         .fontSize(10)
         .font("Helvetica")
-        .fillColor("#888888")
+        .fillColor(secondaryColor)
         .text(
-          "Thank you for your business. For any questions, please contact support.",
+          "Thank you for choosing Stack Adda! If you have any questions about this invoice, please contact support.",
           50,
-          700,
-          { align: "center", width: 500 }
+          750,
+          { align: "center", width: 495 }
         );
+        
+      // Bottom colored bar
+      doc.rect(0, 834, 595, 8).fill(primaryColor);
 
       doc.end();
     } catch (err) {
