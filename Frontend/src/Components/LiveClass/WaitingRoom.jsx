@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Clock, Shield, Wifi, Monitor, CheckCircle2, Volume2, VolumeX } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import ReactPlayer from "react-player";
+import ProtectedVideoWrapper from "./ProtectedVideoWrapper";
 
 const getYoutubeId = (url) => {
   if (!url) return null;
@@ -65,6 +66,7 @@ export default function WaitingRoom({ liveClass }) {
     <div className="flex w-full flex-col 2xl:flex-row gap-6">
       <div className="flex-1 flex flex-col gap-6">
         <div className="relative aspect-video w-full overflow-hidden rounded-3xl border border-white/10 bg-black shadow-2xl">
+          <ProtectedVideoWrapper>
           {liveClass.introVideoUrl ? (() => {
             const ytId = getYoutubeId(liveClass.introVideoUrl);
             return (
@@ -133,6 +135,7 @@ export default function WaitingRoom({ liveClass }) {
               </button>
             </div>
           )}
+          </ProtectedVideoWrapper>
         </div>
 
         <div className="rounded-3xl border border-white/10 bg-white/[.045] p-5 md:p-8 backdrop-blur-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">

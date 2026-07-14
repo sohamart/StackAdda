@@ -21,6 +21,7 @@ import {
   getResourceFileName,
   downloadResourceFile,
 } from "../../utils/resourceDownloads";
+import ProtectedVideoWrapper from "../../Components/LiveClass/ProtectedVideoWrapper";
 
 const addLessonMeta = (course) =>
   (course?.chapters || []).map((chapter) => ({
@@ -136,7 +137,9 @@ export default function LearnCourse() {
       <div className="grid gap-6 lg:grid-cols-[1fr] xl:grid-cols-[1.65fr_.8fr]">
         <main className="min-w-0 overflow-hidden rounded-3xl border border-white/10 bg-white/4.5 flex flex-col">
           <div className="aspect-video bg-black relative">
-            <VideoFrame url={active?.video?.url} title={active?.title} />
+            <ProtectedVideoWrapper>
+              <VideoFrame url={active?.video?.url} title={active?.title} />
+            </ProtectedVideoWrapper>
           </div>
 
           {activeLiveClasses.filter(c => c.status !== "Completed" && c.status !== "Ended").length > 0 && (

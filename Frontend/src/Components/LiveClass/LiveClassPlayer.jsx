@@ -10,6 +10,7 @@ import {
   PlayCircle
 } from "lucide-react";
 import API from "../../api/axios";
+import ProtectedVideoWrapper from "./ProtectedVideoWrapper";
 
 /* ----------------------------------------
    Extract YouTube Video ID
@@ -432,6 +433,7 @@ return (
 
       <div className="relative w-full aspect-video max-h-[100dvh] bg-black overflow-hidden rounded-xl">
 
+        <ProtectedVideoWrapper>
         {loading && (
           <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black">
 
@@ -571,7 +573,7 @@ return (
           </div>
 
         )}
-
+        </ProtectedVideoWrapper>
       </div>
             {/* ================= Bottom Overlay ================= */}
 
