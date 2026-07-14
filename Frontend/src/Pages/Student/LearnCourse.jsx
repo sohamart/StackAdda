@@ -72,7 +72,9 @@ export default function LearnCourse() {
       .then((res) => setActiveLiveClasses(res.data.liveClasses || []))
       .catch(console.error);
 
-    const socket = io(API.defaults.baseURL.replace("/api", ""));
+    const socket = io(API.defaults.baseURL.replace("/api", ""), {
+      transports: ["polling"],
+    });
     socket.emit("join_course_room", id);
 
     socket.on("class_created", (newClass) => {

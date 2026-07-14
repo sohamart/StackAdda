@@ -33,7 +33,9 @@ export default function GlobalLiveAlert() {
   useEffect(() => {
     if (!user || courseIds.length === 0) return;
 
-    const socket = io(API.defaults.baseURL.replace("/api", ""));
+    const socket = io(API.defaults.baseURL.replace("/api", ""), {
+      transports: ["polling"],
+    });
     
     // Join rooms for all enrolled courses to listen for class starts
     courseIds.forEach(id => socket.emit("join_course_room", id));

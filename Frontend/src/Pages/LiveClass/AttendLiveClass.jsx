@@ -48,7 +48,9 @@ export default function AttendLiveClass() {
       setLiveViewMode("waiting");
     }
 
-    const socket = io(API.defaults.baseURL.replace("/api", ""));
+    const socket = io(API.defaults.baseURL.replace("/api", ""), {
+      transports: ["polling"],
+    });
     socket.emit("join_course_room", course._id);
 
     socket.on("class_started", (startedClass) => {
