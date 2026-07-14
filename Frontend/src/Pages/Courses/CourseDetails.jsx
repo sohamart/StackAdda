@@ -305,7 +305,7 @@ export default function CourseDetails() {
                 className="aspect-video w-full rounded-2xl object-cover"
               />
 
-              <div className="mt-5 flex items-start justify-between gap-3">
+              <div className="mt-5 flex flex-wrap items-start justify-between gap-3">
                 <div className="flex items-end gap-3">
                   <p className="text-3xl font-black text-orange-300">
                     {course.accessType === "free" ? "Free" : `Rs ${calculateFinalPrice()}`}
