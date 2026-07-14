@@ -202,6 +202,31 @@ const getLiveClassScheduledEmail = (courseTitle, classTitle, topic, scheduledAt,
   return getBaseTemplate("Live Class Scheduled 🔴", `A new live class "${classTitle}" has been scheduled for ${courseTitle}.`, content);
 };
 
+const getPiracyAlertAdminEmail = (studentName, studentEmail, studentId) => {
+  const content = `
+    <h1 style="color: #ef4444;">🚨 Security Alert: Piracy Attempt Detected</h1>
+    <p>Our security systems have detected an attempt to screenshot or record video content.</p>
+    <div style="background: rgba(255, 0, 0, 0.05); border-left: 4px solid #ef4444; padding: 16px; margin: 20px 0; border-radius: 4px;">
+      <p style="margin: 0 0 10px 0;"><strong>Student Name:</strong> ${studentName}</p>
+      <p style="margin: 0 0 10px 0;"><strong>Email:</strong> ${studentEmail}</p>
+      <p style="margin: 0;"><strong>User ID:</strong> ${studentId}</p>
+    </div>
+    <p>The student's video player was automatically blacked out and they were forced to refresh the page. Please monitor this account for further suspicious activity.</p>
+  `;
+  return getBaseTemplate("Security Alert: Piracy Detected", "An attempt to record course content was detected.", content);
+};
+
+const getPiracyWarningStudentEmail = (studentName) => {
+  const content = `
+    <h1 style="color: #ef4444;">Warning: Unauthorized Screen Recording Detected</h1>
+    <p>Hi ${studentName},</p>
+    <p>Our security systems have detected the use of a screen recorder or snipping tool while you were watching course content.</p>
+    <p><strong>Please be advised that unauthorized recording, screenshotting, or sharing of course material is strictly prohibited.</strong></p>
+    <p>Repeated violations may result in the permanent suspension of your account without a refund.</p>
+  `;
+  return getBaseTemplate("Security Warning", "Unauthorized recording detected on your account.", content);
+};
+
 module.exports = {
   getWelcomeEmail,
   getEnrollmentEmail,
@@ -210,5 +235,7 @@ module.exports = {
   getRefundEmail,
   getContactEmail,
   getAdminMessageEmail,
-  getLiveClassScheduledEmail
+  getLiveClassScheduledEmail,
+  getPiracyAlertAdminEmail,
+  getPiracyWarningStudentEmail
 };

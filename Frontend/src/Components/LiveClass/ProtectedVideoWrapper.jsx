@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
 import { useAuth } from "../../Context/AuthContext";
+import API from "../../api/axios";
 
 export default function ProtectedVideoWrapper({ children }) {
   const { user } = useAuth();
   const [isBlurred, setIsBlurred] = useState(false);
   const [isPermanentlyBlocked, setIsPermanentlyBlocked] = useState(false);
+  const hasReported = useRef(false);
   const [positions, setPositions] = useState([]);
 
   useEffect(() => {
@@ -58,6 +61,12 @@ export default function ProtectedVideoWrapper({ children }) {
       if (e.key === "PrintScreen" || (e.metaKey && e.shiftKey && (e.key === "S" || e.key === "s"))) {
          navigator.clipboard.writeText(""); 
          setIsPermanentlyBlocked(true);
+
+         if (!hasReported.current) {
+           hasReported.current = true;
+           toast.error("Screen recording detected! A warning has been sent to your email.");
+           API.post('/student/report-piracy').catch(console.error);
+         }
       }
     };
 
