@@ -253,7 +253,7 @@ export default function CourseDetails() {
         <section className="relative mt-6 overflow-hidden rounded-3xl border border-orange-500/20 bg-linear-to-br from-orange-500/[.14] via-white/4.5 to-transparent p-5 sm:p-7 md:p-10">
           <div className="absolute -right-28 -top-24 h-96 w-96 rounded-full bg-orange-500/20 blur-[120px]" />
 
-          <div className="relative grid gap-8 lg:grid-cols-[1.25fr_.75fr]">
+          <div className="relative grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,.75fr)]">
             <div className="min-w-0">
               <div className="flex flex-wrap gap-2">
                 <span className="rounded-full bg-orange-500/15 px-3 py-1 text-sm text-orange-200">
@@ -295,7 +295,7 @@ export default function CourseDetails() {
               </div>
             </div>
 
-            <aside className="rounded-3xl border border-white/15 bg-[#15110f]/80 p-4 shadow-2xl backdrop-blur sm:p-5">
+            <aside className="min-w-0 w-full rounded-3xl border border-white/15 bg-[#15110f]/80 p-4 shadow-2xl backdrop-blur sm:p-5">
               <img
                 src={
                   course.thumbnail?.url ||
