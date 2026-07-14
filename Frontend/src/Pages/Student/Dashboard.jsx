@@ -88,6 +88,20 @@ const Dashboard = () => {
           </div>
         )}
 
+        <div className="rounded-2xl border border-orange-500/20 bg-orange-500/10 p-4">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 shrink-0 rounded-full bg-orange-500/20 p-1 text-orange-400">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-orange-400">Important Note on Course Videos</h3>
+              <p className="mt-1 text-xs leading-relaxed text-white/70">
+                You will only be able to view the course videos if you are logged into your browser and YouTube with the <strong>exact same email address</strong> you used to register for this account. Videos are personally invited to your registered email for security.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Hero */}
         <section
           className="
