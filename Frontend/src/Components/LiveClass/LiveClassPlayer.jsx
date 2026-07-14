@@ -362,8 +362,11 @@ export default function LiveClassPlayer({
 </div>
                            {/* ================= PLAYER ================= */}
 
-      <div className="relative flex flex-1 items-center justify-center bg-black px-2 py-3 sm:px-4 lg:px-8">
-
+      <div
+  className={`relative flex flex-1 items-center justify-center bg-black ${
+    fullscreen ? "p-0" : "px-2 py-3 sm:px-4 lg:px-8"
+  }`}
+>
         {/* Cinema Glow */}
 
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,.12),transparent_60%)]" />
@@ -371,20 +374,13 @@ export default function LiveClassPlayer({
         {/* 16:9 Player */}
 
         <div
-          className="
-            relative
-            mx-auto
-            w-full
-            max-w-7xl
-            aspect-video
-            overflow-hidden
-            rounded-2xl
-            border
-            border-white/10
-            bg-black
-            shadow-[0_0_80px_rgba(249,115,22,.15)]
-          "
-        >
+  className={`relative overflow-hidden border border-white/10 bg-black shadow-[0_0_80px_rgba(249,115,22,.15)]
+  ${
+    fullscreen
+      ? "w-screen h-[100dvh] max-w-none rounded-none"
+      : "mx-auto w-full max-w-7xl aspect-video rounded-2xl"
+  }`}
+>
 
           <ProtectedVideoWrapper>
 
