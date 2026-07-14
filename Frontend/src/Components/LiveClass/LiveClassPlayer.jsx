@@ -307,6 +307,59 @@ export default function LiveClassPlayer({
 </>
 
 )}
+                </div>
+
+<div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+  <Users size={14} className="text-orange-400" />
+  <span className="text-xs">
+    {viewerCount} Watching
+  </span>
+</div>
+
+</div>
+
+<h1 className="mt-4 line-clamp-2 text-xl font-bold text-white md:text-3xl">
+  {liveClass?.title}
+</h1>
+
+<div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-white/60">
+  <div className="flex items-center gap-2">
+    <Clock3 size={15} className="text-orange-400" />
+    {formatTime(watchTime)}
+  </div>
+
+  <div className="flex items-center gap-2">
+    <ShieldCheck size={15} className="text-green-400" />
+    Protected Stream
+  </div>
+</div>
+
+</div>
+
+<div className="flex items-center gap-3">
+
+<button
+  onClick={toggleFullscreen}
+  className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5"
+>
+  {fullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+</button>
+
+<button
+  onClick={handleLeave}
+  className="flex items-center gap-2 rounded-xl bg-red-500 px-5 py-3 text-white"
+>
+  <LogOut size={17} />
+  <span className="hidden sm:block">
+    Leave Class
+  </span>
+</button>
+
+</div>
+
+</div>
+
+</div>
                            {/* ================= PLAYER ================= */}
 
       <div className="relative flex flex-1 items-center justify-center bg-black px-2 py-3 sm:px-4 lg:px-8">
@@ -557,4 +610,4 @@ export default function LiveClassPlayer({
 
     </div>
   );
-                    }
+}
