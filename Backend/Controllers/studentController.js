@@ -1,7 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const User = require("../Models/User");
-const sendEmail = require("../utils/sendEmail");
-const { getPiracyAlertAdminEmail, getPiracyWarningStudentEmail } = require("../utils/emailTemplates");
+const sendEmail = require("../Utils/sendEmail");
+const { getPiracyAlertAdminEmail, getPiracyWarningStudentEmail } = require("../Utils/emailTemplates");
 
 const dashboard = asyncHandler(async (req, res) => {
   const student = await User.findById(req.user._id)
