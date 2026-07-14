@@ -257,8 +257,8 @@ export default function AdminLiveClasses({ courseId, course }) {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm overflow-y-auto">
-          <div className="w-full max-w-2xl rounded-3xl border border-white/10 bg-[#111113] p-6 shadow-2xl my-8">
+        <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/80 p-4 sm:p-6 backdrop-blur-sm overflow-y-auto">
+          <div className="w-full max-w-2xl rounded-3xl border border-white/10 bg-[#111113] p-6 shadow-2xl my-8 sm:m-auto shrink-0">
             <h3 className="mb-4 text-2xl font-bold text-white">{editingClassId ? "Edit Live Class" : "Schedule Live Class"}</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
