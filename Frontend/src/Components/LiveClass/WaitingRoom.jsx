@@ -1,39 +1,37 @@
-import React, { useState, useEffect } from "react";
-import { Clock, Shield, Wifi, Monitor, CheckCircle2 } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { Clock, Shield, Wifi, Monitor, CheckCircle2, Volume2, VolumeX } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import ReactPlayer from "react-player";
 
-const normalizeStreamUrl = (url) => {
-  if (!url) return url;
-  
+const getYoutubeId = (url) => {
+  if (!url) return null;
   let cleanUrl = url.trim();
-  
   try {
     const isYouTube = cleanUrl.includes("youtube.com") || cleanUrl.includes("youtu.be");
     if (isYouTube) {
-      let id = "";
-      if (cleanUrl.includes("youtu.be/")) {
-        id = cleanUrl.split("youtu.be/")[1]?.split(/[?&]/)[0];
-      } else if (cleanUrl.includes("/live/")) {
-        id = cleanUrl.split("/live/")[1]?.split(/[?&]/)[0];
-      } else if (cleanUrl.includes("v=")) {
-        id = cleanUrl.split("v=")[1]?.split(/[?&]/)[0];
-      } else if (cleanUrl.includes("/embed/")) {
-        id = cleanUrl.split("/embed/")[1]?.split(/[?&]/)[0];
-      }
-      
-      if (id) {
-        return `https://www.youtube.com/watch?v=${id}`;
-      }
+      if (cleanUrl.includes("youtu.be/")) return cleanUrl.split("youtu.be/")[1]?.split(/[?&]/)[0];
+      if (cleanUrl.includes("/live/")) return cleanUrl.split("/live/")[1]?.split(/[?&]/)[0];
+      if (cleanUrl.includes("v=")) return cleanUrl.split("v=")[1]?.split(/[?&]/)[0];
+      if (cleanUrl.includes("/embed/")) return cleanUrl.split("/embed/")[1]?.split(/[?&]/)[0];
     }
-  } catch (e) {
-    return cleanUrl;
-  }
-  return cleanUrl;
+  } catch (e) {}
+  return null;
+};
+
+const normalizeStreamUrl = (url) => {
+  return url ? url.trim() : url;
 };
 
 export default function WaitingRoom({ liveClass }) {
   const [timeToStart, setTimeToStart] = useState("");
+  const [isMuted, setIsMuted] = useState(true);
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = isMuted;
+    }
+  }, [isMuted]);
 
   useEffect(() => {
     // Basic countdown string
@@ -61,42 +59,80 @@ export default function WaitingRoom({ liveClass }) {
     if (modifier === "PM") hours = parseInt(hours, 10) + 12;
     return `${hours}:${minutes}:00`;
   };
+  console.log(liveClass.introVideoUrl);
 
   return (
     <div className="flex w-full flex-col 2xl:flex-row gap-6">
       <div className="flex-1 flex flex-col gap-6">
         <div className="relative aspect-video w-full overflow-hidden rounded-3xl border border-white/10 bg-black shadow-2xl">
-          {liveClass.introVideoUrl ? (
-            <div className="absolute inset-0 scale-[1.15] pointer-events-none">
-              <ReactPlayer
-                url={normalizeStreamUrl(liveClass.introVideoUrl)}
-                width="100%"
-                height="100%"
-                playing={true}
-                muted={true}
-                loop={true}
-                controls={false}
-                config={{
-                  youtube: {
-                    playerVars: { showinfo: 0, controls: 0, disablekb: 1, modestbranding: 1 }
-                  }
-                }}
-              />
-            </div>
-          ) : (
+          {liveClass.introVideoUrl ? (() => {
+            const ytId = getYoutubeId(liveClass.introVideoUrl);
+            return (
+              <>
+                {ytId ? (
+                  <div className="absolute inset-0 z-20">
+                    <iframe 
+                      src={`https://www.youtube.com/embed/${ytId}?autoplay=1&controls=1&modestbranding=1`}
+                      title="Waiting Room Video"
+                      className="absolute inset-0 w-full h-full border-0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                      allowFullScreen 
+                    />
+                  </div>
+                ) : (
+                  <div className="absolute inset-0 pointer-events-none scale-[1.02]">
+                    <video
+                      ref={videoRef}
+                      src={normalizeStreamUrl(liveClass.introVideoUrl)}
+                      className="absolute inset-0 w-full h-full object-cover"
+                      autoPlay
+                      loop
+                      playsInline
+                      controls={false}
+                    />
+                  </div>
+                )}
+              </>
+            );
+          })() : (
             <div className="flex h-full w-full flex-col items-center justify-center bg-zinc-900/80 absolute inset-0">
               <div className="h-16 w-16 md:h-20 md:w-20 rounded-full border-4 border-orange-500/30 border-t-orange-500 animate-spin mb-4 md:mb-6" />
               <p className="text-lg md:text-xl font-medium text-white/50">Waiting for Instructor</p>
             </div>
           )}
           
-          <div className="absolute inset-0 bg-gradient-to-t from-[#09090B] via-black/40 to-transparent flex flex-col justify-end p-6 md:p-10 pointer-events-none">
-            <span className="mb-3 md:mb-4 inline-flex w-fit items-center rounded-full bg-orange-500/10 px-2.5 md:px-3 py-1 md:py-1.5 text-[10px] md:text-xs font-semibold uppercase tracking-wider text-orange-400 border border-orange-500/20 backdrop-blur-md">
+          <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/80 to-transparent p-4 md:p-6 pointer-events-none">
+            <span className="mb-2 md:mb-3 inline-flex w-fit items-center rounded-full bg-orange-500/10 px-2.5 md:px-3 py-1 md:py-1.5 text-[10px] md:text-xs font-semibold uppercase tracking-wider text-orange-400 border border-orange-500/20 backdrop-blur-md">
               <span className="mr-1.5 md:mr-2 h-1.5 w-1.5 rounded-full bg-orange-500 animate-pulse" /> Live Event
             </span>
-            <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold text-white mb-2 md:mb-3 drop-shadow-2xl tracking-tight line-clamp-2">{liveClass.title}</h1>
-            <p className="text-base md:text-xl text-white/80 font-medium drop-shadow-md truncate">with {liveClass.facultyName}</p>
+            <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-white drop-shadow-lg line-clamp-1">{liveClass.title}</h1>
+            <p className="text-sm md:text-base text-white/80 font-medium drop-shadow-md truncate">with {liveClass.facultyName}</p>
           </div>
+
+          {/* Sound Control Overlay (Only for Uploaded Videos) */}
+          {liveClass.introVideoUrl && !getYoutubeId(liveClass.introVideoUrl) && (
+            <div className="absolute bottom-4 right-4 z-10">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsMuted(!isMuted);
+                }}
+                className="flex items-center gap-2 rounded-full bg-black/50 hover:bg-black/70 border border-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur-md transition-all shadow-lg"
+              >
+                {isMuted ? (
+                  <>
+                    <VolumeX size={18} className="text-white/70" />
+                    <span className="hidden sm:inline">Unmute</span>
+                  </>
+                ) : (
+                  <>
+                    <Volume2 size={18} className="text-white" />
+                    <span className="hidden sm:inline">Mute</span>
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="rounded-3xl border border-white/10 bg-white/[.045] p-5 md:p-8 backdrop-blur-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">

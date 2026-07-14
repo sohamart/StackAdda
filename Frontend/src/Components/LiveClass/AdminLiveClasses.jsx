@@ -8,6 +8,7 @@ export default function AdminLiveClasses({ courseId, course }) {
   const [liveClasses, setLiveClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingClassId, setEditingClassId] = useState(null);
   const [saving, setSaving] = useState(false);
 
   const [uploadProgress, setUploadProgress] = useState(null);
@@ -29,6 +30,14 @@ export default function AdminLiveClasses({ courseId, course }) {
     waitingRoomEnabled: true,
     chatEnabled: true,
   });
+
+  const previousIntros = Array.from(
+    new Map(
+      liveClasses
+        .filter((cls) => cls.introVideoUrl && cls.introVideoUrl.trim() !== "")
+        .map((cls) => [cls.introVideoUrl, cls.title])
+    ).entries()
+  );
 
   const loadClasses = async () => {
     try {
@@ -62,25 +71,66 @@ export default function AdminLiveClasses({ courseId, course }) {
     try {
       if (form.introVideo) setUploadProgress(0);
       
-      await API.post("/live-class/admin", formData, {
+      const config = {
         headers: { "Content-Type": "multipart/form-data" },
         onUploadProgress: (progressEvent) => {
           if (progressEvent.total && form.introVideo) {
             setUploadProgress(Math.round((progressEvent.loaded * 100) / progressEvent.total));
           }
         }
-      });
+      };
+
+      if (editingClassId) {
+        await API.put(`/live-class/admin/${editingClassId}`, formData, config);
+        toast.success("Live class updated!");
+      } else {
+        await API.post("/live-class/admin", formData, config);
+        toast.success("Live class created!");
+      }
       
-      toast.success("Live class created!");
-      setIsModalOpen(false);
-      setUploadProgress(null);
+      handleCloseModal();
       loadClasses();
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to create live class");
+      toast.error(err.response?.data?.message || `Failed to ${editingClassId ? "update" : "create"} live class`);
       setUploadProgress(null);
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleEditClick = (cls) => {
+    setForm({
+      title: cls.title,
+      subject: cls.subject || "",
+      facultyName: cls.facultyName,
+      date: format(new Date(cls.date), "yyyy-MM-dd"),
+      startTime: cls.startTime,
+      expectedEndTime: cls.expectedEndTime,
+      introVideoUrl: cls.introVideoUrl || "",
+      introVideo: null,
+      waitingRoomEnabled: cls.waitingRoomEnabled !== undefined ? cls.waitingRoomEnabled : true,
+      chatEnabled: cls.chatEnabled !== undefined ? cls.chatEnabled : true,
+    });
+    setEditingClassId(cls._id);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingClassId(null);
+    setForm({
+      title: "",
+      subject: "",
+      facultyName: "",
+      date: "",
+      startTime: "",
+      expectedEndTime: "",
+      introVideoUrl: "",
+      introVideo: null,
+      waitingRoomEnabled: true,
+      chatEnabled: true,
+    });
+    setUploadProgress(null);
   };
 
   const changeStatus = async (id, status) => {
@@ -128,8 +178,11 @@ export default function AdminLiveClasses({ courseId, course }) {
           <p className="text-sm text-white/50">Manage broadcasts, waiting rooms, and live sessions.</p>
         </div>
         <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 rounded-xl bg-orange-500 px-4 py-2 font-medium text-white hover:bg-orange-600"
+          onClick={() => {
+            handleCloseModal();
+            setIsModalOpen(true);
+          }}
+          className="flex w-full md:w-auto items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 py-2 font-medium text-white hover:bg-orange-600"
         >
           <Plus size={18} /> Schedule Class
         </button>
@@ -154,20 +207,25 @@ export default function AdminLiveClasses({ courseId, course }) {
                       {cls.status === "Live" && <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />}
                       {cls.status}
                     </span>
-                    <h3 className="mt-2 text-lg font-bold text-white">{cls.title}</h3>
-                    <p className="text-sm text-white/50">by {cls.facultyName}</p>
+                    <h3 className="mt-2 text-lg font-bold text-white break-words whitespace-normal">{cls.title}</h3>
+                    <p className="text-sm text-white/50 break-words">by {cls.facultyName}</p>
                   </div>
-                  <button onClick={() => deleteClass(cls._id)} className="text-white/30 hover:text-red-400">
-                    <Trash2 size={18} />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => handleEditClick(cls)} className="text-white/30 hover:text-blue-400 shrink-0">
+                      <Settings size={18} />
+                    </button>
+                    <button onClick={() => deleteClass(cls._id)} className="text-white/30 hover:text-red-400 shrink-0">
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
                 </div>
 
-                <div className="mt-4 flex items-center gap-4 text-sm text-white/60">
-                  <div className="flex items-center gap-1.5">
+                <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-white/60">
+                  <div className="flex items-center gap-1.5 shrink-0">
                     <Calendar size={16} className="text-orange-400" />
                     {format(new Date(cls.date), "MMM d, yyyy")}
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 shrink-0">
                     <Clock size={16} className="text-orange-400" />
                     {cls.startTime} - {cls.expectedEndTime}
                   </div>
@@ -201,7 +259,7 @@ export default function AdminLiveClasses({ courseId, course }) {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm overflow-y-auto">
           <div className="w-full max-w-2xl rounded-3xl border border-white/10 bg-[#111113] p-6 shadow-2xl my-8">
-            <h3 className="mb-4 text-2xl font-bold text-white">Schedule Live Class</h3>
+            <h3 className="mb-4 text-2xl font-bold text-white">{editingClassId ? "Edit Live Class" : "Schedule Live Class"}</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="col-span-2">
@@ -230,13 +288,46 @@ export default function AdminLiveClasses({ courseId, course }) {
                     <input type="time" required value={form.expectedEndTime} onChange={e => setForm({...form, expectedEndTime: e.target.value})} className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white focus:border-orange-500 outline-none" />
                   </div>
                 </div>
-                <div className="col-span-2">
-                  <label className="mb-1 block text-sm text-white/60">Intro Video (URL or File Upload)</label>
-                  <input type="url" value={form.introVideoUrl} disabled={Boolean(form.introVideo)} onChange={e => setForm({...form, introVideoUrl: e.target.value})} className="w-full mb-2 rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white focus:border-orange-500 outline-none disabled:opacity-40" placeholder="YouTube URL (Optional)" />
-                  <div className="relative overflow-hidden rounded-xl border border-dashed border-white/20 bg-black/30 hover:border-orange-500 transition-colors">
-                    <input type="file" accept="video/mp4" onChange={e => setForm({...form, introVideo: e.target.files[0], introVideoUrl: ""})} className="absolute inset-0 h-full w-full opacity-0 cursor-pointer" />
-                    <div className="flex items-center justify-center gap-2 py-3 px-4 text-sm text-white/60">
-                      <Video size={18} /> {form.introVideo ? form.introVideo.name : "Or click to upload MP4 video"}
+                <div className="col-span-2 md:col-span-2 rounded-2xl bg-black/20 p-4 border border-white/5 space-y-4">
+                  <label className="block text-sm font-medium text-white/80">Intro Video <span className="text-white/40 font-normal">(Plays in Waiting Room)</span></label>
+                  
+                  <div className="space-y-3">
+                    <select 
+                      value={form.introVideoUrl} 
+                      onChange={e => setForm({...form, introVideoUrl: e.target.value, introVideo: null})}
+                      className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white focus:border-orange-500 outline-none"
+                    >
+                      <option value="">-- Select from previously used intros --</option>
+                      {previousIntros.length > 0 && (
+                        <optgroup label="Previous Intros" className="bg-zinc-900 text-white">
+                          {previousIntros.map(([url, title]) => (
+                            <option key={url} value={url}>
+                              Used in: {title}
+                            </option>
+                          ))}
+                        </optgroup>
+                      )}
+                    </select>
+
+                    <div className="flex items-center gap-4">
+                      <div className="h-px flex-1 bg-white/10"></div>
+                      <span className="text-[10px] text-white/30 uppercase font-bold tracking-widest">OR</span>
+                      <div className="h-px flex-1 bg-white/10"></div>
+                    </div>
+
+                    <input type="url" value={form.introVideoUrl} disabled={Boolean(form.introVideo)} onChange={e => setForm({...form, introVideoUrl: e.target.value})} className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white focus:border-orange-500 outline-none disabled:opacity-40" placeholder="Paste YouTube / External URL" />
+                    
+                    <div className="flex items-center gap-4">
+                      <div className="h-px flex-1 bg-white/10"></div>
+                      <span className="text-[10px] text-white/30 uppercase font-bold tracking-widest">OR</span>
+                      <div className="h-px flex-1 bg-white/10"></div>
+                    </div>
+
+                    <div className="relative overflow-hidden rounded-xl border border-dashed border-white/20 bg-black/40 hover:border-orange-500 transition-colors">
+                      <input type="file" accept="video/mp4" onChange={e => setForm({...form, introVideo: e.target.files[0], introVideoUrl: ""})} className="absolute inset-0 h-full w-full opacity-0 cursor-pointer" />
+                      <div className="flex items-center justify-center gap-2 py-3 px-4 text-sm text-white/60">
+                        <Video size={18} /> {form.introVideo ? form.introVideo.name : "Upload new MP4 video"}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -253,18 +344,18 @@ export default function AdminLiveClasses({ courseId, course }) {
                  </label>
               </div>
 
-              <div className="flex justify-end gap-3 mt-6 border-t border-white/10 pt-4 relative">
+              <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-6 border-t border-white/10 pt-4 relative">
                 {uploadProgress !== null && (
-                  <div className="absolute left-0 bottom-0 top-4 right-40 flex items-center gap-3">
-                    <span className="text-sm font-medium text-orange-400">Uploading: {uploadProgress}%</span>
+                  <div className="sm:absolute sm:left-0 sm:bottom-0 sm:top-4 sm:right-40 flex items-center gap-3 w-full sm:w-auto">
+                    <span className="text-sm font-medium text-orange-400 shrink-0">Uploading: {uploadProgress}%</span>
                     <div className="h-1.5 flex-1 rounded-full bg-white/10 overflow-hidden">
                       <div className="h-full bg-orange-500 transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
                     </div>
                   </div>
                 )}
-                <button type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl px-5 py-2.5 font-medium text-white hover:bg-white/10">Cancel</button>
-                <button type="submit" disabled={saving} className="rounded-xl bg-orange-500 px-6 py-2.5 font-medium text-white hover:bg-orange-600 disabled:opacity-50">
-                  {saving ? "Scheduling..." : "Schedule Class"}
+                <button type="button" onClick={handleCloseModal} className="rounded-xl px-5 py-2.5 font-medium text-white hover:bg-white/10 w-full sm:w-auto">Cancel</button>
+                <button type="submit" disabled={saving} className="rounded-xl bg-orange-500 px-6 py-2.5 font-medium text-white hover:bg-orange-600 disabled:opacity-50 w-full sm:w-auto">
+                  {saving ? "Saving..." : editingClassId ? "Update Class" : "Schedule Class"}
                 </button>
               </div>
             </form>

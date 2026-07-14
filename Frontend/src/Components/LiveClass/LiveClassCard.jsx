@@ -14,7 +14,7 @@ export default function LiveClassCard({ liveClass, onJoin }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`relative overflow-hidden rounded-3xl border ${
+      className={`relative w-full overflow-hidden rounded-3xl border ${
         isLive ? "border-orange-500/50 bg-orange-500/5" : "border-white/10 bg-white/[.045]"
       } p-6 backdrop-blur-2xl shadow-xl`}
     >
@@ -23,7 +23,7 @@ export default function LiveClassCard({ liveClass, onJoin }) {
         <div className="absolute -top-24 -right-24 h-48 w-48 rounded-full bg-orange-500/20 blur-[80px] pointer-events-none" />
       )}
 
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+      <div className="flex  flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
         <div>
           <div className="flex items-center gap-3 mb-3">
             <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wider ${

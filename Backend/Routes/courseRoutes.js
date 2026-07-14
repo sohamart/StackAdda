@@ -27,6 +27,7 @@ const {
   enrollFreeCourse,
   getMyCourses,
   getEnrolledCourse,
+  exportEnrolledStudents,
 } = require("../Controllers/courseController");
 
 // ============================
@@ -68,6 +69,13 @@ router.get(
   authMiddleware,
   roleMiddleware("admin"),
   getCourseById
+);
+
+router.get(
+  "/admin/:id/students/export",
+  authMiddleware,
+  roleMiddleware("admin"),
+  exportEnrolledStudents
 );
 
 // ============================

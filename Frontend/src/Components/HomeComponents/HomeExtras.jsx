@@ -9,7 +9,7 @@ const team = [
   },
   {
     name: "Sayantan Ghosh",
-    role: "Co-Founder & UI/UX Designer",
+    role: "Co-Founder & UI/UX Designer, Backend Devoloper",
     image:
       "https://ui-avatars.com/api/?name=Sayantan+Ghosh&size=500&background=27272a&color=f97316&bold=true",
   },

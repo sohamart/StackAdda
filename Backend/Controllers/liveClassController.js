@@ -1,7 +1,9 @@
 const LiveClass = require("../Models/LiveClass");
 const Course = require("../Models/Course");
+const User = require("../Models/User");
 const asyncHandler = require("express-async-handler");
 const cloudinary = require("../Config/cloudinary");
+const sendEmail = require("../Utils/sendEmail");
 
 const uploadVideoToCloudinary = (buffer) => {
   return new Promise((resolve, reject) => {
@@ -63,6 +65,32 @@ const getCourseLiveClasses = asyncHandler(async (req, res) => {
 });
 
 // ==========================
+// Get All Active Live Classes for User's Courses (Global Alert)
+// ==========================
+const getMyActiveLiveClasses = asyncHandler(async (req, res) => {
+  let courseIds = [];
+  
+  if (req.user.role === "admin") {
+    const courses = await Course.find({}).select("_id");
+    courseIds = courses.map(c => c._id);
+  } else {
+    // Student
+    const User = require("../Models/User");
+    const user = await User.findById(req.user._id).populate("enrolledCourses");
+    if(user && user.enrolledCourses) {
+       courseIds = user.enrolledCourses.map(c => c._id);
+    }
+  }
+
+  const liveClasses = await LiveClass.find({
+    course: { $in: courseIds },
+    status: { $in: ["Live", "Starting"] }
+  }).sort({ date: -1 });
+
+  res.status(200).json({ success: true, liveClasses, courseIds });
+});
+
+// ==========================
 // Get Active/Upcoming Live Classes (Student)
 // ==========================
 const getActiveLiveClasses = asyncHandler(async (req, res) => {
@@ -98,7 +126,21 @@ const updateLiveClass = asyncHandler(async (req, res) => {
     return res.status(404).json({ success: false, message: "Live Class not found." });
   }
 
-  liveClass = await LiveClass.findByIdAndUpdate(req.params.id, req.body, {
+  let finalIntroUrl = req.body.introVideoUrl !== undefined ? req.body.introVideoUrl : liveClass.introVideoUrl;
+
+  if (req.file) {
+    try {
+      const result = await uploadVideoToCloudinary(req.file.buffer);
+      finalIntroUrl = result.secure_url;
+    } catch (err) {
+      return res.status(500).json({ success: false, message: "Failed to upload video to Cloudinary" });
+    }
+  }
+
+  liveClass = await LiveClass.findByIdAndUpdate(req.params.id, {
+    ...req.body,
+    introVideoUrl: finalIntroUrl,
+  }, {
     new: true,
     runValidators: true,
   });
@@ -168,6 +210,18 @@ const changeClassStatus = asyncHandler(async (req, res) => {
   // Specific events based on status
   if (status === "Live") {
     io.to(`course_${liveClass.course}`).emit("class_started", liveClass);
+    
+    // Send email to all enrolled students
+    const course = await Course.findById(liveClass.course).populate("students", "email");
+    if (course && course.students && course.students.length > 0) {
+      const studentEmails = course.students.map(s => s.email).join(",");
+      const frontendUrl = process.env.FRONTEND_URL || process.env.CLIENT_URL;
+      await sendEmail({
+        to: studentEmails,
+        subject: `Live Class Started: ${liveClass.title}`,
+        html: `<p>Hello Student,</p><p>A live class <strong>${liveClass.title}</strong> has just started for your course <strong>${course.title}</strong>.</p><p><a href="${frontendUrl}/live-class/${liveClass._id}" style="display:inline-block;padding:10px 20px;background:#007bff;color:#fff;text-decoration:none;border-radius:5px;">Join Now</a></p>`
+      });
+    }
   } else if (status === "Paused") {
     io.to(`course_${liveClass.course}`).emit("class_paused", liveClass);
   } else if (status === "Ended" || status === "Completed") {
@@ -201,6 +255,18 @@ const startStream = asyncHandler(async (req, res) => {
   const io = req.app.get("io");
   io.to(`course_${liveClass.course}`).emit("class_started", liveClass);
   io.to(`course_${liveClass.course}`).emit("class_status_changed", liveClass);
+
+  // Send email to all enrolled students
+  const course = await Course.findById(liveClass.course).populate("students", "email");
+  if (course && course.students && course.students.length > 0) {
+    const studentEmails = course.students.map(s => s.email).join(",");
+    const frontendUrl = process.env.FRONTEND_URL || process.env.CLIENT_URL;
+    await sendEmail({
+      to: studentEmails,
+      subject: `Live Class Started: ${liveClass.title}`,
+      html: `<p>Hello Student,</p><p>A live class <strong>${liveClass.title}</strong> has just started for your course <strong>${course.title}</strong>.</p><p><a href="${frontendUrl}/live-class/${liveClass._id}" style="display:inline-block;padding:10px 20px;background:#007bff;color:#fff;text-decoration:none;border-radius:5px;">Join Now</a></p>`
+    });
+  }
 
   res.status(200).json({ success: true, liveClass });
 });
@@ -257,4 +323,5 @@ module.exports = {
   changeClassStatus,
   startStream,
   logAttendance,
+  getMyActiveLiveClasses,
 };

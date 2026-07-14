@@ -11,14 +11,12 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 
+import { useNavigate } from "react-router-dom";
 import API from "../../api/axios";
 import { useAuth } from "../../Context/AuthContext";
 import VideoFrame from "../../Components/VideoFrame";
 import io from "socket.io-client";
 import LiveClassCard from "../../Components/LiveClass/LiveClassCard";
-import WaitingRoom from "../../Components/LiveClass/WaitingRoom";
-import LiveClassPlayer from "../../Components/LiveClass/LiveClassPlayer";
-import LiveAlert from "../../Components/LiveClass/LiveAlert";
 import {
   getResourceFileName,
   downloadResourceFile,
@@ -44,8 +42,7 @@ export default function LearnCourse() {
 
   // Live Class State
   const [activeLiveClasses, setActiveLiveClasses] = useState([]);
-  const [currentLiveSession, setCurrentLiveSession] = useState(null); // The specific class object the student is trying to view
-  const [liveViewMode, setLiveViewMode] = useState(null); // null | "waiting" | "live"
+  const navigate = useNavigate();
 
   // Load course data
   useEffect(() => {
@@ -88,37 +85,14 @@ export default function LearnCourse() {
 
     socket.on("class_started", (startedClass) => {
       setActiveLiveClasses((prev) => prev.map((c) => (c._id === startedClass._id ? startedClass : c)));
-      setCurrentLiveSession((prev) => {
-        if (prev?._id === startedClass._id) {
-          setLiveViewMode("live"); // Auto-join from waiting room!
-          return startedClass;
-        }
-        return prev;
-      });
     });
 
     socket.on("class_ended", (endedClass) => {
       setActiveLiveClasses((prev) => prev.map((c) => (c._id === endedClass._id ? endedClass : c)));
-      setCurrentLiveSession((prev) => {
-        if (prev?._id === endedClass._id) {
-          setLiveViewMode(null); // Kick out of player
-          toast.info("The live class has ended.");
-          return null;
-        }
-        return prev;
-      });
     });
 
     socket.on("class_cancelled", (classId) => {
       setActiveLiveClasses((prev) => prev.filter((c) => c._id !== classId));
-      setCurrentLiveSession((prev) => {
-        if (prev?._id === classId) {
-          setLiveViewMode(null);
-          toast.error("The live class was cancelled.");
-          return null;
-        }
-        return prev;
-      });
     });
 
     socket.on("class_status_changed", (updatedClass) => {
@@ -133,17 +107,7 @@ export default function LearnCourse() {
 
   // Handle Join button click on the card
   const handleJoinClass = (liveClass) => {
-    setCurrentLiveSession(liveClass);
-    if (liveClass.status === "Live") {
-      setLiveViewMode("live");
-    } else {
-      setLiveViewMode("waiting");
-    }
-  };
-
-  const handleLeaveClass = () => {
-    setCurrentLiveSession(null);
-    setLiveViewMode(null);
+    navigate(`/live-class/${liveClass._id}`);
   };
 
   const resources = useMemo(() => active?.resources || [], [active]);
@@ -158,7 +122,6 @@ export default function LearnCourse() {
 
   return (
     <section className="space-y-6 text-white">
-      <LiveAlert activeLiveClasses={activeLiveClasses} />
       
       <div className="flex items-center justify-between">
         <Link
@@ -168,42 +131,26 @@ export default function LearnCourse() {
           <ArrowLeft size={18} />
           My courses
         </Link>
-
-        {currentLiveSession && liveViewMode && (
-          <button 
-            onClick={handleLeaveClass}
-            className="rounded-lg bg-red-500/20 px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-500/30"
-          >
-            Leave {liveViewMode === "waiting" ? "Waiting Room" : "Live Class"}
-          </button>
-        )}
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.65fr_.8fr]">
+      <div className="grid gap-6 lg:grid-cols-[1fr] xl:grid-cols-[1.65fr_.8fr]">
         <main className="min-w-0 overflow-hidden rounded-3xl border border-white/10 bg-white/4.5 flex flex-col">
-          {currentLiveSession && liveViewMode === "waiting" ? (
-            <div className="flex-1 p-6">
-              <WaitingRoom liveClass={currentLiveSession} />
-            </div>
-          ) : currentLiveSession && liveViewMode === "live" ? (
-            <div className="aspect-video w-full bg-black">
-               <LiveClassPlayer liveClass={currentLiveSession} user={user} onLeave={handleLeaveClass} />
-            </div>
-          ) : (
-            <div className="aspect-video bg-black relative">
-              <VideoFrame url={active?.video?.url} title={active?.title} />
+          <div className="aspect-video bg-black relative">
+            <VideoFrame url={active?.video?.url} title={active?.title} />
+          </div>
+
+          {activeLiveClasses.filter(c => c.status !== "Completed" && c.status !== "Ended").length > 0 && (
+            <div className="mx-3 mt-4 rounded-2xl border border-orange-500/20 bg-orange-500/5 p-4 sm:mx-4">
+               <h3 className="mb-3 text-lg font-bold text-orange-400">Live Classes</h3>
+               <div className="flex flex-col gap-4">
+                 {activeLiveClasses.filter(c => c.status !== "Completed" && c.status !== "Ended").map(cls => (
+                   <LiveClassCard key={cls._id} liveClass={cls} onJoin={handleJoinClass} />
+                 ))}
+               </div>
             </div>
           )}
 
-          {!currentLiveSession && activeLiveClasses.length > 0 && (
-            <div className="p-4 sm:p-6 pb-0">
-               {activeLiveClasses.filter(c => c.status !== "Completed" && c.status !== "Ended").map(cls => (
-                 <LiveClassCard key={cls._id} liveClass={cls} onJoin={handleJoinClass} />
-               ))}
-            </div>
-          )}
-
-          {!currentLiveSession && resources.length > 0 && (
+          {resources.length > 0 && (
             <div className="mx-3 mt-3 rounded-2xl border border-white/15 bg-black/75 p-3 backdrop-blur-xl sm:mx-4 sm:p-4">
               <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-white/80">
                 <FileText size={16} className="text-orange-400" />
@@ -264,11 +211,11 @@ export default function LearnCourse() {
               {course.title}
             </p>
 
-            <h1 className="mt-2 wrap-break-word text-2xl font-bold">
+            <h1 className="mt-2 break-words text-2xl font-bold text-white">
               {active?.title || "No lesson selected"}
             </h1>
 
-            <p className="mt-3 leading-7 text-white/55">
+            <p className="mt-3 leading-7 text-white/55 break-words">
               {active?.description || "Select a lesson to start learning."}
             </p>
           </div>
@@ -298,7 +245,7 @@ export default function LearnCourse() {
                   )}
                 </span>
 
-                <span className="min-w-0 flex-1 wrap-break-word">
+                <span className="min-w-0 flex-1 break-words">
                   {index + 1}. {chapter.title}
                 </span>
               </button>
@@ -314,7 +261,7 @@ export default function LearnCourse() {
                           : "text-white/65 hover:bg-white/5 hover:text-white"
                         }`}
                     >
-                      <span className="block wrap-break-word">{lesson.title}</span>
+                      <span className="block break-words">{lesson.title}</span>
 
                       {lesson.resources?.length > 0 && (
                         <span className="mt-1 block text-xs text-orange-300">

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, ChevronDown, ChevronRight, Loader2, Plus, Trash2, Upload, Users } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronRight, Loader2, Plus, Trash2, Upload, Users, Download } from "lucide-react";
 import { toast } from "react-toastify";
 
 import API from "../../api/axios";
@@ -140,6 +140,20 @@ export default function CourseManager() {
   
   const removeStudent = (idToRemove) => request(() => API.delete(`/course/${id}/remove/${idToRemove}`), "Student removed from course.");
 
+  const handleDownloadCSV = async () => {
+    try {
+      const response = await API.get(`/course/admin/${id}/students/export`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `enrolled_students_${id}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (error) {
+      toast.error("Could not download CSV.");
+    }
+  };
 
 
   if (loading) return <div className="flex h-[65vh] items-center justify-center"><Loader2 className="animate-spin text-orange-500" size={46} /></div>;
@@ -177,20 +191,20 @@ export default function CourseManager() {
         </div>
       </header>
 
-      <div className="flex flex-wrap gap-1 rounded-2xl bg-white/[0.03] p-1 border border-white/10 w-full sm:w-fit">
-        <button onClick={() => setActiveTab("curriculum")} className={`flex-1 sm:flex-none rounded-xl px-5 py-2 text-sm font-medium transition-all ${activeTab === "curriculum" ? "bg-orange-500 text-white shadow-lg" : "text-white/60 hover:text-white"}`}>Curriculum</button>
-        <button onClick={() => setActiveTab("live")} className={`flex-1 sm:flex-none rounded-xl px-5 py-2 text-sm font-medium transition-all ${activeTab === "live" ? "bg-orange-500 text-white shadow-lg" : "text-white/60 hover:text-white"}`}>Live Classes</button>
-        <button onClick={() => setActiveTab("students")} className={`flex-1 sm:flex-none rounded-xl px-5 py-2 text-sm font-medium transition-all ${activeTab === "students" ? "bg-orange-500 text-white shadow-lg" : "text-white/60 hover:text-white"}`}>Students</button>
+      <div className="flex flex-wrap gap-2 rounded-2xl bg-white/[0.03] p-1.5 border border-white/10 w-full md:w-fit">
+        <button onClick={() => setActiveTab("curriculum")} className={`flex-1 md:flex-none rounded-xl px-5 py-2.5 text-sm font-medium transition-all ${activeTab === "curriculum" ? "bg-orange-500 text-white shadow-lg" : "text-white/60 hover:text-white"}`}>Curriculum</button>
+        <button onClick={() => setActiveTab("live")} className={`flex-1 md:flex-none rounded-xl px-5 py-2.5 text-sm font-medium transition-all ${activeTab === "live" ? "bg-orange-500 text-white shadow-lg" : "text-white/60 hover:text-white"}`}>Live Classes</button>
+        <button onClick={() => setActiveTab("students")} className={`flex-1 md:flex-none rounded-xl px-5 py-2.5 text-sm font-medium transition-all ${activeTab === "students" ? "bg-orange-500 text-white shadow-lg" : "text-white/60 hover:text-white"}`}>Students</button>
       </div>
 
       {activeTab === "curriculum" && (
         <div className="space-y-5">
               <form onSubmit={addChapter} className="rounded-3xl border border-white/10 bg-white/[.045] p-5 backdrop-blur-2xl">
                 <h2 className="mb-4 flex items-center gap-2 font-semibold text-white"><Plus className="text-orange-400" size={18}/> Add chapter</h2>
-                <div className="grid gap-3 md:grid-cols-[1fr_1.4fr_auto]">
-                  <input required value={chapterForm.title} onChange={(e) => setChapterForm({ ...chapterForm, title: e.target.value })} placeholder="Chapter title" className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none focus:border-orange-500"/>
-                  <input value={chapterForm.description} onChange={(e) => setChapterForm({ ...chapterForm, description: e.target.value })} placeholder="Short description (optional)" className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none focus:border-orange-500"/>
-                  <button disabled={saving} className="rounded-xl bg-orange-500 px-5 py-3 font-medium text-white hover:bg-orange-600 disabled:opacity-60">Add</button>
+                <div className="grid gap-3 md:grid-cols-[1fr_1.4fr_auto] flex-col">
+                  <input required value={chapterForm.title} onChange={(e) => setChapterForm({ ...chapterForm, title: e.target.value })} placeholder="Chapter title" className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none focus:border-orange-500 min-w-0"/>
+                  <input value={chapterForm.description} onChange={(e) => setChapterForm({ ...chapterForm, description: e.target.value })} placeholder="Short description (optional)" className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none focus:border-orange-500 min-w-0"/>
+                  <button disabled={saving} className="rounded-xl bg-orange-500 px-5 py-3 font-medium text-white hover:bg-orange-600 disabled:opacity-60 w-full md:w-auto">Add</button>
                 </div>
               </form>
 
@@ -202,15 +216,17 @@ export default function CourseManager() {
                   const form = lessonForms[chapter._id] || emptyLesson;
                   return (
                     <article key={chapter._id} className="overflow-hidden rounded-3xl border border-white/10 bg-white/[.045] backdrop-blur-2xl">
-                      <div className="flex items-center gap-3 p-5">
-                        <button onClick={() => setOpenChapter(isOpen ? null : chapter._id)} className="text-orange-400">{isOpen ? <ChevronDown/> : <ChevronRight/>}</button>
-                        <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 p-5">
+                        <button onClick={() => setOpenChapter(isOpen ? null : chapter._id)} className="text-orange-400 shrink-0">{isOpen ? <ChevronDown/> : <ChevronRight/>}</button>
+                        <div className="min-w-0 flex-1 w-full">
                           <p className="text-xs text-orange-400">CHAPTER {index + 1}</p>
-                          <h2 className="truncate text-lg font-semibold text-white">{chapter.title}</h2>
+                          <h2 className="truncate text-lg font-semibold text-white break-words whitespace-normal">{chapter.title}</h2>
                           <p className="text-sm text-white/45">{chapter.lessons?.length || 0} lessons</p>
                         </div>
-                        <button onClick={() => updateChapter(chapter)} className="text-sm text-white/50 hover:text-white">Rename</button>
-                        <button onClick={() => deleteChapter(chapter._id)} className="text-red-400 hover:text-red-300"><Trash2 size={18}/></button>
+                        <div className="flex items-center gap-3 ml-auto shrink-0 mt-2 sm:mt-0">
+                          <button onClick={() => updateChapter(chapter)} className="text-sm text-white/50 hover:text-white">Rename</button>
+                          <button onClick={() => deleteChapter(chapter._id)} className="text-red-400 hover:text-red-300"><Trash2 size={18}/></button>
+                        </div>
                       </div>
                       {isOpen && (
                         <div className="border-t border-white/10 p-5">
@@ -250,8 +266,15 @@ export default function CourseManager() {
 
       {activeTab === "students" && (
         <div className="max-w-2xl h-fit rounded-3xl border border-white/10 bg-white/[.045] p-5 backdrop-blur-2xl">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-white"><Users className="text-orange-400" size={19}/> Enrolled students</h2>
-          <p className="mt-1 text-sm text-white/50">{course.students?.length || 0} learners enrolled</p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="flex items-center gap-2 text-lg font-semibold text-white"><Users className="text-orange-400" size={19}/> Enrolled students</h2>
+              <p className="mt-1 text-sm text-white/50">{course.students?.length || 0} learners enrolled</p>
+            </div>
+            <button onClick={handleDownloadCSV} className="flex w-fit items-center gap-2 rounded-xl bg-orange-500/10 px-4 py-2 text-sm font-medium text-orange-400 hover:bg-orange-500/20 transition-colors">
+              <Download size={16} /> Download CSV
+            </button>
+          </div>
           <form onSubmit={assignStudent} className="mt-5 flex gap-2">
             <select value={studentId} onChange={(e) => setStudentId(e.target.value)} className="min-w-0 flex-1 rounded-xl border border-white/10 bg-zinc-900 px-3 py-2.5 text-sm text-white">
               <option value="">Assign student</option>

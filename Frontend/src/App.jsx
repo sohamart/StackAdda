@@ -30,6 +30,10 @@ import MyCourses from "./Pages/Student/MyCourses";
 import LearnCourse from "./Pages/Student/LearnCourse";
 import StudentOrders from "./Pages/Student/Orders";
 import StudentPayments from "./Pages/Student/Payments";
+import AttendLiveClass from "./Pages/LiveClass/AttendLiveClass";
+
+// Global Components
+import GlobalLiveAlert from "./Components/LiveClass/GlobalLiveAlert";
 
 // Admin Pages
 import AdminDashboard from "./Pages/Admin/Dashboard";
@@ -50,6 +54,7 @@ import Contacts from "./Pages/Admin/Contacts";
 function App() {
   return (
     <>
+      <GlobalLiveAlert />
       <Routes>
 
         {/* Public Routes */}
@@ -83,6 +88,11 @@ function App() {
   <Route path="orders" element={<StudentOrders />} />
   <Route path="payments" element={<StudentPayments />} />
 </Route>
+<Route path="/live-class/:id" element={
+  <ProtectedRoute role="student">
+     <AttendLiveClass />
+  </ProtectedRoute>
+} />
 
       {/* Admin Routes */}
       <Route

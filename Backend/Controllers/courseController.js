@@ -1241,6 +1241,26 @@ const getCourseById = asyncHandler(async (req, res) => {
 
 });
 
+// ==========================
+// Export Enrolled Students
+// ==========================
+
+const exportEnrolledStudents = asyncHandler(async (req, res) => {
+  const course = await Course.findById(req.params.id).populate("students", "name email");
+
+  if (!course) {
+    return res.status(404).json({ success: false, message: "Course not found." });
+  }
+
+  const csvHeader = "Name,Email\n";
+  const csvRows = course.students.map(student => `"${student.name}","${student.email}"`).join("\n");
+  const csvData = csvHeader + csvRows;
+
+  res.setHeader("Content-Type", "text/csv");
+  res.setHeader("Content-Disposition", `attachment; filename=enrolled_students_${course._id}.csv`);
+  res.status(200).send(csvData);
+});
+
 module.exports = {
   createCourse,
   updateCourse,
@@ -1265,4 +1285,5 @@ module.exports = {
   enrollFreeCourse,
   getMyCourses,
   getEnrolledCourse,
+  exportEnrolledStudents,
 };
