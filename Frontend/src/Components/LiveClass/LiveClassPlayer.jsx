@@ -302,6 +302,11 @@ export default function LiveClassPlayer({
                   <>
                     <WifiOff size={14} className="text-red-400" />
                     <span className="text-xs text-red-400">
+                      Offline
+</span>
+</>
+
+)}
                            {/* ================= PLAYER ================= */}
 
       <div className="relative flex flex-1 items-center justify-center bg-black px-2 py-3 sm:px-4 lg:px-8">
