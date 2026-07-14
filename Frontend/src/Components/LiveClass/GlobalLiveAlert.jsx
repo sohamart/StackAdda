@@ -73,8 +73,10 @@ export default function GlobalLiveAlert() {
     setAlerts(alerts.filter(a => a._id !== id));
   };
 
-  // Do not show alert if user is already on the attend page for that class
-  const filteredAlerts = alerts.filter(cls => !location.pathname.includes(`/live-class/${cls._id}`));
+  // Do not show ANY alerts if user is already on a live class page
+  if (location.pathname.includes("/live-class")) return null;
+
+  const filteredAlerts = alerts;
 
   if (filteredAlerts.length === 0) return null;
 

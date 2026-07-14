@@ -35,6 +35,9 @@ import AttendLiveClass from "./Pages/LiveClass/AttendLiveClass";
 // Global Components
 import GlobalLiveAlert from "./Components/LiveClass/GlobalLiveAlert";
 
+// Hooks
+import useAntiPiracy from "./Hooks/useAntiPiracy";
+
 // Admin Pages
 import AdminDashboard from "./Pages/Admin/Dashboard";
 import Students from "./Pages/Admin/Students";
@@ -52,6 +55,9 @@ import Contacts from "./Pages/Admin/Contacts";
 
 
 function App() {
+  // Aggressive anti-piracy protection
+  useAntiPiracy();
+
   return (
     <>
       <GlobalLiveAlert />
