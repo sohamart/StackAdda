@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import API from "../../api/axios";
 import { Camera, X, ShieldCheck, UploadCloud, ZoomIn, ZoomOut } from "lucide-react";
 import { toast } from "react-toastify";
@@ -779,7 +780,7 @@ sm:w-auto
           </div>
           {/* End Body */}
 
-        {selectedFileForCrop && (
+        {selectedFileForCrop && createPortal(
           <ImageCropperModal
             file={selectedFileForCrop}
             onClose={() => setSelectedFileForCrop(null)}
@@ -787,7 +788,8 @@ sm:w-auto
               setSelectedFileForCrop(null);
               await uploadCroppedImage(croppedFile);
             }}
-          />
+          />,
+          document.body
         )}
       </div>
       </div>
@@ -804,6 +806,15 @@ const ImageCropperModal = ({ file, onCrop, onClose }) => {
   const dragStart = useRef({ x: 0, y: 0 });
   const containerRef = useRef(null);
   const imgRef = useRef(null);
+
+  // Disable scrolling on body when open
+  useEffect(() => {
+    const originalStyle = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalStyle;
+    };
+  }, []);
 
   useEffect(() => {
     if (file) {
@@ -881,15 +892,15 @@ const ImageCropperModal = ({ file, onCrop, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-md overflow-hidden">
-      <div className="relative w-full max-w-[340px] rounded-[2rem] border border-white/10 bg-[#0c0c0e] p-5 text-white shadow-2xl flex flex-col">
-        <div className="flex items-center justify-between">
+    <div className="fixed inset-0 z-[9999] flex h-screen w-screen items-center justify-center bg-black/95 backdrop-blur-xl p-4 overflow-hidden select-none">
+      <div className="relative w-full max-w-[320px] rounded-[2rem] border border-white/10 bg-[#0c0c0e] p-5 text-white shadow-2xl flex flex-col items-center">
+        <div className="flex w-full items-center justify-between">
           <h3 className="text-lg font-bold">Crop Profile Picture</h3>
           <button onClick={onClose} className="rounded-full border border-white/10 bg-white/5 p-1 text-white/50 hover:text-white">
             <X size={15} />
           </button>
         </div>
-        <p className="text-[10px] text-white/50 mt-0.5">Drag to adjust position. Use slider to zoom.</p>
+        <p className="w-full text-left text-[10px] text-white/50 mt-0.5">Drag to adjust position. Use slider to zoom.</p>
 
         <div
           ref={containerRef}
@@ -900,7 +911,7 @@ const ImageCropperModal = ({ file, onCrop, onClose }) => {
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleMouseUp}
-          className="relative mt-4 w-64 h-64 mx-auto overflow-hidden rounded-2xl border border-white/5 bg-black/80 cursor-move select-none flex items-center justify-center touch-none"
+          className="relative mt-4 w-60 h-60 overflow-hidden rounded-2xl border border-white/5 bg-black/80 cursor-move flex items-center justify-center touch-none"
         >
           {imageSrc && (
             <img
