@@ -57,7 +57,7 @@ export default function Courses() {
 
             {/* Content */}
             <div className="flex flex-grow flex-col p-6">
-              <h2 className="text-xl font-bold leading-tight line-clamp-2 min-h-[3rem] group-hover:text-orange-400 transition-colors">
+              <h2 className="text-xl font-bold leading-tight line-clamp-2 min-h-[3rem] text-white group-hover:text-orange-400 transition-colors">
                 <a
                   onClick={() => handleWatch(video.videoId)}
                   className="cursor-pointer"
