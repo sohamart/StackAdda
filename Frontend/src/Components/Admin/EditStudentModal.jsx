@@ -881,15 +881,15 @@ const ImageCropperModal = ({ file, onCrop, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-md">
-      <div className="relative w-full max-w-md rounded-[2rem] border border-white/10 bg-[#0c0c0e] p-6 text-white shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-md overflow-hidden">
+      <div className="relative w-full max-w-[340px] rounded-[2rem] border border-white/10 bg-[#0c0c0e] p-5 text-white shadow-2xl flex flex-col">
         <div className="flex items-center justify-between">
-          <h3 className="text-xl font-bold">Crop Profile Picture</h3>
-          <button onClick={onClose} className="rounded-full border border-white/10 bg-white/5 p-1.5 text-white/50 hover:text-white">
-            <X size={16} />
+          <h3 className="text-lg font-bold">Crop Profile Picture</h3>
+          <button onClick={onClose} className="rounded-full border border-white/10 bg-white/5 p-1 text-white/50 hover:text-white">
+            <X size={15} />
           </button>
         </div>
-        <p className="text-xs text-white/50 mt-1">Drag image to adjust position. Use slider to zoom.</p>
+        <p className="text-[10px] text-white/50 mt-0.5">Drag to adjust position. Use slider to zoom.</p>
 
         <div
           ref={containerRef}
@@ -900,7 +900,7 @@ const ImageCropperModal = ({ file, onCrop, onClose }) => {
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleMouseUp}
-          className="relative mt-6 aspect-square w-full overflow-hidden rounded-2xl border border-white/5 bg-black/80 cursor-move select-none flex items-center justify-center touch-none"
+          className="relative mt-4 w-64 h-64 mx-auto overflow-hidden rounded-2xl border border-white/5 bg-black/80 cursor-move select-none flex items-center justify-center touch-none"
         >
           {imageSrc && (
             <img
@@ -926,8 +926,8 @@ const ImageCropperModal = ({ file, onCrop, onClose }) => {
           }} />
         </div>
 
-        <div className="mt-6 flex items-center gap-3 bg-white/[0.02] p-3 rounded-2xl border border-white/5">
-          <ZoomOut size={16} className="text-white/40" />
+        <div className="mt-4 flex items-center gap-3 bg-white/[0.02] p-2.5 rounded-2xl border border-white/5 w-full">
+          <ZoomOut size={14} className="text-white/40" />
           <input
             type="range"
             min="1"
@@ -937,14 +937,14 @@ const ImageCropperModal = ({ file, onCrop, onClose }) => {
             onChange={(e) => setZoom(parseFloat(e.target.value))}
             className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-orange-500 focus:outline-none"
           />
-          <ZoomIn size={16} className="text-white/40" />
+          <ZoomIn size={14} className="text-white/40" />
         </div>
 
-        <div className="mt-6 flex gap-3">
-          <button onClick={onClose} className="flex-1 rounded-2xl border border-white/10 bg-white/5 py-3.5 font-bold hover:bg-white/10 transition duration-150">
+        <div className="mt-4 flex gap-3 w-full">
+          <button onClick={onClose} className="flex-1 rounded-2xl border border-white/10 bg-white/5 py-3 font-bold hover:bg-white/10 transition duration-150 text-sm">
             Cancel
           </button>
-          <button onClick={handleCrop} className="flex-1 rounded-2xl bg-orange-500 py-3.5 font-bold text-white hover:bg-orange-600 transition duration-150 shadow-lg shadow-orange-500/20">
+          <button onClick={handleCrop} className="flex-1 rounded-2xl bg-orange-500 py-3 font-bold text-white hover:bg-orange-600 transition duration-150 shadow-lg shadow-orange-500/20 text-sm">
             Crop & Save
           </button>
         </div>
