@@ -99,11 +99,6 @@ const registerStudent = asyncHandler(async (req, res) => {
   let isVerified = false;
 
   if (role === "admin") {
-    const adminCount = await User.countDocuments({ role: "admin" });
-    if (adminCount >= 3) {
-      res.status(400);
-      throw new Error("Maximum of 3 admins are allowed.");
-    }
     finalRole = "admin";
     isVerified = true;
   }
@@ -201,6 +196,14 @@ const editStudent = asyncHandler(async (req, res) => {
   if (!student) {
     res.status(404);
     throw new Error("Student not found");
+  }
+
+  if (req.body.showOnHome === true) {
+    const teammateCount = await User.countDocuments({ showOnHome: true, _id: { $ne: req.params.id } });
+    if (teammateCount >= 3) {
+      res.status(400);
+      throw new Error("Maximum of 3 teammates can be highlighted on the home page.");
+    }
   }
 
   const updatedStudent = await User.findByIdAndUpdate(

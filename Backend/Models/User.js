@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const validator = require("validator");
 
-
 const UserSchema = new mongoose.Schema(
   {
     name: {
@@ -60,19 +59,38 @@ const UserSchema = new mongoose.Schema(
       maxlength: 300,
     },
 
-
     role: {
       type: String,
       enum: ["student", "admin"],
       default: "student",
     },
+
+    instagram: {
+      type: String,
+      default: "",
+    },
+
+    telegram: {
+      type: String,
+      default: "",
+    },
+
+    showOnHome: {
+      type: Boolean,
+      default: false,
+    },
+
+    isInstructor: {
+      type: Boolean,
+      default: false,
+    },
+
     enrolledCourses: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Course",
       },
     ],
-
 
     isVerified: {
       type: Boolean,
@@ -104,4 +122,5 @@ UserSchema.pre("save", async function () {
 UserSchema.methods.comparePassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
+
 module.exports = mongoose.model("User", UserSchema);

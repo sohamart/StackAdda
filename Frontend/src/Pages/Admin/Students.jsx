@@ -14,6 +14,7 @@ const Students = () => {
   const [broadcasting, setBroadcasting] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", password: "", phone: "", role: "student" });
   const [broadcastData, setBroadcastData] = useState({ subject: "", message: "" });
+  const [activeTab, setActiveTab] = useState("student"); // "student" | "admin"
 
   const fetchStudents = useCallback(async () => {
     try {
@@ -70,16 +71,34 @@ const Students = () => {
     }
   };
 
+  const handleToggleRole = async (student) => {
+    const newRole = student.role === "admin" ? "student" : "admin";
+    const confirmMsg = `Are you sure you want to change ${student.name}'s role to ${newRole}?`;
+    if (!window.confirm(confirmMsg)) return;
+
+    try {
+      await API.put(`/admin/student/${student._id}`, { role: newRole });
+      toast.success(`${student.name} is now a ${newRole}!`);
+      fetchStudents();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to toggle role.");
+    }
+  };
+
   const filteredStudents = useMemo(() => {
     const value = search.trim().toLowerCase();
-    if (!value) return students;
+    
+    // First filter by active tab role
+    const byRole = students.filter((s) => s.role === activeTab);
 
-    return students.filter((student) =>
+    if (!value) return byRole;
+
+    return byRole.filter((student) =>
       `${student.name || ""} ${student.email || ""} ${student.phone || ""}`
         .toLowerCase()
         .includes(value)
     );
-  }, [search, students]);
+  }, [search, students, activeTab]);
 
   if (loading) {
     return (
@@ -106,11 +125,11 @@ const Students = () => {
         <div>
 
           <h1 className="text-3xl font-bold text-white sm:text-4xl">
-            Students
+            {activeTab === "student" ? "Students" : "Administrators"}
           </h1>
 
           <p className="mt-2 text-white/50">
-            Manage all registered students.
+            {activeTab === "student" ? "Manage all registered student accounts." : "Manage website administrators and teammates."}
           </p>
 
         </div>
@@ -144,6 +163,30 @@ const Students = () => {
 
       </div>
 
+      {/* Tab Switcher */}
+      <div className="flex gap-4 border-b border-white/10 pb-4">
+        <button
+          onClick={() => setActiveTab("student")}
+          className={`rounded-xl px-5 py-3 text-sm font-bold transition duration-300 ${
+            activeTab === "student"
+              ? "bg-orange-500 text-white shadow-[0_4px_20px_rgba(249,115,22,0.3)]"
+              : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
+          }`}
+        >
+          Students List
+        </button>
+        <button
+          onClick={() => setActiveTab("admin")}
+          className={`rounded-xl px-5 py-3 text-sm font-bold transition duration-300 ${
+            activeTab === "admin"
+              ? "bg-orange-500 text-white shadow-[0_4px_20px_rgba(249,115,22,0.3)]"
+              : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
+          }`}
+        >
+          Admins List
+        </button>
+      </div>
+
       {/* Count */}
 
       <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.05] p-5">
@@ -151,7 +194,7 @@ const Students = () => {
         <Users className="text-orange-400" />
 
         <h2 className="text-lg font-semibold text-white">
-          Total Students :
+          Total {activeTab === "student" ? "Students" : "Admins"} :
           <span className="ml-2 text-orange-400">
             {filteredStudents.length}
           </span>
@@ -162,6 +205,7 @@ const Students = () => {
       <StudentTable
         students={filteredStudents}
         refresh={fetchStudents}
+        onToggleRole={handleToggleRole}
       />
 
       {showAddModal && (

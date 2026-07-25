@@ -20,6 +20,11 @@ const EditStudentModal = ({
     email: "",
     phone: "",
     bio: "",
+    role: "student",
+    instagram: "",
+    telegram: "",
+    showOnHome: false,
+    isInstructor: false,
   });
 
   useEffect(() => {
@@ -30,6 +35,11 @@ const EditStudentModal = ({
       email: student.email || "",
       phone: student.phone || "",
       bio: student.bio || "",
+      role: student.role || "student",
+      instagram: student.instagram || "",
+      telegram: student.telegram || "",
+      showOnHome: student.showOnHome || false,
+      isInstructor: student.isInstructor || false,
     });
 
     setPreviewImage(
@@ -627,6 +637,82 @@ focus:ring-orange-500/20
 "
                   />
 
+                </div>
+
+                {/* Role selection */}
+                <div className="mt-6">
+                  <label className="mb-2 block text-sm font-medium text-white/70">
+                    Role
+                  </label>
+                  <select
+                    name="role"
+                    value={formData.role}
+                    onChange={handleChange}
+                    className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 text-white outline-none focus:border-orange-500"
+                  >
+                    <option value="student">Student</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+
+                {/* Social Media & Teammate Toggles */}
+                <h3 className="mt-8 text-xl font-semibold text-white">
+                  Social & Profile Highlights
+                </h3>
+                <p className="mt-1 text-sm text-white/50">
+                  Configure social contact info and profile visibility.
+                </p>
+
+                <div className="mt-6 grid gap-6 md:grid-cols-2">
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-white/70">
+                      Instagram Username
+                    </label>
+                    <input
+                      type="text"
+                      name="instagram"
+                      value={formData.instagram}
+                      onChange={handleChange}
+                      placeholder="e.g. stackadda_official"
+                      className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 text-white outline-none focus:border-orange-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-white/70">
+                      Telegram Username
+                    </label>
+                    <input
+                      type="text"
+                      name="telegram"
+                      value={formData.telegram}
+                      onChange={handleChange}
+                      placeholder="e.g. stackadda_channel"
+                      className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 text-white outline-none focus:border-orange-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-6 flex flex-col sm:flex-row gap-5">
+                  <label className="flex items-center gap-3 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={formData.isInstructor}
+                      onChange={(e) => setFormData(prev => ({ ...prev, isInstructor: e.target.checked }))}
+                      className="h-5 w-5 rounded border-white/20 bg-black/40 text-orange-500 focus:ring-0 focus:ring-offset-0"
+                    />
+                    <span className="text-sm font-medium text-white/70">Publish as Instructor (Student Panel)</span>
+                  </label>
+
+                  <label className="flex items-center gap-3 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={formData.showOnHome}
+                      onChange={(e) => setFormData(prev => ({ ...prev, showOnHome: e.target.checked }))}
+                      className="h-5 w-5 rounded border-white/20 bg-black/40 text-orange-500 focus:ring-0 focus:ring-offset-0"
+                    />
+                    <span className="text-sm font-medium text-white/70">Show on Home Page Teammates</span>
+                  </label>
                 </div>
 
               </div>

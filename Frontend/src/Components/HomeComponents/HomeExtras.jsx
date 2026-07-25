@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react";
 import { Star } from "lucide-react";
+import API from "../../api/axios";
 
-const team = [
+const fallbackTeam = [
   {
     name: "Soham Dutta",
     role: "Founder & Full-stack Developer",
@@ -40,6 +42,22 @@ const reviews = [
 ];
 
 export default function HomeExtras() {
+  const [team, setTeam] = useState([]);
+
+  useEffect(() => {
+    API.get("/youtube/teammates")
+      .then(({ data }) => {
+        if (data.success && data.teammates && data.teammates.length > 0) {
+          setTeam(data.teammates);
+        } else {
+          setTeam(fallbackTeam);
+        }
+      })
+      .catch(() => {
+        setTeam(fallbackTeam);
+      });
+  }, []);
+
   return (
     <>
       {/* Team Section */}
@@ -56,29 +74,36 @@ export default function HomeExtras() {
           </h2>
 
           <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {team.map((member, index) => (
-              <article
-                key={member.name}
-                className="group rounded-3xl border border-white/10 bg-white/[.045] p-5 text-center backdrop-blur-2xl transition duration-500 hover:-translate-y-3 hover:border-orange-500/50"
-                style={{
-                  animation: `float ${4 + index}s ease-in-out infinite`,
-                }}
-              >
-                <img
-                  src={member.image}
-                  alt={member.name}
-                  className="mx-auto h-36 w-36 rounded-3xl border border-orange-500/30 object-cover transition group-hover:scale-105"
-                />
+            {team.map((member, index) => {
+              const imageSrc =
+                member.profileImage?.url ||
+                member.image ||
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                  member.name
+                )}&size=500&background=f97316&color=ffffff&bold=true`;
 
-                <h3 className="mt-5 text-xl font-bold">
-                  {member.name}
-                </h3>
+              return (
+                <article
+                  key={member._id || member.name}
+                  className="group rounded-3xl border border-white/10 bg-white/[.045] p-5 text-center backdrop-blur-2xl transition duration-500 hover:-translate-y-3 hover:border-orange-500/50"
+                  style={{
+                    animation: `float ${4 + index}s ease-in-out infinite`,
+                  }}
+                >
+                  <img
+                    src={imageSrc}
+                    alt={member.name}
+                    className="mx-auto h-36 w-36 rounded-3xl border border-orange-500/30 object-cover transition group-hover:scale-105"
+                  />
 
-                <p className="mt-1 text-sm text-orange-300">
-                  {member.role}
-                </p>
-              </article>
-            ))}
+                  <h3 className="mt-5 text-xl font-bold">{member.name}</h3>
+
+                  <p className="mt-1 text-sm text-orange-300">
+                    {member.role || member.bio || "Team Member"}
+                  </p>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -102,25 +127,15 @@ export default function HomeExtras() {
               >
                 <div className="flex gap-1 text-orange-400">
                   {Array.from({ length: 5 }).map((_, index) => (
-                    <Star
-                      key={index}
-                      size={16}
-                      fill="currentColor"
-                    />
+                    <Star key={index} size={16} fill="currentColor" />
                   ))}
                 </div>
 
-                <p className="mt-5 leading-7 text-white/70">
-                  "{review.text}"
-                </p>
+                <p className="mt-5 leading-7 text-white/70">"{review.text}"</p>
 
-                <h3 className="mt-6 font-bold">
-                  {review.name}
-                </h3>
+                <h3 className="mt-6 font-bold">{review.name}</h3>
 
-                <p className="text-sm text-white/45">
-                  {review.role}
-                </p>
+                <p className="text-sm text-white/45">{review.role}</p>
               </article>
             ))}
           </div>
@@ -130,9 +145,7 @@ export default function HomeExtras() {
       {/* Footer */}
       <footer className="border-t border-white/10 bg-[#09090B] px-5 py-10 text-white">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 text-sm text-white/50 md:flex-row md:items-center md:justify-between">
-          <p className="text-lg font-bold text-orange-400">
-            Stack Adda
-          </p>
+          <p className="text-lg font-bold text-orange-400">Stack Adda</p>
 
           <p>Learn. Build. Get Placed.</p>
 

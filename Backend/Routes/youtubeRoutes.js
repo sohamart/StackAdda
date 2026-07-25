@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const asyncHandler = require("express-async-handler");
 const YoutubeVideo = require("../Models/YoutubeVideo");
+const User = require("../Models/User");
 const authMiddleware = require("../Middleware/authMiddleware");
 const roleMiddleware = require("../Middleware/roleMiddleware");
 
@@ -259,6 +260,28 @@ router.put(
     }
 
     res.status(200).json({ success: true, video });
+  })
+);
+
+// ==========================
+// Get Teammates for Home Page
+// ==========================
+router.get(
+  "/teammates",
+  asyncHandler(async (req, res) => {
+    const teammates = await User.find({ showOnHome: true, role: "admin" }).select("name bio profileImage instagram telegram email");
+    res.status(200).json({ success: true, teammates });
+  })
+);
+
+// ==========================
+// Get Instructors for Student Panel
+// ==========================
+router.get(
+  "/instructors",
+  asyncHandler(async (req, res) => {
+    const instructors = await User.find({ isInstructor: true, role: "admin" }).select("name bio profileImage instagram telegram email");
+    res.status(200).json({ success: true, instructors });
   })
 );
 
