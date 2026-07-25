@@ -2,29 +2,30 @@ const mongoose = require("mongoose");
 
 const ReviewSchema = new mongoose.Schema(
   {
-    student: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+    name: {
+      type: String,
       required: true,
+      trim: true,
     },
-
-    course: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Course",
+    role: {
+      type: String,
+      default: "Learner",
+      trim: true,
+    },
+    text: {
+      type: String,
       required: true,
+      trim: true,
     },
-
     rating: {
       type: Number,
-      required: true,
+      default: 5,
       min: 1,
       max: 5,
     },
-
-    review: {
-      type: String,
-      default: "",
-      maxlength: 1000,
+    isApproved: {
+      type: Boolean,
+      default: true, // Approve automatically for ease of use
     },
   },
   {
@@ -32,17 +33,4 @@ const ReviewSchema = new mongoose.Schema(
   }
 );
 
-ReviewSchema.index(
-  {
-    student: 1,
-    course: 1,
-  },
-  {
-    unique: true,
-  }
-);
-
-module.exports = mongoose.model(
-  "Review",
-  ReviewSchema
-);
+module.exports = mongoose.model("Review", ReviewSchema);
