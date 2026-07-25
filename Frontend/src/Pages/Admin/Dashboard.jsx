@@ -91,11 +91,7 @@ const Dashboard = () => {
 
         <div className="flex flex-wrap gap-3">
 
-          <QuickAction
-            title="Add Course"
-            icon={<Plus size={18} />}
-            onClick={() => navigate("/admin/course/create")}
-          />
+
 
           <QuickAction
             title="Add Student"

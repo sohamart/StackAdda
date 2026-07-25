@@ -17,6 +17,7 @@ import {
   Info,
   Home,
   ChevronDown,
+  PlayCircle,
 } from "lucide-react";
 
 import { useAuth } from "../../Context/AuthContext";
@@ -103,7 +104,7 @@ const Navbar = () => {
             to="/courses"
             className={menuClass}
           >
-            Courses
+            Videos
           </NavLink>
 
           <NavLink
@@ -303,16 +304,7 @@ const Navbar = () => {
                       My Profile
                     </Link>
 
-                    {!isAdmin && (
-                      <Link
-                        to="/student/courses"
-                        onClick={() => setProfileOpen(false)}
-                        className="flex items-center gap-3 rounded-xl px-4 py-3 text-white transition hover:bg-white/5"
-                      >
-                        <BookOpen size={20} />
-                        My Courses
-                      </Link>
-                    )}
+
 
                     {isAdmin && (
 
@@ -418,25 +410,6 @@ const Navbar = () => {
                 <p className="break-all text-sm text-white/50">
                   {user.email}
                 </p>
-                <div className="mt-1 gap-2 flex">
-                <span className="mt-1 inline-block rounded-full bg-orange-500/20 px-3 py-1 text-xs text-orange-400">
-                  {isAdmin ? "Administrator" : "Student"}
-                </span>
-                
-
-                  <span
-                    className={`mt-1 inline-block rounded-full  px-3 py-1 text-xs  ${
-                      user?.isVerified
-                        ? "bg-green-500/20 text-green-400"
-                        : "bg-yellow-500/20 text-yellow-400"
-                    }`}
-                  >
-                    {user?.isVerified
-                      ? "Verified"
-                      : "Pending Verification"}
-                  </span>
-
-                </div>
 
               </div>
 
@@ -462,8 +435,8 @@ const Navbar = () => {
               className={menuClass}
             >
               <div className="flex items-center gap-3">
-                <BookOpen size={20} />
-                Courses
+                <PlayCircle size={20} className="text-orange-400" />
+                Videos
               </div>
             </NavLink>
 
@@ -512,11 +485,7 @@ const Navbar = () => {
                     My Profile
                   </div>
                 </NavLink>
-                {!isAdmin && (
-                  <NavLink to="/student/courses" onClick={() => setOpen(false)} className={menuClass}>
-                    <div className="flex items-center gap-3"><BookOpen size={20} />My Courses</div>
-                  </NavLink>
-                )}
+
                 {isAdmin && (
                   <NavLink
                     to="/admin/students"
@@ -528,7 +497,6 @@ const Navbar = () => {
                       Students
                     </div>
                   </NavLink>
-                  
                 )}
 <button
   onClick={handleLogout}

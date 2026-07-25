@@ -18,33 +18,30 @@ const reviewRoutes = require("./Routes/reviewRoutes");
 const progressRoutes = require("./Routes/progressRoutes");
 const contactRoutes = require("./Routes/contactRoutes");
 const liveClassRoutes = require("./Routes/liveClassRoutes");
-
+const youtubeRoutes = require("./Routes/youtubeRoutes");
 
 /* ==========================
    Middlewares
 ========================== */
 
 app.use(helmet());
-
 app.use(compression());
-
 app.use(morgan("dev"));
-
 app.use(express.json());
-
 app.use(express.urlencoded({ extended: true }));
-
 app.use(cookieParser());
 
-
-
-app.use(cors({
-  origin: ['http://localhost:3000', "http://localhost:5173", "https://stack-adda.vercel.app", "https://stackbackend-omega.vercel.app"],
-  
-    credentials: true
-},
-));
-
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "https://stack-adda.vercel.app",
+      "https://stackbackend-omega.vercel.app",
+    ],
+    credentials: true,
+  })
+);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
@@ -58,9 +55,11 @@ app.use("/api/review", reviewRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/live-class", liveClassRoutes);
+app.use("/api/youtube", youtubeRoutes);
+
 /* ==========================
    Test Route
-========================== */
+========================= */
 
 app.get("/", (req, res) => {
   res.status(200).json({
@@ -79,6 +78,7 @@ app.use((req, res) => {
     message: "Route Not Found",
   });
 });
+
 app.use(errorHandler);
 
 module.exports = app;

@@ -2,44 +2,34 @@ import React from "react";
 import YoutubeSection from "../Components/HomeComponents/YoutubeSection";
 import Courses from "../Components/HomeComponents/Courses";
 import HeroSection from "../Components/HomeComponents/HeroSection";
-import API from "../api/axios";
-import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import HomeExtras from "../Components/HomeComponents/HomeExtras";
-
-
 
 const Home = () => {
   return (
     <>
-
       {/* First Screen */}
-      <div className="relative lg:h-[89vh] h-[70vh] w-full overflow-hidden bg-black  sm:px-8 lg:px-16">
-
+      <div className="relative lg:h-[89vh] h-[70vh] w-full overflow-hidden bg-black sm:px-8 lg:px-16">
         <HeroSection />
-        
       </div>
 
-
       {/* Second Screen */}
-      <div className="relative  w-full rounded-t-[60px] lg:rounded-t-[120px] border-t border-white/20 bg-black overflow-hidden">
-       
+      <div className="relative w-full rounded-t-[60px] lg:rounded-t-[120px] border-t border-white/20 bg-black overflow-hidden">
         <YoutubeSection />
-      
       </div>
 
       {/* Third Screen */}
-
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <p className="pt-4 text-center text-sm font-semibold tracking-[.25em] text-orange-400">LEARN WITH STACK ADDA</p>
         <h1 className="mt-3 text-3xl sm:text-4xl lg:text-5xl text-center uppercase text-white font-black">
-          Featured Courses
+          YouTube Tutorials
         </h1>
-        <p className="mx-auto mt-4 max-w-2xl text-center leading-7 text-white/55">Practical, structured learning paths designed to help you build real skills and complete meaningful projects.</p>
+        <p className="mx-auto mt-4 max-w-2xl text-center leading-7 text-white/55">
+          Practical coding tutorials, development walkthroughs, and technical content designed to help you build real-world applications.
+        </p>
 
-        {/* Courses */}
+        {/* Courses (now Youtube Videos) */}
         <Courses />
-
 
         {/* Button */}
         <div className="flex justify-center mt-5">
@@ -60,14 +50,11 @@ const Home = () => {
                       active:scale-95
                       mb-12
                       mt-8
-                      
-                    ">
-                      
-            View All Courses →
+                    "
+          >
+            Explore All Content →
           </Link>
         </div>
-
-
       </div>
       <HomeExtras />
     </>

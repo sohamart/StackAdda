@@ -48,6 +48,7 @@ import Coupons from "./Pages/Admin/Coupons";
 import Orders from "./Pages/Admin/Orders";
 import ResourceManager from "./Pages/Admin/ResourceManager";
 import Contacts from "./Pages/Admin/Contacts";
+import AdminYoutubeVideos from "./Pages/Admin/YoutubeVideos";
 
 
 
@@ -117,6 +118,7 @@ function App() {
         <Route path="coupons" element={<Coupons />} />
         <Route path="orders" element={<Orders />} />
         <Route path="contacts" element={<Contacts />} />
+        <Route path="youtube-videos" element={<AdminYoutubeVideos />} />
       </Route>
 
       {/* 404 */}
