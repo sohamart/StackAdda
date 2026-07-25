@@ -836,6 +836,7 @@ const ImageCropperModal = ({ file, onCrop, onClose }) => {
   };
 
   const handleTouchMove = (e) => {
+    if (e.cancelable) e.preventDefault();
     if (!isDragging || e.touches.length !== 1) return;
     setOffsetX(e.touches[0].clientX - dragStart.current.x);
     setOffsetY(e.touches[0].clientY - dragStart.current.y);
@@ -899,7 +900,7 @@ const ImageCropperModal = ({ file, onCrop, onClose }) => {
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleMouseUp}
-          className="relative mt-6 aspect-square w-full overflow-hidden rounded-2xl border border-white/5 bg-black/80 cursor-move select-none flex items-center justify-center"
+          className="relative mt-6 aspect-square w-full overflow-hidden rounded-2xl border border-white/5 bg-black/80 cursor-move select-none flex items-center justify-center touch-none"
         >
           {imageSrc && (
             <img
