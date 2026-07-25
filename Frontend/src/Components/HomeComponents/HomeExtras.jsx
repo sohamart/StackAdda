@@ -246,7 +246,7 @@ export default function HomeExtras() {
             {/* Close Button */}
             <button
               onClick={() => setOpenModal(false)}
-              className="absolute right-6 top-6 rounded-full border border-white/15 bg-white/5 p-2 text-white/70 transition hover:bg-white/10 hover:text-white"
+              className="absolute right-6 top-6 z-20 rounded-full border border-white/15 bg-white/5 p-2 text-white/70 transition hover:bg-white/10 hover:text-white"
             >
               <X size={20} />
             </button>

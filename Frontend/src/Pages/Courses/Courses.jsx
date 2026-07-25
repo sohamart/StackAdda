@@ -1,21 +1,39 @@
 import { useEffect, useState } from "react";
-import { Search, Loader2, PlayCircle, FileText, ShieldAlert, ArrowUpRight, Play, Clock3, Star } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+import {
+  Search,
+  Loader2,
+  PlayCircle,
+  FileText,
+  ShieldAlert,
+  Star,
+  Play,
+  Clock3,
+  ThumbsUp,
+} from "lucide-react";
 import API from "../../api/axios";
 
 export default function Courses() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const videoIdParam = searchParams.get("v");
+
   const [videos, setVideos] = useState([]);
+  const [activeVideo, setActiveVideo] = useState(null);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("videos"); // "videos" | "terms" | "privacy"
-
   const [stats, setStats] = useState(null);
 
   useEffect(() => {
+    // Fetch videos list
     API.get("/youtube")
-      .then(({ data }) => setVideos(data.videos || []))
+      .then(({ data }) => {
+        setVideos(data.videos || []);
+      })
       .catch(() => setVideos([]))
       .finally(() => setLoading(false));
 
+    // Fetch stats
     API.get("/youtube/stats")
       .then(({ data }) => {
         if (data.success) {
@@ -25,14 +43,26 @@ export default function Courses() {
       .catch((err) => console.error(err));
   }, []);
 
-  const filteredVideos = videos.filter((video) =>
-    video.title.toLowerCase().includes(search.toLowerCase()) ||
-    (video.description && video.description.toLowerCase().includes(search.toLowerCase()))
-  );
+  // Update active video when videos list loads or search params change
+  useEffect(() => {
+    if (videos.length > 0) {
+      if (videoIdParam) {
+        const found = videos.find((v) => v.videoId === videoIdParam);
+        if (found) {
+          setActiveVideo(found);
+          return;
+        }
+      }
+      setActiveVideo(videos[0]);
+    }
+  }, [videos, videoIdParam]);
 
-  const handleWatch = (link) => {
-    window.open(link, "_blank");
-  };
+  const filteredVideos = videos.filter(
+    (video) =>
+      video.title.toLowerCase().includes(search.toLowerCase()) ||
+      (video.description &&
+        video.description.toLowerCase().includes(search.toLowerCase()))
+  );
 
   if (loading) {
     return (
@@ -49,7 +79,9 @@ export default function Courses() {
         <section className="relative overflow-hidden rounded-[2.25rem] border border-orange-500/20 bg-gradient-to-br from-orange-500/[.16] via-white/[.045] to-transparent p-7 md:p-12">
           <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-orange-500/20 blur-[100px]" />
           <div className="relative max-w-3xl">
-            <p className="text-sm font-semibold tracking-[.25em] text-orange-300">STACK ADDA RESOURCE HUB</p>
+            <p className="text-sm font-semibold tracking-[.25em] text-orange-300">
+              STACK ADDA RESOURCE HUB
+            </p>
             <h1 className="mt-4 text-4xl font-black leading-tight md:text-6xl">
               Learn, Build & Share.
             </h1>
@@ -81,10 +113,13 @@ export default function Courses() {
                 : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
             }`}
           >
-            <PlayCircle size={18} className={activeTab === "videos" ? "text-white" : "text-red-500"} />
+            <PlayCircle
+              size={18}
+              className={activeTab === "videos" ? "text-white" : "text-red-500"}
+            />
             YouTube Videos
           </button>
-          
+
           <button
             onClick={() => setActiveTab("terms")}
             className={`flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition duration-300 ${
@@ -114,114 +149,163 @@ export default function Courses() {
         <div className="mt-8">
           {activeTab === "videos" && (
             <>
-              {/* Search Bar for Videos */}
-              <div className="relative max-w-xl mb-10">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-400" size={20} />
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search YouTube tutorials..."
-                  className="w-full rounded-2xl border border-white/15 bg-black/30 py-4 pl-12 pr-4 text-white outline-none focus:border-orange-500 transition-colors"
-                />
-              </div>
-
-              <div className="flex items-end justify-between">
-                <div>
-                  <p className="text-sm text-orange-400">CURATED VIDEO LESSONS</p>
-                  <h2 className="mt-2 text-3xl font-bold">Latest Tutorials</h2>
+              {videos.length === 0 ? (
+                <div className="rounded-3xl border border-dashed border-white/15 p-16 text-center text-white/50">
+                  YouTube videos will appear here soon.
                 </div>
-                <p className="text-sm text-white/45">
-                  {filteredVideos.length} video{filteredVideos.length !== 1 ? "s" : ""} found
-                </p>
-              </div>
+              ) : (
+                /* Classroom Layout */
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                  
+                  {/* Left Side: Video Player Area */}
+                  <div className="lg:col-span-8 space-y-6">
+                    {/* Main YouTube Embed Frame */}
+                    <div className="relative aspect-video w-full overflow-hidden rounded-[2rem] border border-white/10 bg-black/60 shadow-2xl">
+                      {activeVideo ? (
+                        <iframe
+                          title={activeVideo.title}
+                          src={`https://www.youtube.com/embed/${activeVideo.videoId}?rel=0&autoplay=0`}
+                          className="absolute inset-0 h-full w-full border-0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-white/40">
+                          Select a lesson from the syllabus to begin.
+                        </div>
+                      )}
+                    </div>
 
-              {/* Videos Grid */}
-              <section className="mt-7 grid gap-7 md:grid-cols-2 xl:grid-cols-3">
-                {filteredVideos.map((video, index) => (
-                  <article
-                    key={video.videoId || index}
-                    className="group relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/[.045] shadow-[0_20px_60px_rgba(0,0,0,.22)] transition duration-500 hover:-translate-y-2 hover:border-orange-500/50"
-                  >
-                    <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-orange-500/10 blur-3xl group-hover:bg-orange-500/25" />
-                    
-                    {/* Thumbnail */}
-                    <div className="relative h-52 overflow-hidden cursor-pointer" onClick={() => handleWatch(video.link)}>
-                      <img
-                        src={video.thumbnailUrl || "https://placehold.co/900x500/18181b/f97316?text=Stack+Adda"}
-                        alt={video.title}
-                        className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
+                    {/* Active Video Info */}
+                    {activeVideo && (
+                      <div className="space-y-4">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                          <h2 className="text-2xl font-black text-white leading-tight">
+                            {activeVideo.title}
+                          </h2>
+                          <a
+                            href="https://www.youtube.com/@stackadda?sub_confirmation=1"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-2xl bg-red-600 px-6 py-3 text-sm font-bold text-white transition hover:bg-red-700 active:scale-95 self-start"
+                          >
+                            Subscribe
+                          </a>
+                        </div>
+
+                        {/* Real-time stats indicators */}
+                        <div className="flex flex-wrap items-center gap-6 text-xs text-white/60">
+                          <span className="flex items-center gap-1.5">
+                            <Play size={14} className="text-red-500 fill-red-500" />
+                            <strong>{activeVideo.views >= 1000 ? (activeVideo.views / 1000).toFixed(1) + "K" : activeVideo.views}</strong> Views
+                          </span>
+                          <span className="h-1.5 w-1.5 rounded-full bg-white/20" />
+                          <span className="flex items-center gap-1.5">
+                            <ThumbsUp size={14} className="text-orange-400" />
+                            <strong>{activeVideo.likes}</strong> Likes
+                          </span>
+                          <span className="h-1.5 w-1.5 rounded-full bg-white/20" />
+                          <span className="flex items-center gap-1.5">
+                            <Clock3 size={14} className="text-orange-400" />
+                            Duration: <strong>{activeVideo.duration || "15:00"}</strong>
+                          </span>
+                        </div>
+
+                        {/* Description Notes Card */}
+                        <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-6 backdrop-blur-2xl">
+                          <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                            Lecture Notes & Details
+                          </h3>
+                          <p className="mt-4 text-sm text-white/70 whitespace-pre-line leading-relaxed max-h-[300px] overflow-y-auto pr-2 no-scrollbar">
+                            {activeVideo.description ||
+                              "Welcome to Stack Adda. Access standard full-stack guidelines and files under resource tabs."}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Right Side: Playlist Syllabus Sidebar */}
+                  <div className="lg:col-span-4 space-y-4">
+                    {/* Search Field */}
+                    <div className="relative">
+                      <Search
+                        className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-400"
+                        size={18}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#12100f] via-transparent to-transparent" />
-                      
-                      {/* Play Button Overlay */}
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40">
-                        <div className="h-14 w-14 rounded-full bg-red-600 flex items-center justify-center text-white shadow-lg transform group-hover:scale-110 transition-transform duration-300">
-                          <Play size={24} fill="currentColor" className="ml-1" />
-                        </div>
-                      </div>
-
-                      {/* Badges */}
-                      <div className="absolute left-4 top-4 flex gap-2">
-                        <span className="rounded-full bg-black/55 px-3 py-1 text-xs font-semibold text-orange-200 backdrop-blur">
-                          Tutorial
-                        </span>
-                      </div>
+                      <input
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Search lectures..."
+                        className="w-full rounded-2xl border border-white/10 bg-black/40 py-3.5 pl-11 pr-4 text-sm text-white outline-none focus:border-orange-500 transition duration-300 placeholder-white/30"
+                      />
                     </div>
 
-                    {/* Description & Metadata */}
-                    <div className="relative p-6">
-                      <div className="flex items-center gap-1.5 text-sm text-orange-300">
-                        <Star size={15} fill="currentColor" />
-                        <span>{video.likes} Likes</span>
-                      </div>
-                      
-                      <h2 className="mt-3 text-2xl font-bold leading-tight line-clamp-2 min-h-[3.5rem] group-hover:text-orange-400 transition-colors">
-                        <a href={video.link} target="_blank" rel="noreferrer">
-                          {video.title}
-                        </a>
-                      </h2>
-                      
-                      <p className="mt-3 line-clamp-2 text-sm leading-6 text-white/55 min-h-[3rem]">
-                        {video.description || "Access premium full-stack tutorials directly on YouTube."}
-                      </p>
-
-                      {/* Info Panel */}
-                      <div className="mt-5 grid grid-cols-3 gap-2 border-y border-white/10 py-4 text-center text-[10px] sm:text-xs text-white/55">
-                        <span className="flex flex-col items-center gap-1 justify-center">
-                          <PlayCircle size={15} className="text-red-500" />
-                          {video.views >= 1000 ? (video.views / 1000).toFixed(1) + "K" : video.views} Views
-                        </span>
-                        <span className="flex flex-col items-center gap-1 justify-center border-x border-white/5">
-                          <Clock3 size={15} className="text-orange-400" />
-                          {video.duration || "15:00"}
-                        </span>
-                        <span className="flex flex-col items-center gap-1 justify-center">
-                          <Star size={15} className="text-orange-400" fill="currentColor" />
-                          Full HD
+                    {/* Playlist Container */}
+                    <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-4 space-y-3 flex flex-col">
+                      <div className="px-2 pt-1 pb-3 border-b border-white/5 flex items-center justify-between text-xs text-white/40 font-bold uppercase tracking-wider">
+                        <span>Course Syllabus</span>
+                        <span className="text-orange-400">
+                          {filteredVideos.length} Lecture{filteredVideos.length !== 1 ? "s" : ""}
                         </span>
                       </div>
 
-                      {/* Footer Actions */}
-                      <div className="mt-5 flex items-center justify-between">
-                        <div>
-                          <p className="text-xs text-white/40">Watch for free</p>
-                          <p className="mt-1 text-2xl font-black text-orange-300">Free</p>
-                        </div>
-                        <button
-                          onClick={() => handleWatch(video.link)}
-                          className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 flex items-center gap-1.5"
-                        >
-                          Watch Now <ArrowUpRight size={16} />
-                        </button>
+                      {/* Scrollable list */}
+                      <div className="space-y-2.5 overflow-y-auto max-h-[500px] pr-1.5 no-scrollbar">
+                        {filteredVideos.map((video, idx) => {
+                          const isActive = activeVideo?.videoId === video.videoId;
+                          const lectureNumber = videos.length - videos.findIndex((v) => v.videoId === video.videoId);
+
+                          return (
+                            <button
+                              key={video.videoId}
+                              onClick={() => setSearchParams({ v: video.videoId })}
+                              className={`w-full flex items-start gap-3 rounded-2xl p-3 text-left transition duration-200 border ${
+                                isActive
+                                  ? "bg-orange-500/10 border-orange-500/40 text-white"
+                                  : "bg-transparent border-transparent hover:bg-white/[0.04] text-white/70 hover:text-white"
+                              }`}
+                            >
+                              {/* Sidebar Thumbnail */}
+                              <div className="relative shrink-0 w-24 aspect-video rounded-xl overflow-hidden border border-white/10 bg-black">
+                                <img
+                                  src={video.thumbnailUrl}
+                                  alt=""
+                                  className="w-full h-full object-cover"
+                                />
+                                <div className="absolute bottom-1 right-1 bg-black/80 px-1 rounded text-[9px] text-white/90">
+                                  {video.duration}
+                                </div>
+                              </div>
+
+                              {/* Sidebar Video details */}
+                              <div className="min-w-0 flex-grow py-0.5">
+                                <span className={`text-[9px] font-bold uppercase tracking-wider block mb-0.5 ${isActive ? "text-orange-400" : "text-white/40"}`}>
+                                  Lecture {lectureNumber} {isActive && "• Playing"}
+                                </span>
+                                <h4 className="text-xs font-bold leading-snug line-clamp-2">
+                                  {video.title}
+                                </h4>
+                                <span className="text-[9px] text-white/40 block mt-1.5 font-medium">
+                                  {video.views >= 1000
+                                    ? (video.views / 1000).toFixed(1) + "K"
+                                    : video.views}{" "}
+                                  Views
+                                </span>
+                              </div>
+                            </button>
+                          );
+                        })}
+
+                        {filteredVideos.length === 0 && (
+                          <div className="py-6 text-center text-xs text-white/40">
+                            No matching lectures found.
+                          </div>
+                        )}
                       </div>
                     </div>
-                  </article>
-                ))}
-              </section>
+                  </div>
 
-              {!filteredVideos.length && (
-                <div className="mt-8 rounded-3xl border border-dashed border-white/15 p-16 text-center text-white/50">
-                  No video tutorials match your search.
                 </div>
               )}
             </>
@@ -232,54 +316,48 @@ export default function Courses() {
               <h2 className="text-3xl font-black text-orange-400 border-b border-white/10 pb-4">
                 Terms & Conditions
               </h2>
-              
+
               <div className="space-y-6 text-white/80">
                 <section className="space-y-3">
-                  <h3 className="text-xl font-bold text-white">1. Agreement to Terms</h3>
+                  <h3 className="text-xl font-bold text-white">
+                    1. Agreement to Terms
+                  </h3>
                   <p>
-                    Welcome to Stack Adda. By accessing or using our platform, services, and website, you agree to comply with and be bound by these Terms & Conditions. If you do not agree to these terms, please refrain from using our services.
+                    Welcome to Stack Adda. By accessing or using our platform,
+                    services, and website, you agree to comply with and be bound
+                    by these Terms & Conditions. If you do not agree to these
+                    terms, please refrain from using our services.
                   </p>
                 </section>
 
                 <section className="space-y-3">
-                  <h3 className="text-xl font-bold text-white">2. Educational Content & Intellectual Property</h3>
+                  <h3 className="text-xl font-bold text-white">
+                    2. Educational Content & Intellectual Property
+                  </h3>
                   <p>
-                    All tutorial videos, code snippets, project documentation, site designs, and text content displayed on Stack Adda belong to Stack Adda and its creators. You are granted a limited, personal, non-exclusive license to view and download public resources for educational and learning purposes only. Commercial resale or unauthorized distribution of this material is strictly prohibited.
+                    All tutorial videos, code snippets, project documentation,
+                    site designs, and text content displayed on Stack Adda
+                    belong to Stack Adda and its creators. You are granted a
+                    limited, personal, non-exclusive license to view and
+                    download public resources for educational and learning
+                    purposes only. Commercial resale or unauthorized
+                    distribution of this material is strictly prohibited.
                   </p>
                 </section>
 
                 <section className="space-y-3">
-                  <h3 className="text-xl font-bold text-white">3. YouTube Integration & Services</h3>
+                  <h3 className="text-xl font-bold text-white">
+                    3. Third-Party YouTube Content
+                  </h3>
                   <p>
-                    Our platform embeds YouTube players and links to direct video feeds hosted on Google's YouTube service. By interacting with the YouTube content on our website, you also agree to be bound by the YouTube Terms of Service and Google Privacy Policy. We hold no responsibility for modifications or service disruptions on YouTube's platform.
+                    Our platform embeds YouTube players and links to direct
+                    video feeds hosted on Google's YouTube service. By
+                    interacting with the YouTube content on our website, you
+                    also agree to be bound by the YouTube Terms of Service and
+                    Google Privacy Policy. We hold no responsibility for
+                    modifications or service disruptions on YouTube's platform.
                   </p>
                 </section>
-
-                <section className="space-y-3">
-                  <h3 className="text-xl font-bold text-white">4. User Account & Conduct</h3>
-                  <p>
-                    If you register an account on Stack Adda, you are responsible for maintaining the confidentiality of your login credentials. You agree not to engage in any activity that disrupts the website's servers, network integrity, or other users' experiences.
-                  </p>
-                </section>
-
-                <section className="space-y-3">
-                  <h3 className="text-xl font-bold text-white">5. Disclaimer of Warranties</h3>
-                  <p>
-                    The service, resources, and tutorials are provided on an "as-is" and "as-available" basis. While we strive to present accurate engineering tutorials and concepts, Stack Adda makes no warranty regarding the suitability of the code for production environments or career placement guarantees.
-                  </p>
-                </section>
-
-                <section className="space-y-3">
-                  <h3 className="text-xl font-bold text-white">6. Changes to Terms</h3>
-                  <p>
-                    We reserve the right to modify these Terms at any time. Any changes will be posted on this page with an updated effective date. Continued use of the platform constitutes agreement to the updated terms.
-                  </p>
-                </section>
-
-                <div className="border-t border-white/10 pt-6 mt-8 text-sm text-white/50">
-                  <p>Last Updated: July 2026</p>
-                  <p className="mt-1">For inquiries, contact us at: <a href="mailto:stackaddacontact@gmail.com" className="text-orange-400 hover:underline">stackaddacontact@gmail.com</a></p>
-                </div>
               </div>
             </div>
           )}
@@ -292,54 +370,29 @@ export default function Courses() {
 
               <div className="space-y-6 text-white/80">
                 <section className="space-y-3">
-                  <h3 className="text-xl font-bold text-white">1. Information We Collect</h3>
+                  <h3 className="text-xl font-bold text-white">
+                    1. Information Collection & Cookies
+                  </h3>
                   <p>
-                    Stack Adda values user privacy. We do not sell or trade your data. The information we may collect includes:
-                  </p>
-                  <ul className="list-disc list-inside ml-4 space-y-1.5 text-white/70">
-                    <li>Basic account detail (Name, Email) upon registration.</li>
-                    <li>Contact query data (Name, Email, Message body) sent through our contact form.</li>
-                    <li>Technical data such as browser type, device details, and general website navigation statistics to help optimize performance.</li>
-                  </ul>
-                </section>
-
-                <section className="space-y-3">
-                  <h3 className="text-xl font-bold text-white">2. Use of Information</h3>
-                  <p>
-                    We use your information solely to:
-                  </p>
-                  <ul className="list-disc list-inside ml-4 space-y-1.5 text-white/70">
-                    <li>Provide and maintain user profiles and platform access.</li>
-                    <li>Respond to contact queries, requests, or bug reports.</li>
-                    <li>Analyze technical behaviors to improve website speed and layout.</li>
-                  </ul>
-                </section>
-
-                <section className="space-y-3">
-                  <h3 className="text-xl font-bold text-white">3. YouTube Cookies & Third-Party Players</h3>
-                  <p>
-                    Stack Adda integrates embedded YouTube video interfaces. Watching YouTube content on our site enables YouTube's tracking cookies. YouTube may record your viewing history, device diagnostics, and display preferences as regulated under Google's Privacy Policies. You can manage or clear your cookie preferences directly in your browser settings.
+                    We collect basic metadata logs, session credentials, and
+                    account registration settings required to operate your dashboard.
+                    Stack Adda embeds Google/YouTube tracking pixels to monitor
+                    channel engagement. By playing videos, YouTube sets analytics and
+                    preferences cookies.
                   </p>
                 </section>
 
                 <section className="space-y-3">
-                  <h3 className="text-xl font-bold text-white">4. Data Security</h3>
+                  <h3 className="text-xl font-bold text-white">
+                    2. Data Usage & Social Sharing
+                  </h3>
                   <p>
-                    We implement industry-standard database encryption and secure communication layers (HTTPS) to safeguard your personal credentials and communication data. However, please remember that no method of transmission over the internet is 100% secure.
+                    Your data is solely utilized to process authentication. We do
+                    not rent, share, or sell user records to advertising partners.
+                    Configured Telegram and Instagram credentials for team members
+                    are displayed publicly to facilitate direct communication with learners.
                   </p>
                 </section>
-
-                <section className="space-y-3">
-                  <h3 className="text-xl font-bold text-white">5. Your Rights</h3>
-                  <p>
-                    You have the right to request access to the personal data we hold about you, request corrections to obsolete profile details, or ask for account deletion. If you wish to delete your Stack Adda profile, please email our support address.
-                  </p>
-                </section>
-
-                <div className="border-t border-white/10 pt-6 mt-8 text-sm text-white/50">
-                  <p>Last Updated: July 2026</p>
-                  <p className="mt-1">For inquiries, contact us at: <a href="mailto:stackaddacontact@gmail.com" className="text-orange-400 hover:underline">stackaddacontact@gmail.com</a></p>
-                </div>
               </div>
             </div>
           )}

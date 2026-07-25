@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { ArrowUpRight, Play, Clock3, Loader2, Star, PlayCircle } from "lucide-react";
 import API from "../../api/axios";
 
 export default function Courses() {
+  const navigate = useNavigate();
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -21,8 +23,8 @@ export default function Courses() {
     );
   }
 
-  const handleWatch = (link) => {
-    window.open(link, "_blank");
+  const handleWatch = (videoId) => {
+    navigate(`/courses?v=${videoId}`);
   };
 
   return (
@@ -30,52 +32,36 @@ export default function Courses() {
       {videos.map((video, index) => {
         return (
           <article
-            key={video.videoId || index}
-            className="group relative flex min-h-[510px] flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-b from-white/[.085] to-white/[.025] shadow-[0_25px_70px_rgba(0,0,0,.3)] transition duration-500 hover:-translate-y-3 hover:border-orange-500/55 hover:shadow-[0_25px_80px_rgba(249,115,22,.16)]"
+            key={video.videoId}
+            className="group flex flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-white/[.03] backdrop-blur-3xl transition duration-500 hover:-translate-y-3 hover:border-orange-500/40"
+            style={{
+              animation: `float ${5 + index}s ease-in-out infinite`,
+            }}
           >
-            {/* Orange Glow */}
-            <div className="absolute -right-20 -top-20 h-52 w-52 rounded-full bg-orange-500/15 blur-[70px] transition group-hover:bg-orange-500/30" />
-
             {/* Thumbnail */}
-            <div className="relative h-60 overflow-hidden cursor-pointer" onClick={() => handleWatch(video.link)}>
+            <div className="relative aspect-video overflow-hidden">
               <img
-                src={video.thumbnailUrl || "https://placehold.co/1000x600/18181b/f97316?text=Stack+Adda"}
+                src={video.thumbnailUrl || "https://placehold.co/900x500/18181b/f97316?text=Stack+Adda"}
                 alt={video.title}
-                className="h-full w-full object-cover object-center transition duration-700 group-hover:scale-110"
+                className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#11100f] via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#12100f] via-transparent to-transparent" />
               
               {/* Play Button Overlay */}
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40">
-                <div className="h-16 w-16 rounded-full bg-red-600 flex items-center justify-center text-white shadow-lg transform group-hover:scale-110 transition-transform duration-300">
-                  <Play size={28} fill="currentColor" className="ml-1" />
+                <div className="h-14 w-14 rounded-full bg-red-600 flex items-center justify-center text-white shadow-lg transform group-hover:scale-110 transition-transform duration-300">
+                  <Play size={24} fill="currentColor" className="ml-1" />
                 </div>
-              </div>
-
-              {/* Badges */}
-              <div className="absolute left-4 top-4 flex gap-2">
-                <span className="rounded-full border border-orange-300/25 bg-orange-500/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-orange-100 backdrop-blur-xl">
-                  {index === 0 ? "Featured" : "Tutorial"}
-                </span>
-                <span className="rounded-full border border-white/15 bg-black/30 px-3 py-1 text-xs font-medium text-white/90 backdrop-blur-xl">
-                  Free
-                </span>
-              </div>
-
-              {/* Rating */}
-              <div className="absolute bottom-4 left-4 flex items-center gap-1 rounded-full bg-black/45 px-3 py-1.5 text-sm text-orange-200 backdrop-blur">
-                <Star size={14} fill="currentColor" />
-                <span>4.9</span>
-                <span className="ml-1 text-white/55">(YouTube)</span>
               </div>
             </div>
 
             {/* Content */}
-            <div className="relative flex flex-1 flex-col p-6">
-              <p className="text-xs font-semibold tracking-[.16em] text-orange-400">STACK ADDA</p>
-              
-              <h2 className="mt-3 line-clamp-2 text-2xl font-black leading-tight text-white group-hover:text-orange-400 transition-colors">
-                <a href={video.link} target="_blank" rel="noreferrer">
+            <div className="flex flex-grow flex-col p-6">
+              <h2 className="text-xl font-bold leading-tight line-clamp-2 min-h-[3rem] group-hover:text-orange-400 transition-colors">
+                <a
+                  onClick={() => handleWatch(video.videoId)}
+                  className="cursor-pointer"
+                >
                   {video.title}
                 </a>
               </h2>
@@ -107,7 +93,7 @@ export default function Courses() {
                   <p className="mt-1 text-2xl font-black text-orange-300">Free</p>
                 </div>
                 <button
-                  onClick={() => handleWatch(video.link)}
+                  onClick={() => handleWatch(video.videoId)}
                   className="inline-flex items-center gap-1 rounded-xl bg-red-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-red-700"
                 >
                   Watch Now <ArrowUpRight size={16} />
