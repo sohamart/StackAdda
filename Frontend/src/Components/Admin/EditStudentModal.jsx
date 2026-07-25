@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import API from "../../api/axios";
-import { Camera, X, ShieldCheck, UploadCloud } from "lucide-react";
+import { Camera, X, ShieldCheck, UploadCloud, ZoomIn, ZoomOut } from "lucide-react";
 import { toast } from "react-toastify";
 
 const EditStudentModal = ({
@@ -12,6 +12,7 @@ const EditStudentModal = ({
   const [loading, setLoading] = useState(false);
   const [imageLoading, setImageLoading] = useState(false);
   const [verifyLoading, setVerifyLoading] = useState(false);
+  const [selectedFileForCrop, setSelectedFileForCrop] = useState(null);
 
   const [previewImage, setPreviewImage] = useState("");
 
@@ -97,18 +98,21 @@ const EditStudentModal = ({
   // Upload Image
   // --------------------------
 
-  const handleImage = async (e) => {
+  const handleImage = (e) => {
     const file = e.target.files[0];
-
     if (!file) return;
+    setSelectedFileForCrop(file);
+    e.target.value = "";
+  };
 
-    setPreviewImage(URL.createObjectURL(file));
+  const uploadCroppedImage = async (croppedFile) => {
+    setPreviewImage(URL.createObjectURL(croppedFile));
 
     try {
       setImageLoading(true);
 
       const formData = new FormData();
-      formData.append("image", file);
+      formData.append("image", croppedFile);
 
       const { data } = await API.put(
         `/admin/student/${student._id}/profile-image`,
@@ -116,21 +120,16 @@ const EditStudentModal = ({
         {
           withCredentials: true,
           headers: {
-            "Content-Type":
-              "multipart/form-data",
+            "Content-Type": "multipart/form-data",
           },
         }
       );
 
-      toast.success(
-        data.message || "Image Updated"
-      );
-
+      toast.success(data.message || "Image Updated");
       onSuccess();
     } catch (error) {
       toast.error(
-        error.response?.data?.message ||
-          "Upload Failed"
+        error.response?.data?.message || "Upload Failed"
       );
     } finally {
       setImageLoading(false);
@@ -780,6 +779,173 @@ sm:w-auto
           </div>
           {/* End Body */}
 
+        {selectedFileForCrop && (
+          <ImageCropperModal
+            file={selectedFileForCrop}
+            onClose={() => setSelectedFileForCrop(null)}
+            onCrop={async (croppedFile) => {
+              setSelectedFileForCrop(null);
+              await uploadCroppedImage(croppedFile);
+            }}
+          />
+        )}
+      </div>
+      </div>
+      </div>
+  );
+};
+
+const ImageCropperModal = ({ file, onCrop, onClose }) => {
+  const [imageSrc, setImageSrc] = useState(null);
+  const [zoom, setZoom] = useState(1);
+  const [offsetX, setOffsetX] = useState(0);
+  const [offsetY, setOffsetY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStart = useRef({ x: 0, y: 0 });
+  const containerRef = useRef(null);
+  const imgRef = useRef(null);
+
+  useEffect(() => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => setImageSrc(reader.result);
+      reader.readAsDataURL(file);
+    }
+  }, [file]);
+
+  const handleMouseDown = (e) => {
+    setIsDragging(true);
+    dragStart.current = { x: e.clientX - offsetX, y: e.clientY - offsetY };
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    setOffsetX(e.clientX - dragStart.current.x);
+    setOffsetY(e.clientY - dragStart.current.y);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleTouchStart = (e) => {
+    if (e.touches.length === 1) {
+      setIsDragging(true);
+      dragStart.current = { x: e.touches[0].clientX - offsetX, y: e.touches[0].clientY - offsetY };
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging || e.touches.length !== 1) return;
+    setOffsetX(e.touches[0].clientX - dragStart.current.x);
+    setOffsetY(e.touches[0].clientY - dragStart.current.y);
+  };
+
+  const handleCrop = () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 400;
+    canvas.height = 400;
+    const ctx = canvas.getContext("2d");
+
+    const img = new Image();
+    img.src = imageSrc;
+    img.onload = () => {
+      ctx.fillStyle = "#121214";
+      ctx.fillRect(0, 0, 400, 400);
+
+      ctx.beginPath();
+      ctx.arc(200, 200, 200, 0, Math.PI * 2);
+      ctx.clip();
+
+      const imgWidth = img.width;
+      const imgHeight = img.height;
+      const minDimension = Math.min(imgWidth, imgHeight);
+
+      const drawWidth = (imgWidth / minDimension) * 400 * zoom;
+      const drawHeight = (imgHeight / minDimension) * 400 * zoom;
+
+      const container = containerRef.current;
+      const viewSize = container ? container.getBoundingClientRect().width * 0.8 : 280;
+      
+      const x = 200 - drawWidth / 2 + (offsetX / viewSize) * 400;
+      const y = 200 - drawHeight / 2 + (offsetY / viewSize) * 400;
+
+      ctx.drawImage(img, x, y, drawWidth, drawHeight);
+
+      canvas.toBlob((blob) => {
+        const croppedFile = new File([blob], file.name || "avatar.jpg", { type: "image/jpeg" });
+        onCrop(croppedFile);
+      }, "image/jpeg", 0.9);
+    };
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-md">
+      <div className="relative w-full max-w-md rounded-[2rem] border border-white/10 bg-[#0c0c0e] p-6 text-white shadow-2xl">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-bold">Crop Profile Picture</h3>
+          <button onClick={onClose} className="rounded-full border border-white/10 bg-white/5 p-1.5 text-white/50 hover:text-white">
+            <X size={16} />
+          </button>
+        </div>
+        <p className="text-xs text-white/50 mt-1">Drag image to adjust position. Use slider to zoom.</p>
+
+        <div
+          ref={containerRef}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleMouseUp}
+          className="relative mt-6 aspect-square w-full overflow-hidden rounded-2xl border border-white/5 bg-black/80 cursor-move select-none flex items-center justify-center"
+        >
+          {imageSrc && (
+            <img
+              ref={imgRef}
+              src={imageSrc}
+              alt=""
+              style={{
+                transform: `translate(${offsetX}px, ${offsetY}px) scale(${zoom})`,
+                maxWidth: "80%",
+                maxHeight: "80%",
+                transition: isDragging ? "none" : "transform 0.1s ease-out",
+              }}
+              className="object-contain"
+              draggable={false}
+            />
+          )}
+
+          <div className="absolute inset-0 pointer-events-none rounded-full border-2 border-orange-500/80 m-[10%]" />
+          <div className="absolute inset-0 pointer-events-none" style={{
+            boxShadow: "0 0 0 9999px rgba(12, 12, 14, 0.75)",
+            borderRadius: "50%",
+            margin: "10%",
+          }} />
+        </div>
+
+        <div className="mt-6 flex items-center gap-3 bg-white/[0.02] p-3 rounded-2xl border border-white/5">
+          <ZoomOut size={16} className="text-white/40" />
+          <input
+            type="range"
+            min="1"
+            max="3"
+            step="0.02"
+            value={zoom}
+            onChange={(e) => setZoom(parseFloat(e.target.value))}
+            className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-orange-500 focus:outline-none"
+          />
+          <ZoomIn size={16} className="text-white/40" />
+        </div>
+
+        <div className="mt-6 flex gap-3">
+          <button onClick={onClose} className="flex-1 rounded-2xl border border-white/10 bg-white/5 py-3.5 font-bold hover:bg-white/10 transition duration-150">
+            Cancel
+          </button>
+          <button onClick={handleCrop} className="flex-1 rounded-2xl bg-orange-500 py-3.5 font-bold text-white hover:bg-orange-600 transition duration-150 shadow-lg shadow-orange-500/20">
+            Crop & Save
+          </button>
         </div>
       </div>
     </div>
