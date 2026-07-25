@@ -20,7 +20,7 @@ export default function ResetPassword() {
 
     try {
       setLoading(true);
-      await API.put(`/reset-password/${token}`, { password });
+      await API.put(`/auth/reset-password/${token}`, { password });
       toast.success("Password reset successfully. You can now log in.");
       navigate("/login");
     } catch (err) {

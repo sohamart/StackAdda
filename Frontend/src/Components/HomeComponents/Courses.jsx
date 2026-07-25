@@ -85,18 +85,18 @@ export default function Courses() {
               </p>
 
               {/* Key Details */}
-              <div className="mt-5 grid grid-cols-3 gap-2 rounded-2xl border border-white/10 bg-black/15 p-3 text-center text-xs text-white/60">
-                <span className="flex flex-col items-center gap-1">
+              <div className="mt-5 grid grid-cols-3 gap-2 rounded-2xl border border-white/10 bg-black/15 p-3 text-center text-[10px] sm:text-xs text-white/60">
+                <span className="flex flex-col items-center gap-1 justify-center">
                   <PlayCircle size={15} className="text-red-500" />
-                  YouTube
+                  {video.views >= 1000 ? (video.views / 1000).toFixed(1) + "K" : video.views} Views
                 </span>
-                <span className="flex flex-col items-center gap-1">
+                <span className="flex flex-col items-center gap-1 justify-center border-x border-white/5">
                   <Clock3 size={15} className="text-orange-400" />
                   {video.duration || "15:00"}
                 </span>
-                <span className="flex flex-col items-center gap-1">
-                  <Star size={15} className="text-orange-400" />
-                  High Quality
+                <span className="flex flex-col items-center gap-1 justify-center">
+                  <Star size={15} className="text-orange-400" fill="currentColor" />
+                  {video.likes} Likes
                 </span>
               </div>
 

@@ -155,7 +155,7 @@ const Login = () => {
             )}
 
 
-            {!isAdmin && !isRegister && (
+            {!isRegister && (
               <div className="mt-5 flex flex-col items-center justify-center rounded-xl py-1.5">
                 <p className="mb-4 text-sm text-white/60">Or continue with</p>
                 <div className="w-full max-w-[320px] overflow-hidden rounded-xl bg-orange-500/20 p-2">
@@ -165,8 +165,14 @@ const Login = () => {
                     width="300"
                     text="continue_with"
                     onSuccess={async ({ credential }) => {
-                      const success = await studentGoogleLogin(credential);
-                      if (success) navigate("/student");
+                      const loggedInUser = await studentGoogleLogin(credential);
+                      if (loggedInUser) {
+                        if (loggedInUser.role === "admin") {
+                          navigate("/admin");
+                        } else {
+                          navigate("/student");
+                        }
+                      }
                     }}
                     onError={() =>
                       toast.error("Google sign-in was cancelled or failed.")

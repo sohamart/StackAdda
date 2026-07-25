@@ -43,6 +43,7 @@ const reviews = [
 
 export default function HomeExtras() {
   const [team, setTeam] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     API.get("/youtube/teammates")
@@ -55,6 +56,9 @@ export default function HomeExtras() {
       })
       .catch(() => {
         setTeam(fallbackTeam);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, []);
 
@@ -73,38 +77,55 @@ export default function HomeExtras() {
             Learn with builders.
           </h2>
 
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {team.map((member, index) => {
-              const imageSrc =
-                member.profileImage?.url ||
-                member.image ||
-                `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                  member.name
-                )}&size=500&background=f97316&color=ffffff&bold=true`;
-
-              return (
-                <article
-                  key={member._id || member.name}
-                  className="group rounded-3xl border border-white/10 bg-white/[.045] p-5 text-center backdrop-blur-2xl transition duration-500 hover:-translate-y-3 hover:border-orange-500/50"
-                  style={{
-                    animation: `float ${4 + index}s ease-in-out infinite`,
-                  }}
+          {loading ? (
+            /* Shimmer Skeleton Loading */
+            <div className="mt-12 grid gap-6 md:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="animate-pulse rounded-3xl border border-white/5 bg-white/[0.02] p-5 text-center backdrop-blur-2xl"
                 >
-                  <img
-                    src={imageSrc}
-                    alt={member.name}
-                    className="mx-auto h-36 w-36 rounded-3xl border border-orange-500/30 object-cover transition group-hover:scale-105"
-                  />
+                  <div className="mx-auto h-36 w-36 rounded-3xl bg-white/5" />
+                  <div className="mx-auto mt-6 h-6 w-32 rounded-lg bg-white/5" />
+                  <div className="mx-auto mt-3 h-4 w-44 rounded-lg bg-white/5" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* Dynamic Team Grid */
+            <div className="mt-12 grid gap-6 md:grid-cols-3">
+              {team.map((member, index) => {
+                const imageSrc =
+                  member.profileImage?.url ||
+                  member.image ||
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                    member.name
+                  )}&size=500&background=f97316&color=ffffff&bold=true`;
 
-                  <h3 className="mt-5 text-xl font-bold">{member.name}</h3>
+                return (
+                  <article
+                    key={member._id || member.name}
+                    className="group rounded-3xl border border-white/10 bg-white/[.045] p-5 text-center backdrop-blur-2xl transition duration-500 hover:-translate-y-3 hover:border-orange-500/50"
+                    style={{
+                      animation: `float ${4 + index}s ease-in-out infinite`,
+                    }}
+                  >
+                    <img
+                      src={imageSrc}
+                      alt={member.name}
+                      className="mx-auto h-36 w-36 rounded-3xl border border-orange-500/30 object-cover transition group-hover:scale-105"
+                    />
 
-                  <p className="mt-1 text-sm text-orange-300">
-                    {member.role || member.bio || "Team Member"}
-                  </p>
-                </article>
-              );
-            })}
-          </div>
+                    <h3 className="mt-5 text-xl font-bold">{member.name}</h3>
+
+                    <p className="mt-1 text-sm text-orange-300">
+                      {member.role || member.bio || "Team Member"}
+                    </p>
+                  </article>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 

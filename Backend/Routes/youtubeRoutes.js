@@ -15,7 +15,9 @@ const DEMO_VIDEOS = [
     thumbnailUrl: "https://img.youtube.com/vi/ElP8rgveK_k/maxresdefault.jpg",
     description: "Welcome to Stack Adda! Stay tuned for full-stack courses, project-based tutorials, and placement bootcamps.",
     duration: "2:15",
-    isPublished: true
+    isPublished: true,
+    views: 125,
+    likes: 24
   },
   {
     title: "Mastering React 19 and Tailwind CSS v4",
@@ -25,7 +27,9 @@ const DEMO_VIDEOS = [
     thumbnailUrl: "https://img.youtube.com/vi/Ke90Tje7VS0/maxresdefault.jpg",
     description: "Learn how to build high-performance web applications with the latest React 19 features and Tailwind CSS v4 styling engine.",
     duration: "45:30",
-    isPublished: true
+    isPublished: true,
+    views: 890,
+    likes: 112
   },
   {
     title: "JavaScript Advanced Concepts & Patterns",
@@ -35,9 +39,26 @@ const DEMO_VIDEOS = [
     thumbnailUrl: "https://img.youtube.com/vi/W6NZfCO5SIk/maxresdefault.jpg",
     description: "Deep dive into JavaScript closures, prototypes, asynchronous execution patterns, and event loops.",
     duration: "38:15",
-    isPublished: true
+    isPublished: true,
+    views: 560,
+    likes: 80
   }
 ];
+
+// Helper to parse ISO 8601 duration (e.g. PT15M30S -> 15:30)
+const parseISO8601Duration = (duration) => {
+  if (!duration) return "15:00";
+  const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  if (!match) return "15:00";
+  const hours = parseInt(match[1] || 0, 10);
+  const minutes = parseInt(match[2] || 0, 10);
+  const seconds = parseInt(match[3] || 0, 10);
+  
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+};
 
 // Helper to sync YouTube videos with the DB
 const syncYoutubeVideos = async () => {
@@ -56,7 +77,7 @@ const syncYoutubeVideos = async () => {
     
     if (!uploadsPlaylistId) return;
 
-    // 2. Get playlist items
+    // 2. Get playlist items (snippet contains video items)
     const playlistRes = await fetch(
       `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&maxResults=50&key=${apiKey}`
     );
@@ -64,7 +85,32 @@ const syncYoutubeVideos = async () => {
     const playlistData = await playlistRes.json();
     const items = playlistData?.items || [];
 
-    // 3. Save new videos to DB
+    // Collect all video IDs to query details/statistics in batch
+    const videoIds = items
+      .map(item => item?.snippet?.resourceId?.videoId)
+      .filter(Boolean);
+
+    if (videoIds.length === 0) return;
+
+    // 3. Query YouTube videos statistics (views, likes, duration)
+    const videosDetailsRes = await fetch(
+      `https://www.googleapis.com/youtube/v3/videos?part=statistics,contentDetails&id=${videoIds.join(",")}&key=${apiKey}`
+    );
+    if (!videosDetailsRes.ok) return;
+    const detailsData = await videosDetailsRes.json();
+    const detailsItems = detailsData?.items || [];
+
+    // Create a dictionary of statistics by videoId
+    const detailsMap = {};
+    for (const dItem of detailsItems) {
+      detailsMap[dItem.id] = {
+        views: parseInt(dItem?.statistics?.viewCount || 0, 10),
+        likes: parseInt(dItem?.statistics?.likeCount || 0, 10),
+        duration: parseISO8601Duration(dItem?.contentDetails?.duration)
+      };
+    }
+
+    // 4. Save/Update videos in DB
     for (const item of items) {
       const videoId = item?.snippet?.resourceId?.videoId;
       const title = item?.snippet?.title;
@@ -73,9 +119,20 @@ const syncYoutubeVideos = async () => {
       const publishedAt = item?.snippet?.publishedAt;
 
       if (videoId && title) {
-        // Find if exists
+        const stats = detailsMap[videoId] || { views: 0, likes: 0, duration: "15:00" };
+
         const exists = await YoutubeVideo.findOne({ videoId });
-        if (!exists) {
+        if (exists) {
+          // Update live metrics & details, keep custom published state
+          exists.title = title;
+          exists.description = description;
+          exists.thumbnailUrl = thumbnailUrl;
+          exists.views = stats.views;
+          exists.likes = stats.likes;
+          exists.duration = stats.duration;
+          await exists.save();
+        } else {
+          // Create new record
           await YoutubeVideo.create({
             videoId,
             title,
@@ -83,7 +140,9 @@ const syncYoutubeVideos = async () => {
             thumbnailUrl,
             publishedAt: new Date(publishedAt),
             isPublished: true, // Default to true so it shows automatically
-            duration: "15:00"
+            duration: stats.duration,
+            views: stats.views,
+            likes: stats.likes
           });
         }
       }
@@ -107,6 +166,7 @@ router.get(
 
     // Format for frontend
     let videos = dbVideos.map(v => ({
+      _id: v._id,
       title: v.title,
       videoId: v.videoId,
       link: `https://www.youtube.com/watch?v=${v.videoId}`,
@@ -114,10 +174,12 @@ router.get(
       thumbnailUrl: v.thumbnailUrl || `https://img.youtube.com/vi/${v.videoId}/maxresdefault.jpg`,
       description: v.description,
       duration: v.duration,
-      isPublished: v.isPublished
+      isPublished: v.isPublished,
+      views: v.views || 0,
+      likes: v.likes || 0
     }));
 
-    // If DB is empty (no videos synced at all), use DEMO_VIDEOS
+    // If DB has 0 videos in total (never synced or channel is empty), use DEMO_VIDEOS
     const totalCount = await YoutubeVideo.countDocuments();
     if (totalCount === 0 && videos.length === 0) {
       videos = DEMO_VIDEOS;
@@ -202,8 +264,20 @@ router.get(
 
     const dbVideos = await YoutubeVideo.find({}).sort({ publishedAt: -1 });
     
-    // Fallback if empty
-    let videos = dbVideos;
+    // Format response
+    let videos = dbVideos.map(v => ({
+      _id: v._id,
+      videoId: v.videoId,
+      title: v.title,
+      description: v.description,
+      thumbnailUrl: v.thumbnailUrl || `https://img.youtube.com/vi/${v.videoId}/maxresdefault.jpg`,
+      publishedAt: v.publishedAt,
+      isPublished: v.isPublished,
+      duration: v.duration,
+      views: v.views || 0,
+      likes: v.likes || 0
+    }));
+
     if (videos.length === 0) {
       videos = DEMO_VIDEOS.map((v, i) => ({
         _id: `demo-${i}`,
@@ -213,7 +287,9 @@ router.get(
         thumbnailUrl: v.thumbnailUrl,
         publishedAt: v.published,
         isPublished: v.isPublished,
-        duration: v.duration
+        duration: v.duration,
+        views: v.views,
+        likes: v.likes
       }));
     }
 
@@ -234,7 +310,6 @@ router.put(
 
     // If it's a demo video identifier, let's create a database entry for it to toggle it
     if (!video) {
-      // Check if ID matches a videoId
       video = await YoutubeVideo.findOne({ videoId: id });
     }
 
@@ -249,7 +324,9 @@ router.put(
           thumbnailUrl: demo.thumbnailUrl,
           publishedAt: new Date(demo.published),
           isPublished: !demo.isPublished,
-          duration: demo.duration
+          duration: demo.duration,
+          views: demo.views,
+          likes: demo.likes
         });
       } else {
         return res.status(404).json({ success: false, message: "Video not found" });

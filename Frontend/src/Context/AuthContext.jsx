@@ -90,10 +90,10 @@ export const AuthProvider = ({ children }) => {
       });
       setUser(res.data.user);
       toast.success(res.data.message);
-      return true;
+      return res.data.user;
     } catch (error) {
       toast.error(error.response?.data?.message || "Google login failed");
-      return false;
+      return null;
     }
   };
 

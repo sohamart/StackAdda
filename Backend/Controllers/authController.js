@@ -153,10 +153,6 @@ const googleLogin = asyncHandler(async (req, res) => {
 
   let user = await User.findOne({ email: payload.email.toLowerCase() }).select("+password");
 
-  if (user && user.role !== "student") {
-    return res.status(403).json({ success: false, message: "Please use the admin login for this account." });
-  }
-
   if (!user) {
     return res.status(401).json({ success: false, message: "Account not found. Please register first." });
   } else if (!user.googleId) {

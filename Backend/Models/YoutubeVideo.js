@@ -33,6 +33,14 @@ const YoutubeVideoSchema = new mongoose.Schema(
       type: String,
       default: "15:00",
     },
+    views: {
+      type: Number,
+      default: 0,
+    },
+    likes: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

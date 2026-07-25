@@ -170,10 +170,9 @@ export default function Courses() {
 
                     {/* Description & Metadata */}
                     <div className="relative p-6">
-                      <div className="flex items-center gap-1 text-sm text-orange-300">
+                      <div className="flex items-center gap-1.5 text-sm text-orange-300">
                         <Star size={15} fill="currentColor" />
-                        <span>4.9</span>
-                        <span className="ml-1 text-white/40">(YouTube Review)</span>
+                        <span>{video.likes} Likes</span>
                       </div>
                       
                       <h2 className="mt-3 text-2xl font-bold leading-tight line-clamp-2 min-h-[3.5rem] group-hover:text-orange-400 transition-colors">
@@ -187,17 +186,17 @@ export default function Courses() {
                       </p>
 
                       {/* Info Panel */}
-                      <div className="mt-5 grid grid-cols-3 gap-2 border-y border-white/10 py-4 text-center text-xs text-white/55">
-                        <span className="flex flex-col items-center gap-1">
+                      <div className="mt-5 grid grid-cols-3 gap-2 border-y border-white/10 py-4 text-center text-[10px] sm:text-xs text-white/55">
+                        <span className="flex flex-col items-center gap-1 justify-center">
                           <PlayCircle size={15} className="text-red-500" />
-                          Free
+                          {video.views >= 1000 ? (video.views / 1000).toFixed(1) + "K" : video.views} Views
                         </span>
-                        <span className="flex flex-col items-center gap-1">
+                        <span className="flex flex-col items-center gap-1 justify-center border-x border-white/5">
                           <Clock3 size={15} className="text-orange-400" />
                           {video.duration || "15:00"}
                         </span>
-                        <span className="flex flex-col items-center gap-1">
-                          <Star size={15} className="text-orange-400" />
+                        <span className="flex flex-col items-center gap-1 justify-center">
+                          <Star size={15} className="text-orange-400" fill="currentColor" />
                           Full HD
                         </span>
                       </div>
