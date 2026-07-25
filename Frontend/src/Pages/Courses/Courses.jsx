@@ -22,7 +22,12 @@ export default function Courses() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("videos"); // "videos" | "terms" | "privacy"
-  const [stats, setStats] = useState(null);
+  const [stats, setStats] = useState({
+    subscribers: "12K+",
+    views: "1.2M+",
+    videos: "150+",
+    channelName: "Stack Adda"
+  });
 
   useEffect(() => {
     // Fetch videos list

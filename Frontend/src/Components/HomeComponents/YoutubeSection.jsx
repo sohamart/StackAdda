@@ -4,7 +4,12 @@ import Intro from "../../assets/intro.mp4";
 import API from "../../api/axios";
 
 const YoutubeSection = () => {
-  const [stats, setStats] = useState(null);
+  const [stats, setStats] = useState({
+    subscribers: "12K+",
+    views: "1.2M+",
+    videos: "150+",
+    channelName: "Stack Adda"
+  });
 
   useEffect(() => {
     API.get("/youtube/stats")
