@@ -203,9 +203,12 @@ export default function HomeExtras() {
             Loved by learners.
           </h2>
 
-          {/* Top 3 Reviews */}
+          {/* Top 3 Reviews (Only 5-star ratings) */}
           <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {allReviews.slice(0, 3).map((review, i) => (
+            {allReviews
+              .filter((review) => (review.rating || 5) === 5)
+              .slice(0, 3)
+              .map((review, i) => (
               <article
                 key={review._id || i}
                 className="rounded-3xl border border-white/10 bg-black/20 p-6 flex flex-col justify-between"
