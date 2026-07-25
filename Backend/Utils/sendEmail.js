@@ -13,6 +13,9 @@ const sendEmail = async ({ to, subject, html, attachments }) => {
       port: Number(SMTP_PORT || 587),
       secure: Number(SMTP_PORT) === 465,
       auth: { user: SMTP_USER, pass: SMTP_PASS },
+      tls: {
+        rejectUnauthorized: false,
+      },
     });
 
     await transporter.sendMail({ from: SMTP_FROM, to, subject, html, attachments });
