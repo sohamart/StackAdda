@@ -29,7 +29,7 @@ export default function Channels() {
     <main className="relative min-h-screen overflow-x-hidden bg-[#09090B] px-4 sm:px-6 md:px-10 pt-28 md:pt-32 pb-20 md:pb-24 text-white">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[400px] w-[500px] rounded-full bg-orange-500/10 blur-[150px] pointer-events-none" />
       
-      <section className="relative w-full">
+     <section className="relative mx-auto w-full max-w-6xl">
         <div className="text-center">
           <p className="text-xs font-semibold tracking-[.25em] text-orange-400 uppercase">
             Stack Adda Network
