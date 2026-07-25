@@ -11,6 +11,7 @@ import ProtectedRoute from "./Components/ProtectedRoute";
 // Public Pages
 import Home from "./Pages/Home";
 import About from "./Pages/About";
+import Channels from "./Pages/Channels";
 import Contact from "./Pages/Contact";
 import Login from "./Pages/Login";
 import Register from "./Pages/Register";
@@ -35,6 +36,7 @@ import StudentDetails from "./Pages/Admin/StudentDetails";
 import PublicCourses from "./Pages/Courses/Courses";
 import Contacts from "./Pages/Admin/Contacts";
 import AdminYoutubeVideos from "./Pages/Admin/YoutubeVideos";
+import AdminChannels from "./Pages/Admin/AdminChannels";
 
 function App() {
   return (
@@ -51,6 +53,7 @@ function App() {
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/courses" element={<PublicCourses />} />
           <Route path="/about" element={<About />} />
+          <Route path="/channels" element={<Channels />} />
           <Route path="/contact" element={<Contact />} />
         </Route>
 
@@ -91,6 +94,7 @@ function App() {
           <Route path="profile" element={<StudentProfile />} />
           <Route path="contacts" element={<Contacts />} />
           <Route path="youtube-videos" element={<AdminYoutubeVideos />} />
+          <Route path="channels" element={<AdminChannels />} />
         </Route>
 
         {/* 404 */}

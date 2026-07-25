@@ -2,6 +2,7 @@ import React from "react";
 import YoutubeSection from "../Components/HomeComponents/YoutubeSection";
 import Courses from "../Components/HomeComponents/Courses";
 import HeroSection from "../Components/HomeComponents/HeroSection";
+import SponsorBanner from "../Components/HomeComponents/SponsorBanner";
 import { Link } from "react-router-dom";
 import HomeExtras from "../Components/HomeComponents/HomeExtras";
 
@@ -13,8 +14,11 @@ const Home = () => {
         <HeroSection />
       </div>
 
+      
+
       {/* Second Screen */}
       <div className="relative w-full rounded-t-[60px] lg:rounded-t-[120px] border-t border-white/20 bg-black overflow-hidden">
+        <SponsorBanner />
         <YoutubeSection />
       </div>
 

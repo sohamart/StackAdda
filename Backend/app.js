@@ -19,6 +19,7 @@ const progressRoutes = require("./Routes/progressRoutes");
 const contactRoutes = require("./Routes/contactRoutes");
 const liveClassRoutes = require("./Routes/liveClassRoutes");
 const youtubeRoutes = require("./Routes/youtubeRoutes");
+const channelRoutes = require("./Routes/channelRoutes");
 
 /* ==========================
    Middlewares
@@ -56,6 +57,7 @@ app.use("/api/progress", progressRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/live-class", liveClassRoutes);
 app.use("/api/youtube", youtubeRoutes);
+app.use("/api/channels", channelRoutes);
 
 /* ==========================
    Test Route

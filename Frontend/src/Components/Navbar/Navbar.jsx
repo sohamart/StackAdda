@@ -18,6 +18,7 @@ import {
   Home,
   ChevronDown,
   PlayCircle,
+  Tv,
 } from "lucide-react";
 
 import { useAuth } from "../../Context/AuthContext";
@@ -105,6 +106,13 @@ const Navbar = () => {
             className={menuClass}
           >
             Videos
+          </NavLink>
+
+          <NavLink
+            to="/channels"
+            className={menuClass}
+          >
+            Channels
           </NavLink>
 
           <NavLink
@@ -437,6 +445,17 @@ const Navbar = () => {
               <div className="flex items-center gap-3">
                 <PlayCircle size={20} className="text-orange-400" />
                 Videos
+              </div>
+            </NavLink>
+
+            <NavLink
+              to="/channels"
+              onClick={() => setOpen(false)}
+              className={menuClass}
+            >
+              <div className="flex items-center gap-3">
+                <Tv size={20} className="text-orange-400" />
+                Channels
               </div>
             </NavLink>
 

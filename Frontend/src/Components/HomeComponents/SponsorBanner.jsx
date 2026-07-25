@@ -1,0 +1,55 @@
+import React from "react";
+
+const sponsors = [
+  { name: "Google Cloud" },
+  { name: "Vercel" },
+  { name: "GitHub" },
+  { name: "Amazon Web Services" },
+  { name: "MongoDB" },
+  { name: "Stripe" },
+  { name: "Microsoft Azure" },
+  { name: "Docker" }
+];
+
+export default function SponsorBanner() {
+  return (
+    <div className="w-full bg-transparent pt-10 pb-5 overflow-hidden relative select-none">
+      {/* CSS Animation injected via style tag */}
+      <style>{`
+        @keyframes scroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .sponsor-track {
+          display: flex;
+          width: max-content;
+          animation: scroll 25s linear infinite;
+        }
+      `}</style>
+
+      {/* Ambient background glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] max-w-[800px] h-[100px] bg-orange-500/10 blur-[80px] pointer-events-none rounded-[100%]" />
+
+      <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-black via-black/80 to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-black via-black/80 to-transparent z-10 pointer-events-none" />
+
+      <p className="relative z-20 text-center text-[10px] font-black tracking-[0.4em] uppercase bg-gradient-to-r from-white/20 via-white/50 to-white/20 bg-clip-text text-transparent mb-7">
+        Trusted by World-Class Platforms
+      </p>
+
+      <div className="sponsor-track flex items-center gap-16 md:gap-24 relative z-20">
+        {/* Double the array to make seamless infinite loop */}
+        {[...sponsors, ...sponsors].map((sp, idx) => (
+          <div
+            key={idx}
+            className="group flex items-center gap-3 text-lg md:text-2xl font-black text-white/30 hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-white hover:to-orange-200 transition-all duration-500 tracking-wider cursor-default"
+          >
+            {/* Glowing gradient indicator dot */}
+            <span className="h-2.5 w-2.5 rounded-full bg-gradient-to-br from-orange-400 to-red-600 shadow-[0_0_12px_rgba(249,115,22,0.8)] opacity-50 group-hover:opacity-100 group-hover:scale-125 transition-all duration-300" />
+            {sp.name}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

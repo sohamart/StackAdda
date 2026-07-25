@@ -27,7 +27,7 @@ const YoutubeSection = () => {
 
   return (
     <>
-      <div className="mx-auto flex w-full max-w-7xl justify-center px-4 sm:px-6 lg:px-10 py-8 lg:py-14">
+      <div className="mx-auto flex w-full max-w-7xl justify-center px-4 sm:px-6 lg:px-10 py-8 lg:py-5">
         <div
           className="
             group

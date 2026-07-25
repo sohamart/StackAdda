@@ -62,8 +62,8 @@ const parseISO8601Duration = (duration) => {
 
 // Helper to sync YouTube videos with the DB
 const syncYoutubeVideos = async () => {
-  const apiKey = process.env.YOUTUBE_API_KEY;
-  const channelId = process.env.YOUTUBE_CHANNEL_ID;
+  const apiKey = process.env.YOUTUBE_API_KEY || "AIzaSyBNXDxfkCEYgfwn0cYZ5iYyDOVZzu-XW2I";
+  const channelId = process.env.YOUTUBE_CHANNEL_ID || "UC5lX2UJ-nbyGYT6WYlhQskQ";
   if (!apiKey || !channelId) return;
 
   try {
@@ -195,8 +195,8 @@ router.get(
 router.get(
   "/stats",
   asyncHandler(async (req, res) => {
-    const apiKey = process.env.YOUTUBE_API_KEY;
-    const channelId = process.env.YOUTUBE_CHANNEL_ID;
+    const apiKey = process.env.YOUTUBE_API_KEY || "AIzaSyBNXDxfkCEYgfwn0cYZ5iYyDOVZzu-XW2I";
+    const channelId = process.env.YOUTUBE_CHANNEL_ID || "UC5lX2UJ-nbyGYT6WYlhQskQ";
 
     // Default mock stats if YouTube API key is missing or fails
     const mockStats = {
