@@ -26,7 +26,7 @@ export default function Channels() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-[#09090B] px-5 pb-24 pt-32 text-white md:px-10">
+    <main className="relative min-h-screen overflow-x-hidden bg-[#09090B] px-4 sm:px-6 md:px-10 pt-24 md:pt-32 pb-20 md:pb-24 text-white">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[400px] w-[500px] rounded-full bg-orange-500/10 blur-[150px] pointer-events-none" />
       
       <section className="relative w-full">
