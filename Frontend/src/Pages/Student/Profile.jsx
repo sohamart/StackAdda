@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
   Camera,
   LoaderCircle,
@@ -11,6 +12,9 @@ import {
   Lock,
   GraduationCap,
   Award,
+  X,
+  ZoomIn,
+  ZoomOut,
 } from "lucide-react";
 import { useAuth } from "../../Context/AuthContext";
 import EditProfileModal from "../../Components/Student/EditProfileModal";
@@ -24,56 +28,51 @@ const Profile = () => {
   const [openPassword, setOpenPassword] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [selectedFileForCrop, setSelectedFileForCrop] = useState(null);
   const enrolledCourses = user?.enrolledCourses?.length || 0;
   const joinedYear = user?.createdAt
     ? new Date(user.createdAt).getFullYear()
     : new Date().getFullYear();
 
- const handleImageUpload = async (e) => {
-  const file = e.target.files[0];
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-  if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      return toast.error("Please select an image.");
+    }
+    setSelectedFileForCrop(file);
+    e.target.value = "";
+  };
 
-  // Image Validation
-  if (!file.type.startsWith("image/")) {
-    return toast.error("Please select an image.");
-  }
+  const uploadCroppedImage = async (croppedFile) => {
+    try {
+      setUploading(true);
 
-  // 5MB Limit
-  if (file.size > 5 * 1024 * 1024) {
-    return toast.error("Maximum image size is 5MB.");
-  }
+      const formData = new FormData();
+      formData.append("profileImage", croppedFile);
 
-  try {
-    setUploading(true);
+      const { data } = await API.put(
+        "/profile/image",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        }
+      );
 
-    const formData = new FormData();
-
-    formData.append("profileImage", file);
-
-    const { data } = await API.put(
-      "/profile/image",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        withCredentials: true,
-      }
-    );
-
-    await getCurrentUser();
-
-toast.success(data.message);
-  } catch (error) {
-    toast.error(
-      error.response?.data?.message ||
-        "Image upload failed."
-    );
-  } finally {
-    setUploading(false);
-  }
-};
+      await getCurrentUser();
+      toast.success(data.message);
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Image upload failed."
+      );
+    } finally {
+      setUploading(false);
+    }
+  };
 
 
   return (
@@ -487,6 +486,184 @@ hover:bg-white/10
 
       <div className="h-20 lg:hidden"></div>
 
+      {selectedFileForCrop && createPortal(
+        <ImageCropperModal
+          file={selectedFileForCrop}
+          onClose={() => setSelectedFileForCrop(null)}
+          onCrop={async (croppedFile) => {
+            setSelectedFileForCrop(null);
+            await uploadCroppedImage(croppedFile);
+          }}
+        />,
+        document.body
+      )}
+    </div>
+  );
+};
+
+const ImageCropperModal = ({ file, onCrop, onClose }) => {
+  const [imageSrc, setImageSrc] = useState(null);
+  const [zoom, setZoom] = useState(1);
+  const [offsetX, setOffsetX] = useState(0);
+  const [offsetY, setOffsetY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStart = useRef({ x: 0, y: 0 });
+  const containerRef = useRef(null);
+  const imgRef = useRef(null);
+
+  // Disable scrolling on body when open
+  useEffect(() => {
+    const originalStyle = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalStyle;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => setImageSrc(reader.result);
+      reader.readAsDataURL(file);
+    }
+  }, [file]);
+
+  const handleMouseDown = (e) => {
+    setIsDragging(true);
+    dragStart.current = { x: e.clientX - offsetX, y: e.clientY - offsetY };
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    setOffsetX(e.clientX - dragStart.current.x);
+    setOffsetY(e.clientY - dragStart.current.y);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleTouchStart = (e) => {
+    if (e.touches.length === 1) {
+      setIsDragging(true);
+      dragStart.current = { x: e.touches[0].clientX - offsetX, y: e.touches[0].clientY - offsetY };
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (e.cancelable) e.preventDefault();
+    if (!isDragging || e.touches.length !== 1) return;
+    setOffsetX(e.touches[0].clientX - dragStart.current.x);
+    setOffsetY(e.touches[0].clientY - dragStart.current.y);
+  };
+
+  const handleCrop = () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 400;
+    canvas.height = 400;
+    const ctx = canvas.getContext("2d");
+
+    const img = new Image();
+    img.src = imageSrc;
+    img.onload = () => {
+      ctx.fillStyle = "#121214";
+      ctx.fillRect(0, 0, 400, 400);
+
+      ctx.beginPath();
+      ctx.arc(200, 200, 200, 0, Math.PI * 2);
+      ctx.clip();
+
+      const imgWidth = img.width;
+      const imgHeight = img.height;
+      const minDimension = Math.min(imgWidth, imgHeight);
+
+      const drawWidth = (imgWidth / minDimension) * 400 * zoom;
+      const drawHeight = (imgHeight / minDimension) * 400 * zoom;
+
+      const container = containerRef.current;
+      const viewSize = container ? container.getBoundingClientRect().width * 0.8 : 280;
+      
+      const x = 200 - drawWidth / 2 + (offsetX / viewSize) * 400;
+      const y = 200 - drawHeight / 2 + (offsetY / viewSize) * 400;
+
+      ctx.drawImage(img, x, y, drawWidth, drawHeight);
+
+      canvas.toBlob((blob) => {
+        const croppedFile = new File([blob], file.name || "avatar.jpg", { type: "image/jpeg" });
+        onCrop(croppedFile);
+      }, "image/jpeg", 0.9);
+    };
+  };
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex h-screen w-screen items-center justify-center bg-black/95 backdrop-blur-xl p-4 overflow-hidden select-none">
+      <div className="relative w-full max-w-[320px] rounded-[2rem] border border-white/10 bg-[#0c0c0e] p-5 text-white shadow-2xl flex flex-col items-center">
+        <div className="flex w-full items-center justify-between">
+          <h3 className="text-lg font-bold">Crop Profile Picture</h3>
+          <button onClick={onClose} className="rounded-full border border-white/10 bg-white/5 p-1 text-white/50 hover:text-white">
+            <X size={15} />
+          </button>
+        </div>
+        <p className="w-full text-left text-[10px] text-white/50 mt-0.5">Drag to adjust position. Use slider to zoom.</p>
+
+        <div
+          ref={containerRef}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleMouseUp}
+          className="relative mt-4 w-60 h-60 overflow-hidden rounded-2xl border border-white/5 bg-black/80 cursor-move flex items-center justify-center touch-none"
+        >
+          {imageSrc && (
+            <img
+              ref={imgRef}
+              src={imageSrc}
+              alt=""
+              style={{
+                transform: `translate(${offsetX}px, ${offsetY}px) scale(${zoom})`,
+                maxWidth: "80%",
+                maxHeight: "80%",
+                transition: isDragging ? "none" : "transform 0.1s ease-out",
+              }}
+              className="object-contain"
+              draggable={false}
+            />
+          )}
+
+          <div className="absolute inset-0 pointer-events-none rounded-full border-2 border-orange-500/80 m-[10%]" />
+          <div className="absolute inset-0 pointer-events-none" style={{
+            boxShadow: "0 0 0 9999px rgba(12, 12, 14, 0.75)",
+            borderRadius: "50%",
+            margin: "10%",
+          }} />
+        </div>
+
+        <div className="mt-4 flex items-center gap-3 bg-white/[0.02] p-2.5 rounded-2xl border border-white/5 w-full">
+          <ZoomOut size={14} className="text-white/40" />
+          <input
+            type="range"
+            min="1"
+            max="3"
+            step="0.02"
+            value={zoom}
+            onChange={(e) => setZoom(parseFloat(e.target.value))}
+            className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-orange-500 focus:outline-none"
+          />
+          <ZoomIn size={14} className="text-white/40" />
+        </div>
+
+        <div className="mt-4 flex gap-3 w-full">
+          <button onClick={onClose} className="flex-1 rounded-2xl border border-white/10 bg-white/5 py-3 font-bold hover:bg-white/10 transition duration-150 text-sm">
+            Cancel
+          </button>
+          <button onClick={handleCrop} className="flex-1 rounded-2xl bg-orange-500 py-3 font-bold text-white hover:bg-orange-600 transition duration-150 shadow-lg shadow-orange-500/20 text-sm">
+            Crop & Save
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
