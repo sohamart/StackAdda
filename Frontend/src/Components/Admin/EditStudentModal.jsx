@@ -865,10 +865,6 @@ const ImageCropperModal = ({ file, onCrop, onClose }) => {
       ctx.fillStyle = "#121214";
       ctx.fillRect(0, 0, 400, 400);
 
-      ctx.beginPath();
-      ctx.arc(200, 200, 200, 0, Math.PI * 2);
-      ctx.clip();
-
       const imgWidth = img.width;
       const imgHeight = img.height;
       const minDimension = Math.min(imgWidth, imgHeight);
@@ -929,10 +925,10 @@ const ImageCropperModal = ({ file, onCrop, onClose }) => {
             />
           )}
 
-          <div className="absolute inset-0 pointer-events-none rounded-full border-2 border-orange-500/80 m-[10%]" />
+          <div className="absolute inset-0 pointer-events-none rounded-3xl border-2 border-orange-500/80 m-[10%]" />
           <div className="absolute inset-0 pointer-events-none" style={{
             boxShadow: "0 0 0 9999px rgba(12, 12, 14, 0.75)",
-            borderRadius: "50%",
+            borderRadius: "1.5rem",
             margin: "10%",
           }} />
         </div>
