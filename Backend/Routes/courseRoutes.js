@@ -28,6 +28,7 @@ const {
   getMyCourses,
   getEnrolledCourse,
   exportEnrolledStudents,
+  saveCourseBulk,
 } = require("../Controllers/courseController");
 
 // ============================
@@ -40,6 +41,13 @@ router.post(
   roleMiddleware("admin"),
   upload.single("thumbnail"),
   createCourse
+);
+
+router.post(
+  "/admin/course/bulk",
+  authMiddleware,
+  roleMiddleware("admin"),
+  saveCourseBulk
 );
 
 router.put(

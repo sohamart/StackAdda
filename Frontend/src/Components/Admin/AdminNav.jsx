@@ -1,8 +1,10 @@
 import { NavLink } from "react-router-dom";
-import { BookOpen, LayoutDashboard, Mail, Users, PlayCircle, Tv } from "lucide-react";
+import { BookOpen, LayoutDashboard, Mail, Users, PlayCircle, Tv, PlusCircle } from "lucide-react";
 
 const links = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, end: true },
+  { to: "/admin/courses", label: "Manage Courses", icon: BookOpen },
+  { to: "/admin/course-builder", label: "Course Builder", icon: PlusCircle },
   { to: "/admin/students", label: "Students", icon: Users },
   { to: "/admin/youtube-videos", label: "YouTube Videos", icon: PlayCircle },
   { to: "/admin/channels", label: "Channels", icon: Tv },

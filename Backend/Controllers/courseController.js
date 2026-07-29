@@ -1261,6 +1261,48 @@ const exportEnrolledStudents = asyncHandler(async (req, res) => {
   res.status(200).send(csvData);
 });
 
+// ==========================
+// Save Course Bulk (Create or Update with Full Syllabus)
+// ==========================
+
+const saveCourseBulk = asyncHandler(async (req, res) => {
+  const { id, title, description, thumbnailUrl, chapters, status, category, accessType, price } = req.body;
+
+  if (id) {
+    const course = await Course.findById(id);
+    if (!course) return res.status(404).json({ success: false, message: "Course not found" });
+    
+    course.title = title || course.title;
+    course.description = description !== undefined ? description : course.description;
+    if (thumbnailUrl !== undefined) course.thumbnail.url = thumbnailUrl;
+    if (chapters) course.chapters = chapters;
+    if (status) course.status = status;
+    if (category) course.category = category;
+    if (accessType) course.accessType = accessType;
+    if (price !== undefined) course.price = price;
+    
+    await course.save();
+    return res.status(200).json({ success: true, course });
+  } else {
+    if (!title) return res.status(400).json({ success: false, message: "Title is required." });
+    
+    const slug = slugify(title, { lower: true, strict: true }) + "-" + Date.now();
+    const course = await Course.create({
+      title,
+      slug,
+      description: description || "No description provided.",
+      category: category || "General",
+      accessType: accessType || "free",
+      price: price || 0,
+      status: status || "draft",
+      thumbnail: { url: thumbnailUrl || "", public_id: "" },
+      chapters: chapters || [],
+      createdBy: req.user._id,
+    });
+    return res.status(201).json({ success: true, course });
+  }
+});
+
 module.exports = {
   createCourse,
   updateCourse,
@@ -1286,4 +1328,5 @@ module.exports = {
   getMyCourses,
   getEnrolledCourse,
   exportEnrolledStudents,
+  saveCourseBulk,
 };

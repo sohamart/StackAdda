@@ -358,4 +358,145 @@ router.get(
   })
 );
 
+// ==========================
+// Fetch YouTube Playlist for Admin Course Builder
+// ==========================
+router.get(
+  "/fetch-playlist/:id",
+  authMiddleware,
+  roleMiddleware("admin"),
+  asyncHandler(async (req, res) => {
+    const playlistId = req.params.id;
+    const apiKey = process.env.YOUTUBE_API_KEY || "AIzaSyBNXDxfkCEYgfwn0cYZ5iYyDOVZzu-XW2I";
+
+    // Get Playlist Details
+    const playlistRes = await axios.get(
+      `https://www.googleapis.com/youtube/v3/playlists?part=snippet&id=${playlistId}&key=${apiKey}`
+    );
+    const playlistDetails = playlistRes.data.items?.[0]?.snippet;
+    if (!playlistDetails) {
+      return res.status(404).json({ success: false, message: "Playlist not found" });
+    }
+
+    let videos = [];
+    let nextPageToken = "";
+
+    do {
+      const itemsRes = await axios.get(
+        `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&playlistId=${playlistId}&maxResults=50&pageToken=${nextPageToken}&key=${apiKey}`
+      );
+      const items = itemsRes.data.items || [];
+      
+      const videoIds = items.map(item => item.contentDetails?.videoId).filter(Boolean);
+      
+      if (videoIds.length > 0) {
+        const detailsRes = await axios.get(
+          `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoIds.join(",")}&key=${apiKey}`
+        );
+        const detailsMap = {};
+        (detailsRes.data.items || []).forEach(v => {
+          detailsMap[v.id] = parseDuration(v.contentDetails?.duration);
+        });
+
+        items.forEach(item => {
+          const vId = item.contentDetails?.videoId;
+          if (vId) {
+            videos.push({
+              title: item.snippet?.title,
+              description: item.snippet?.description,
+              videoId: vId,
+              thumbnailUrl: item.snippet?.thumbnails?.maxres?.url || item.snippet?.thumbnails?.high?.url || item.snippet?.thumbnails?.default?.url,
+              duration: detailsMap[vId] || "00:00"
+            });
+          }
+        });
+      }
+      nextPageToken = itemsRes.data.nextPageToken || "";
+    } while (nextPageToken);
+
+    res.status(200).json({
+      success: true,
+      playlist: {
+        title: playlistDetails.title,
+        description: playlistDetails.description,
+        thumbnailUrl: playlistDetails.thumbnails?.maxres?.url || playlistDetails.thumbnails?.high?.url || playlistDetails.thumbnails?.default?.url,
+      },
+      videos
+    });
+  })
+);
+
+// ==========================
+// Fetch Single YouTube Video for Admin Course Builder
+// ==========================
+router.get(
+  "/fetch-video/:id",
+  authMiddleware,
+  roleMiddleware("admin"),
+  asyncHandler(async (req, res) => {
+    const videoId = req.params.id;
+    const apiKey = process.env.YOUTUBE_API_KEY || "AIzaSyBNXDxfkCEYgfwn0cYZ5iYyDOVZzu-XW2I";
+
+    const videoRes = await axios.get(
+      `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${videoId}&key=${apiKey}`
+    );
+    
+    const item = videoRes.data.items?.[0];
+    if (!item) {
+      return res.status(404).json({ success: false, message: "Video not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      video: {
+        title: item.snippet?.title,
+        description: item.snippet?.description,
+        videoId: item.id,
+        thumbnailUrl: item.snippet?.thumbnails?.maxres?.url || item.snippet?.thumbnails?.high?.url || item.snippet?.thumbnails?.default?.url,
+        duration: parseDuration(item.contentDetails?.duration) || "00:00"
+      }
+    });
+  })
+);
+
+// ==========================
+// Fetch All Channel Playlists
+// ==========================
+router.get(
+  "/fetch-channel-playlists",
+  authMiddleware,
+  roleMiddleware("admin"),
+  asyncHandler(async (req, res) => {
+    const apiKey = process.env.YOUTUBE_API_KEY || "AIzaSyBNXDxfkCEYgfwn0cYZ5iYyDOVZzu-XW2I";
+    const channelId = process.env.YOUTUBE_CHANNEL_ID || "UC5lX2UJ-nbyGYT6WYlhQskQ";
+
+    let playlists = [];
+    let nextPageToken = "";
+
+    do {
+      const playlistRes = await axios.get(
+        `https://www.googleapis.com/youtube/v3/playlists?part=snippet,contentDetails&channelId=${channelId}&maxResults=50&pageToken=${nextPageToken}&key=${apiKey}`
+      );
+      
+      const items = playlistRes.data.items || [];
+      items.forEach(item => {
+        playlists.push({
+          id: item.id,
+          title: item.snippet?.title,
+          description: item.snippet?.description,
+          thumbnailUrl: item.snippet?.thumbnails?.maxres?.url || item.snippet?.thumbnails?.high?.url || item.snippet?.thumbnails?.default?.url,
+          videoCount: item.contentDetails?.itemCount || 0
+        });
+      });
+
+      nextPageToken = playlistRes.data.nextPageToken || "";
+    } while (nextPageToken);
+
+    res.status(200).json({
+      success: true,
+      playlists
+    });
+  })
+);
+
 module.exports = router;

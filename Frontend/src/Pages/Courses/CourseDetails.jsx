@@ -89,7 +89,7 @@ export default function CourseDetails() {
 
       if (data.isFree) {
         toast.success(data.message || "Enrolled successfully.");
-        navigate(`/student/course/${course._id}`);
+        navigate(`/student/learn/${course._id}`);
         return;
       }
 
@@ -112,7 +112,7 @@ export default function CourseDetails() {
             toast.success(verifyRes.data.message || "Payment verified successfully.");
             
             // Navigate to the learn portal directly
-            navigate(`/student/course/${course._id}`);
+            navigate(`/student/learn/${course._id}`);
           } catch (err) {
             toast.error(err.response?.data?.message || "Payment verification failed.");
           } finally {
@@ -364,7 +364,7 @@ export default function CourseDetails() {
 
               {isEnrolled ? (
                 <Link
-                  to={`/student/course/${course._id}`}
+                  to={`/student/learn/${course._id}`}
                   className="mt-5 block w-full text-center rounded-xl bg-orange-500 py-3.5 font-bold transition hover:bg-orange-600 text-white"
                 >
                   Go to Course

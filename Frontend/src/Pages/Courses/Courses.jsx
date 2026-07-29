@@ -10,6 +10,7 @@ import {
   Play,
   Clock3,
   ThumbsUp,
+  BookOpen,
 } from "lucide-react";
 import API from "../../api/axios";
 
@@ -53,10 +54,11 @@ export default function Courses() {
   const videoIdParam = searchParams.get("v");
 
   const [videos, setVideos] = useState([]);
+  const [structuredCourses, setStructuredCourses] = useState([]);
   const [activeVideo, setActiveVideo] = useState(null);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("videos"); // "videos" | "terms" | "privacy"
+  const [activeTab, setActiveTab] = useState("courses"); // "courses" | "videos" | "terms" | "privacy"
   const [stats, setStats] = useState({
     subscribers: "12K+",
     views: "1.2M+",
@@ -72,6 +74,12 @@ export default function Courses() {
       })
       .catch(() => setVideos([]))
       .finally(() => setLoading(false));
+
+    API.get("/course/all")
+      .then(({ data }) => {
+        setStructuredCourses(data.courses || []);
+      })
+      .catch((err) => console.error(err));
 
     // Fetch stats
     API.get("/youtube/stats")
@@ -146,6 +154,21 @@ export default function Courses() {
         {/* Tab Navigation */}
         <div className="mt-12 flex flex-wrap gap-3 border-b border-white/10 pb-4">
           <button
+            onClick={() => setActiveTab("courses")}
+            className={`flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition duration-300 ${
+              activeTab === "courses"
+                ? "bg-orange-500 text-white shadow-[0_4px_20px_rgba(249,115,22,0.3)]"
+                : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
+            }`}
+          >
+            <BookOpen
+              size={18}
+              className={activeTab === "courses" ? "text-white" : "text-blue-500"}
+            />
+            Structured Courses
+          </button>
+          
+          <button
             onClick={() => setActiveTab("videos")}
             className={`flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition duration-300 ${
               activeTab === "videos"
@@ -187,6 +210,29 @@ export default function Courses() {
 
         {/* Tab Content */}
         <div className="mt-8">
+          {activeTab === "courses" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {structuredCourses.length === 0 ? (
+                <div className="col-span-full rounded-3xl border border-dashed border-white/15 p-16 text-center text-white/50">
+                  No courses available yet.
+                </div>
+              ) : (
+                structuredCourses.map(course => (
+                  <div key={course._id} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-orange-500/50 transition">
+                    <img src={course.thumbnail?.url || "https://placehold.co/600x400/111/fff?text=No+Thumbnail"} className="w-full aspect-video object-cover" />
+                    <div className="p-5">
+                      <h3 className="text-xl font-bold text-white mb-2">{course.title}</h3>
+                      <p className="text-sm text-white/60 line-clamp-2 mb-4">{course.description}</p>
+                      <a href={`/course/${course.slug}`} className="inline-block bg-orange-500 hover:bg-orange-600 text-white px-5 py-3 rounded-lg font-bold w-full text-center transition">
+                        View Course
+                      </a>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
           {activeTab === "videos" && (
             <>
               {videos.length === 0 ? (

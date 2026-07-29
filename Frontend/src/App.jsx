@@ -37,6 +37,10 @@ import PublicCourses from "./Pages/Courses/Courses";
 import Contacts from "./Pages/Admin/Contacts";
 import AdminYoutubeVideos from "./Pages/Admin/YoutubeVideos";
 import AdminChannels from "./Pages/Admin/AdminChannels";
+import AdminCourseBuilder from "./Pages/Admin/CourseBuilder";
+import AdminCourses from "./Pages/Admin/AdminCourses";
+import CourseDetails from "./Pages/Courses/CourseDetails";
+import CoursePlayer from "./Pages/Student/CoursePlayer";
 
 function App() {
   return (
@@ -52,6 +56,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/courses" element={<PublicCourses />} />
+          <Route path="/course/:slug" element={<CourseDetails />} />
           <Route path="/about" element={<About />} />
           <Route path="/channels" element={<Channels />} />
           <Route path="/contact" element={<Contact />} />
@@ -69,6 +74,7 @@ function App() {
           <Route index element={<StudentDashboard />} />
           <Route path="profile" element={<StudentProfile />} />
           <Route path="instructors" element={<StudentInstructors />} />
+          <Route path="learn/:id" element={<CoursePlayer />} />
         </Route>
         <Route
           path="/live-class/:id"
@@ -95,6 +101,8 @@ function App() {
           <Route path="contacts" element={<Contacts />} />
           <Route path="youtube-videos" element={<AdminYoutubeVideos />} />
           <Route path="channels" element={<AdminChannels />} />
+          <Route path="courses" element={<AdminCourses />} />
+          <Route path="course-builder" element={<AdminCourseBuilder />} />
         </Route>
 
         {/* 404 */}

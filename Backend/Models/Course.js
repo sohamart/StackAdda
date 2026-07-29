@@ -1,6 +1,16 @@
 const mongoose = require("mongoose");
 
 // ==========================
+// Quiz Schema
+// ==========================
+
+const QuizQuestionSchema = new mongoose.Schema({
+  question: { type: String, required: true },
+  options: [{ type: String, required: true }],
+  correctAnswer: { type: Number, required: true }, // index of options array
+});
+
+// ==========================
 // Lesson Schema
 // ==========================
 
@@ -16,6 +26,14 @@ const LessonSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+
+    type: {
+      type: String,
+      enum: ["video", "quiz"],
+      default: "video",
+    },
+
+    quizData: [QuizQuestionSchema],
 
     video: {
       url: {

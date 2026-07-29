@@ -23,7 +23,10 @@ const connectDB = async () => {
       }
     }
 
-    const conn = await mongoose.connect(mongoUri);
+    const conn = await mongoose.connect(mongoUri, {
+      family: 4, // Force IPv4. Fixes DNS issues on mobile hotspots (IPv6 conflicts)
+      serverSelectionTimeoutMS: 10000,
+    });
 
     console.log(`✅ MongoDB Connected: ${conn.connection.name}`);
   } catch (error) {
