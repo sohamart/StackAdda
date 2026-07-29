@@ -1,5 +1,7 @@
-const router = require("express").Router();
+const express = require("express");
+const router = express.Router();
 const asyncHandler = require("express-async-handler");
+const axios = require("axios");
 const YoutubeVideo = require("../Models/YoutubeVideo");
 const User = require("../Models/User");
 const authMiddleware = require("../Middleware/authMiddleware");
@@ -68,21 +70,19 @@ const syncYoutubeVideos = async () => {
 
   try {
     // 1. Get uploads playlist ID
-    const channelRes = await fetch(
+    const channelRes = await axios.get(
       `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${channelId}&key=${apiKey}`
     );
-    if (!channelRes.ok) return;
-    const channelData = await channelRes.json();
+    const channelData = channelRes.data;
     const uploadsPlaylistId = channelData?.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
     
     if (!uploadsPlaylistId) return;
 
     // 2. Get playlist items (snippet contains video items)
-    const playlistRes = await fetch(
+    const playlistRes = await axios.get(
       `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&maxResults=50&key=${apiKey}`
     );
-    if (!playlistRes.ok) return;
-    const playlistData = await playlistRes.json();
+    const playlistData = playlistRes.data;
     const items = playlistData?.items || [];
 
     // Collect all video IDs to query details/statistics in batch
@@ -93,11 +93,10 @@ const syncYoutubeVideos = async () => {
     if (videoIds.length === 0) return;
 
     // 3. Query YouTube videos statistics (views, likes, duration)
-    const videosDetailsRes = await fetch(
+    const videosDetailsRes = await axios.get(
       `https://www.googleapis.com/youtube/v3/videos?part=statistics,contentDetails&id=${videoIds.join(",")}&key=${apiKey}`
     );
-    if (!videosDetailsRes.ok) return;
-    const detailsData = await videosDetailsRes.json();
+    const detailsData = videosDetailsRes.data;
     const detailsItems = detailsData?.items || [];
 
     // Create a dictionary of statistics by videoId
@@ -211,14 +210,11 @@ router.get(
     }
 
     try {
-      const channelRes = await fetch(
+      const channelRes = await axios.get(
         `https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&id=${channelId}&key=${apiKey}`
       );
-      if (!channelRes.ok) {
-        return res.status(200).json({ success: true, stats: mockStats });
-      }
-
-      const channelData = await channelRes.json();
+      
+      const channelData = channelRes.data;
       const item = channelData?.items?.[0];
       if (!item) {
         return res.status(200).json({ success: true, stats: mockStats });

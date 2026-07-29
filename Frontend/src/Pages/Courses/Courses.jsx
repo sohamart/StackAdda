@@ -13,6 +13,41 @@ import {
 } from "lucide-react";
 import API from "../../api/axios";
 
+const renderDescriptionWithLinks = (text) => {
+  if (!text)
+    return "Welcome to Stack Adda. Access standard full-stack guidelines and files under resource tabs.";
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const parts = text.split(urlRegex);
+  return parts.map((part, i) => {
+    if (part.match(urlRegex)) {
+      return (
+        <span key={i} className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/5 px-2 py-0.5 align-middle mx-1">
+          <a
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-orange-400 hover:underline truncate"
+            title={part}
+          >
+            {part.length > 30 ? part.substring(0, 30) + "..." : part}
+          </a>
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(part);
+              alert("Link Copied!");
+            }}
+            className="text-white/50 hover:text-white cursor-pointer transition-colors border-l border-white/10 pl-1 ml-1"
+            title="Copy Link"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          </button>
+        </span>
+      );
+    }
+    return part;
+  });
+};
+
 export default function Courses() {
   const [searchParams, setSearchParams] = useSearchParams();
   const videoIdParam = searchParams.get("v");
@@ -219,11 +254,10 @@ export default function Courses() {
                         {/* Description Notes Card */}
                         <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-6 backdrop-blur-2xl">
                           <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                            Lecture Notes & Details
+                            Video Notes & Details
                           </h3>
                           <p className="mt-4 text-sm text-white/70 whitespace-pre-line leading-relaxed max-h-[300px] overflow-y-auto pr-2 no-scrollbar">
-                            {activeVideo.description ||
-                              "Welcome to Stack Adda. Access standard full-stack guidelines and files under resource tabs."}
+                            {renderDescriptionWithLinks(activeVideo.description)}
                           </p>
                         </div>
                       </div>
@@ -241,7 +275,7 @@ export default function Courses() {
                       <input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Search lectures..."
+                        placeholder="Search videos..."
                         className="w-full rounded-2xl border border-white/10 bg-black/40 py-3.5 pl-11 pr-4 text-sm text-white outline-none focus:border-orange-500 transition duration-300 placeholder-white/30"
                       />
                     </div>
@@ -251,7 +285,7 @@ export default function Courses() {
                       <div className="px-2 pt-1 pb-3 border-b border-white/5 flex items-center justify-between text-xs text-white/40 font-bold uppercase tracking-wider">
                         <span>Course Syllabus</span>
                         <span className="text-orange-400">
-                          {filteredVideos.length} Lecture{filteredVideos.length !== 1 ? "s" : ""}
+                          {filteredVideos.length} Video{filteredVideos.length !== 1 ? "s" : ""}
                         </span>
                       </div>
 
@@ -286,7 +320,7 @@ export default function Courses() {
                               {/* Sidebar Video details */}
                               <div className="min-w-0 flex-grow py-0.5">
                                 <span className={`text-[9px] font-bold uppercase tracking-wider block mb-0.5 ${isActive ? "text-orange-400" : "text-white/40"}`}>
-                                  Lecture {lectureNumber} {isActive && "• Playing"}
+                                  Video {lectureNumber} {isActive && "• Playing"}
                                 </span>
                                 <h4 className="text-xs font-bold leading-snug line-clamp-2">
                                   {video.title}
@@ -304,7 +338,7 @@ export default function Courses() {
 
                         {filteredVideos.length === 0 && (
                           <div className="py-6 text-center text-xs text-white/40">
-                            No matching lectures found.
+                            No matching videos found.
                           </div>
                         )}
                       </div>

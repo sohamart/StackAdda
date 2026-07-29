@@ -10,24 +10,22 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari */
 }
-/* Hide Scrollbar */
 
-/* Chrome, Edge, Safari */
+/* Hide Scrollbar */
 ::-webkit-scrollbar {
   display: none;
 }
 
-/* Firefox */
 html {
+  scroll-behavior: smooth;
   scrollbar-width: none;
   background-color: #000000;
 }
 
-/* IE & Old Edge */
 body {
   -ms-overflow-style: none;
- 
 }
+
 html,
 body {
   overflow-x: hidden;
