@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 import API from "../../api/axios";
-import { Loader2, Trash2, Edit, BookOpen } from "lucide-react";
+import { Loader2, Trash2, Edit, BookOpen, X } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function AdminCourses() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
+  
+  const [editingCourse, setEditingCourse] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchCourses();
@@ -42,6 +45,31 @@ export default function AdminCourses() {
     }
   };
 
+  const saveEdit = async () => {
+    if(!editingCourse.title) return toast.error("Title is required");
+    setSaving(true);
+    try {
+      const payload = {
+        id: editingCourse._id,
+        title: editingCourse.title,
+        description: editingCourse.description,
+        category: editingCourse.category,
+        accessType: editingCourse.accessType,
+        status: editingCourse.status,
+      };
+      const { data } = await API.post(`/course/admin/course/bulk`, payload);
+      if (data.success) {
+        toast.success("Course updated successfully");
+        setCourses(courses.map(c => c._id === editingCourse._id ? data.course : c));
+        setEditingCourse(null);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to update course");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -51,7 +79,7 @@ export default function AdminCourses() {
   }
 
   return (
-    <div className="p-6 md:p-10">
+    <div className="p-6 md:p-10 relative">
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-black text-white flex items-center gap-3">
@@ -79,7 +107,7 @@ export default function AdminCourses() {
                 <tr>
                   <th className="p-4 font-semibold">Course Details</th>
                   <th className="p-4 font-semibold">Category & Level</th>
-                  <th className="p-4 font-semibold">Access</th>
+                  <th className="p-4 font-semibold">Status / Access</th>
                   <th className="p-4 font-semibold text-right">Actions</th>
                 </tr>
               </thead>
@@ -100,16 +128,28 @@ export default function AdminCourses() {
                       </div>
                     </td>
                     <td className="p-4">
-                      <span className="block text-sm">{course.category}</span>
+                      <span className="block text-sm font-semibold">{course.category}</span>
                       <span className="text-xs text-white/40">{course.level}</span>
                     </td>
                     <td className="p-4">
-                      <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${course.accessType === 'free' ? 'bg-green-500/10 text-green-400' : 'bg-orange-500/10 text-orange-400'}`}>
-                        {course.accessType}
-                      </span>
+                      <div className="flex flex-col gap-1 items-start">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${course.status === 'published' ? 'bg-blue-500/10 text-blue-400' : 'bg-white/10 text-white/50'}`}>
+                          {course.status}
+                        </span>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${course.accessType === 'free' ? 'bg-green-500/10 text-green-400' : 'bg-orange-500/10 text-orange-400'}`}>
+                          {course.accessType}
+                        </span>
+                      </div>
                     </td>
                     <td className="p-4 text-right">
                       <div className="flex items-center justify-end gap-2">
+                        <button 
+                          onClick={() => setEditingCourse(course)}
+                          className="p-2 text-white/40 hover:text-orange-500 hover:bg-white/5 rounded-lg transition"
+                          title="Edit Course"
+                        >
+                          <Edit size={18} />
+                        </button>
                         <button 
                           onClick={() => deleteCourse(course._id)}
                           disabled={deletingId === course._id}
@@ -127,6 +167,87 @@ export default function AdminCourses() {
           </div>
         )}
       </div>
+
+      {/* Edit Course Modal */}
+      {editingCourse && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-[#111] border border-white/10 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl">
+            <div className="flex justify-between items-center p-5 border-b border-white/10 bg-white/5">
+              <h2 className="text-xl font-bold text-white">Edit Course Details</h2>
+              <button onClick={() => setEditingCourse(null)} className="text-white/50 hover:text-white transition">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="text-sm font-semibold text-white/70 mb-1 block">Course Title</label>
+                <input 
+                  value={editingCourse.title}
+                  onChange={e => setEditingCourse({...editingCourse, title: e.target.value})}
+                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-orange-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-semibold text-white/70 mb-1 block">Description</label>
+                <textarea 
+                  value={editingCourse.description}
+                  onChange={e => setEditingCourse({...editingCourse, description: e.target.value})}
+                  rows={4}
+                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-orange-500 resize-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-semibold text-white/70 mb-1 block">Category</label>
+                  <input 
+                    value={editingCourse.category}
+                    onChange={e => setEditingCourse({...editingCourse, category: e.target.value})}
+                    className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-orange-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-semibold text-white/70 mb-1 block">Access Type</label>
+                  <select 
+                    value={editingCourse.accessType}
+                    onChange={e => setEditingCourse({...editingCourse, accessType: e.target.value})}
+                    className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-orange-500"
+                  >
+                    <option value="free">Free</option>
+                    <option value="paid">Paid</option>
+                    <option value="private">Private</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-semibold text-white/70 mb-1 block">Status</label>
+                <select 
+                  value={editingCourse.status}
+                  onChange={e => setEditingCourse({...editingCourse, status: e.target.value})}
+                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-orange-500"
+                >
+                  <option value="draft">Draft</option>
+                  <option value="published">Published</option>
+                </select>
+              </div>
+            </div>
+            
+            <div className="p-5 border-t border-white/10 flex justify-end gap-3 bg-white/5">
+              <button onClick={() => setEditingCourse(null)} className="px-5 py-2 rounded-xl text-white/70 hover:bg-white/10 font-bold transition">Cancel</button>
+              <button 
+                onClick={saveEdit} 
+                disabled={saving}
+                className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-xl font-bold shadow-lg shadow-orange-500/20 transition flex items-center gap-2"
+              >
+                {saving ? <Loader2 className="animate-spin" size={18} /> : "Save Changes"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

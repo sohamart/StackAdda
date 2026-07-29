@@ -8,12 +8,13 @@ export default function AdminChannels() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   
-  // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [syncingAll, setSyncingAll] = useState(false);
   
   const [form, setForm] = useState({
+    channelId: "",
     name: "",
     description: "",
     url: "",
@@ -23,6 +24,7 @@ export default function AdminChannels() {
     status: "Coming Soon",
     featured: false
   });
+  const [fetchingYT, setFetchingYT] = useState(false);
 
   const fetchChannels = useCallback(async () => {
     try {
@@ -45,6 +47,7 @@ export default function AdminChannels() {
   const openAddModal = () => {
     setEditingId(null);
     setForm({
+      channelId: "",
       name: "",
       description: "",
       url: "",
@@ -57,9 +60,34 @@ export default function AdminChannels() {
     setIsModalOpen(true);
   };
 
+  const fetchChannelData = async () => {
+    if (!form.channelId) return toast.error("Please enter a Channel ID first");
+    setFetchingYT(true);
+    try {
+      const { data } = await API.get(`/youtube/channel/${form.channelId}`);
+      if (data.success) {
+        setForm(prev => ({
+          ...prev,
+          name: data.channel.name,
+          description: data.channel.description,
+          url: data.channel.url,
+          avatar: data.channel.avatar,
+          subscribers: data.channel.subscribers,
+          videos: data.channel.videos,
+        }));
+        toast.success("Channel details fetched from YouTube!");
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to fetch from YouTube");
+    } finally {
+      setFetchingYT(false);
+    }
+  };
+
   const openEditModal = (channel) => {
     setEditingId(channel._id);
     setForm({
+      channelId: "", // Not stored in DB, just used for fetching
       name: channel.name,
       description: channel.description,
       url: channel.url || "",
@@ -127,6 +155,41 @@ export default function AdminChannels() {
     }
   };
 
+  const handleSyncAll = async () => {
+    if (!window.confirm("This will fetch the latest stats for all channels from YouTube. Proceed?")) return;
+    setSyncingAll(true);
+    let successCount = 0;
+    
+    for (const channel of channels) {
+      try {
+        const channelId = channel.url?.split("/channel/")[1];
+        if (!channelId) continue;
+        
+        const { data } = await API.get(`/youtube/channel/${channelId}`);
+        if (data.success) {
+          await API.put(`/channels/${channel._id}`, {
+            name: data.channel.name,
+            description: data.channel.description,
+            avatar: data.channel.avatar,
+            subscribers: data.channel.subscribers,
+            videos: data.channel.videos,
+          });
+          successCount++;
+        }
+      } catch (err) {
+        console.error(`Failed to sync channel: ${channel.name}`);
+      }
+    }
+    
+    if (successCount > 0) {
+      toast.success(`Successfully synced ${successCount} channel(s)!`);
+      fetchChannels();
+    } else {
+      toast.error("No channels were synced. Make sure URLs contain /channel/ID");
+    }
+    setSyncingAll(false);
+  };
+
   const filtered = channels.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||
     c.description.toLowerCase().includes(search.toLowerCase())
@@ -145,13 +208,24 @@ export default function AdminChannels() {
           </p>
         </div>
 
-        <button
-          onClick={openAddModal}
-          className="flex shrink-0 items-center gap-2 rounded-xl bg-orange-600 hover:bg-orange-500 px-5 py-3 font-semibold text-white transition active:scale-95 shadow-[0_4px_20px_rgba(249,115,22,0.25)] cursor-pointer"
-        >
-          <Plus size={18} />
-          Add Channel
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleSyncAll}
+            disabled={syncingAll}
+            className="flex shrink-0 items-center gap-2 rounded-xl bg-white/5 hover:bg-white/10 px-5 py-3 font-semibold text-white transition active:scale-95 border border-white/10 cursor-pointer disabled:opacity-50"
+          >
+            {syncingAll ? <Loader2 size={18} className="animate-spin" /> : <RefreshCw size={18} />}
+            Sync Stats
+          </button>
+          
+          <button
+            onClick={openAddModal}
+            className="flex shrink-0 items-center gap-2 rounded-xl bg-orange-600 hover:bg-orange-500 px-5 py-3 font-semibold text-white transition active:scale-95 shadow-[0_4px_20px_rgba(249,115,22,0.25)] cursor-pointer"
+          >
+            <Plus size={18} />
+            Add Channel
+          </button>
+        </div>
       </div>
 
       {/* Stats and Search */}
@@ -276,13 +350,33 @@ export default function AdminChannels() {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="flex gap-3 items-end border-b border-white/10 pb-5 mb-5">
+                <div className="flex-1">
+                  <label className="block text-xs font-semibold text-white/50 mb-1 uppercase tracking-wider">YouTube Channel ID</label>
+                  <input
+                    value={form.channelId}
+                    onChange={(e) => setForm({ ...form, channelId: e.target.value })}
+                    placeholder="e.g. UC5lX2UJ-nbyGYT6WYlhQskQ"
+                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-orange-500"
+                  />
+                </div>
+                <button 
+                  type="button" 
+                  onClick={fetchChannelData}
+                  disabled={fetchingYT}
+                  className="bg-orange-500/20 text-orange-400 hover:bg-orange-500 hover:text-white border border-orange-500/50 px-4 py-3 rounded-xl font-bold transition flex items-center gap-2 whitespace-nowrap"
+                >
+                  {fetchingYT ? <Loader2 size={18} className="animate-spin" /> : <RefreshCw size={18} />} Fetch Data
+                </button>
+              </div>
+
               <div>
                 <label className="block text-xs font-semibold text-white/50 mb-1 uppercase tracking-wider">Channel Name</label>
                 <input
                   required
+                  readOnly
                   value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-orange-500"
+                  className="w-full bg-black/20 text-white/70 border border-white/5 rounded-xl px-4 py-3 outline-none"
                 />
               </div>
 
@@ -290,32 +384,10 @@ export default function AdminChannels() {
                 <label className="block text-xs font-semibold text-white/50 mb-1 uppercase tracking-wider">Description</label>
                 <textarea
                   required
+                  readOnly
                   rows="3"
                   value={form.description}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-orange-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-white/50 mb-1 uppercase tracking-wider">YouTube URL</label>
-                <input
-                  required
-                  type="url"
-                  value={form.url}
-                  onChange={(e) => setForm({ ...form, url: e.target.value })}
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-orange-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-white/50 mb-1 uppercase tracking-wider">Avatar Image URL</label>
-                <input
-                  required
-                  type="url"
-                  value={form.avatar}
-                  onChange={(e) => setForm({ ...form, avatar: e.target.value })}
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-orange-500"
+                  className="w-full bg-black/20 text-white/70 border border-white/5 rounded-xl px-4 py-3 outline-none resize-none"
                 />
               </div>
 
@@ -323,17 +395,17 @@ export default function AdminChannels() {
                 <div>
                   <label className="block text-xs font-semibold text-white/50 mb-1 uppercase tracking-wider">Subscribers</label>
                   <input
+                    readOnly
                     value={form.subscribers}
-                    onChange={(e) => setForm({ ...form, subscribers: e.target.value })}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-orange-500"
+                    className="w-full bg-black/20 text-white/70 border border-white/5 rounded-xl px-4 py-3 outline-none"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-white/50 mb-1 uppercase tracking-wider">Videos</label>
                   <input
+                    readOnly
                     value={form.videos}
-                    onChange={(e) => setForm({ ...form, videos: e.target.value })}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-orange-500"
+                    className="w-full bg-black/20 text-white/70 border border-white/5 rounded-xl px-4 py-3 outline-none"
                   />
                 </div>
               </div>

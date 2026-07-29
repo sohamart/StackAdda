@@ -231,9 +231,21 @@ export default function CoursePlayer() {
             {/* Description */}
             <div className="bg-white/5 border border-white/10 rounded-3xl p-6 lg:p-8">
               <h3 className="text-xl font-bold mb-4">About this {activeLesson.type}</h3>
-              <p className="text-white/60 leading-relaxed whitespace-pre-line">
-                {activeLesson.description || "No description provided."}
-              </p>
+              <div className="text-white/60 leading-relaxed whitespace-pre-line select-text">
+                {activeLesson.description ? (
+                  activeLesson.description.split(/(https?:\/\/[^\s]+)/g).map((part, i) => 
+                    /(https?:\/\/[^\s]+)/.test(part) ? (
+                      <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:underline hover:text-orange-300 transition-colors">
+                        {part}
+                      </a>
+                    ) : (
+                      <span key={i}>{part}</span>
+                    )
+                  )
+                ) : (
+                  "No description provided."
+                )}
+              </div>
             </div>
 
           </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 import API from "../../api/axios";
 import { Loader2, GripVertical, Plus, Trash2, ListVideo, PlaySquare, CheckCircle2 } from "lucide-react";
 

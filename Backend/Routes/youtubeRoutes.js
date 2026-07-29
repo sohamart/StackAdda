@@ -499,4 +499,45 @@ router.get(
   })
 );
 
+// ==========================
+// Fetch YouTube Channel Details by ID
+// ==========================
+router.get(
+  "/channel/:channelId",
+  authMiddleware,
+  roleMiddleware("admin"),
+  asyncHandler(async (req, res) => {
+    const { channelId } = req.params;
+    const apiKey = process.env.YOUTUBE_API_KEY || "AIzaSyBNXDxfkCEYgfwn0cYZ5iYyDOVZzu-XW2I";
+
+    try {
+      const channelRes = await axios.get(
+        `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${channelId}&key=${apiKey}`
+      );
+      
+      const item = channelRes.data.items?.[0];
+      if (!item) {
+        return res.status(404).json({ success: false, message: "YouTube channel not found. Please check the ID." });
+      }
+
+      const channelData = {
+        name: item.snippet?.title || "Unknown Channel",
+        description: item.snippet?.description || "",
+        avatar: item.snippet?.thumbnails?.high?.url || item.snippet?.thumbnails?.default?.url || "",
+        subscribers: item.statistics?.subscriberCount || "0",
+        videos: item.statistics?.videoCount || "0",
+        url: `https://youtube.com/channel/${channelId}`
+      };
+
+      res.status(200).json({
+        success: true,
+        channel: channelData
+      });
+    } catch (error) {
+      console.error("YouTube Channel Fetch Error:", error.response?.data || error.message);
+      res.status(500).json({ success: false, message: "Failed to fetch channel data from YouTube API." });
+    }
+  })
+);
+
 module.exports = router;
