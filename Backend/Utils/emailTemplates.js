@@ -237,6 +237,9 @@ const getNewContactAdminAlertEmail = (name, email, subject, message) => {
       <p style="margin: 0 0 10px 0;"><strong>Subject:</strong> ${subject || 'No Subject'}</p>
       <p style="margin: 0;"><strong>Message:</strong><br/>${message.replace(/\n/g, "<br/>")}</p>
     </div>
+    <div class="btn-container">
+      <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/admin/contacts" class="btn">Manage Queries</a>
+    </div>
   `;
   return getBaseTemplate("New Contact Form Submission", `Message from ${name}`, content);
 };
