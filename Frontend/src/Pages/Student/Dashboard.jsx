@@ -15,9 +15,9 @@ import { useAuth } from "../../Context/AuthContext";
 import API from "../../api/axios";
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, getCurrentUser } = useAuth();
   const [resending, setResending] = useState(false);
-  const [ordersCount, setOrdersCount] = useState(0);
+  const [enrolledCourses, setEnrolledCourses] = useState([]);
 
   const handleResend = async () => {
     try {
@@ -32,10 +32,13 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    // Fetch orders count or similar stats if endpoint exists
-    API.get("/student/orders")
+    // Fetch latest user data so verification status is up-to-date
+    getCurrentUser();
+
+    // Fetch dashboard data for enrolled courses
+    API.get("/student/dashboard")
       .then(({ data }) => {
-        setOrdersCount(data.orders?.length || 0);
+        setEnrolledCourses(data.dashboard?.enrolledCourses || []);
       })
       .catch(() => {});
   }, []);
@@ -47,8 +50,8 @@ const Dashboard = () => {
       icon: <CheckCircle size={28} className={user?.isVerified ? "text-green-400" : "text-yellow-400"} />,
     },
     {
-      title: "Total Orders",
-      value: ordersCount,
+      title: "My Courses",
+      value: enrolledCourses.length,
       icon: <ReceiptText size={28} className="text-blue-400" />,
     },
   ];
@@ -142,6 +145,36 @@ const Dashboard = () => {
             </div>
           ))}
         </section>
+
+        {/* Enrolled Courses */}
+        {enrolledCourses.length > 0 && (
+          <section className="mb-5">
+            <h2 className="text-2xl font-bold mb-4">My Courses</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {enrolledCourses.map(course => (
+                <Link
+                  to={`/student/learn/${course._id}`}
+                  key={course._id}
+                  className="rounded-3xl border border-white/10 bg-white/[0.05] backdrop-blur-md overflow-hidden transition duration-300 hover:-translate-y-2 hover:border-orange-500/40 hover:shadow-[0_0_40px_rgba(249,115,22,.18)] flex flex-col group"
+                >
+                  <div className="w-full h-40 overflow-hidden bg-[#15110f]">
+                    <img
+                      src={course.thumbnail?.url || "https://placehold.co/600x400/18181b/f97316?text=Course"}
+                      alt={course.title}
+                      className="w-full h-full object-cover transition duration-300 group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="p-5 flex flex-col flex-grow">
+                    <h3 className="font-bold text-lg mb-2 line-clamp-2">{course.title}</h3>
+                    <div className="mt-auto pt-2">
+                      <span className="text-sm font-semibold text-orange-400 group-hover:text-orange-300 transition">Go to Course &rarr;</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Watch Tutorials Banner */}
         <section className="rounded-3xl border border-orange-500/20 bg-gradient-to-r from-orange-600/20 to-orange-500/5 backdrop-blur-md p-8 mb-5">

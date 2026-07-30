@@ -6,6 +6,7 @@ const { getPiracyAlertAdminEmail, getPiracyWarningStudentEmail } = require("../U
 const dashboard = asyncHandler(async (req, res) => {
   const student = await User.findById(req.user._id)
     .populate("verifiedBy", "name email profileImage")
+    .populate("enrolledCourses", "title thumbnail")
     .select("-password");
 
   res.status(200).json({
