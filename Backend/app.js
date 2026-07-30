@@ -38,6 +38,7 @@ app.use(
       "http://localhost:3000",
       "http://localhost:5173",
       "https://stack-adda.vercel.app",
+      "https://stackadda.vercel.app",
       "https://stackbackend-omega.vercel.app",
     ],
     credentials: true,
