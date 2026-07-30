@@ -13,6 +13,13 @@ export default function CoursePlayer() {
   const [activeLesson, setActiveLesson] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+  // Close sidebar by default on mobile
+  useEffect(() => {
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+  }, []);
+
   // Quiz state
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [quizSubmitted, setQuizSubmitted] = useState(false);
@@ -82,20 +89,27 @@ export default function CoursePlayer() {
   }
 
   return (
-    <div className="flex h-screen bg-[#09090B] text-white overflow-hidden">
+    <div className="flex h-screen bg-[#09090B] text-white overflow-hidden relative">
       
-      {/* Sidebar Overlay (Mobile) */}
-      {!sidebarOpen && (
-        <button 
-          onClick={() => setSidebarOpen(true)}
-          className="lg:hidden absolute top-4 left-4 z-50 bg-white/10 p-2 rounded-lg text-white"
-        >
+      {/* Mobile Topbar */}
+      <div className="lg:hidden flex items-center justify-between p-4 border-b border-white/10 bg-[#09090B] absolute top-0 left-0 w-full z-30">
+        <button onClick={() => setSidebarOpen(true)} className="p-2 -ml-2 rounded-lg text-white hover:bg-white/10">
           <Menu size={24} />
         </button>
+        <h1 className="font-bold text-sm truncate flex-1 px-4 text-center">{course.title}</h1>
+        <div className="w-10"></div>
+      </div>
+
+      {/* Backdrop for Mobile Sidebar */}
+      {sidebarOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black/60 z-40 backdrop-blur-sm"
+          onClick={() => setSidebarOpen(false)}
+        />
       )}
       
       {/* Sidebar */}
-      <div className={`${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-40 w-80 bg-[#09090B] border-r border-white/10 transition-transform duration-300 flex flex-col h-full`}>
+      <div className={`${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 w-[80%] sm:w-80 bg-[#09090B] border-r border-white/10 transition-transform duration-300 flex flex-col h-full`}>
         <div className="p-4 border-b border-white/10 flex items-center justify-between">
           <h2 className="font-bold text-lg line-clamp-2">{course.title}</h2>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-white/50 hover:text-white">
@@ -139,12 +153,12 @@ export default function CoursePlayer() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col h-full relative overflow-y-auto" data-lenis-prevent="true">
+      <div className="flex-1 flex flex-col h-full relative overflow-y-auto pt-[73px] lg:pt-0" data-lenis-prevent="true">
         {activeLesson ? (
-          <div className="max-w-5xl mx-auto w-full p-4 lg:p-8 space-y-8">
+          <div className="max-w-5xl mx-auto w-full p-4 lg:p-8 space-y-6 lg:space-y-8">
             
             {/* Header */}
-            <div className="flex items-center gap-2 text-orange-400 text-sm font-bold uppercase tracking-wider mt-12 lg:mt-0">
+            <div className="flex items-center gap-2 text-orange-400 text-sm font-bold uppercase tracking-wider">
               <span>{activeLesson.type}</span>
               <ChevronRight size={14} />
               <span className="text-white">{activeLesson.title}</span>
@@ -166,7 +180,7 @@ export default function CoursePlayer() {
 
             {/* Quiz Player */}
             {activeLesson.type === 'quiz' && (
-              <div className="bg-white/5 border border-white/10 rounded-3xl p-6 lg:p-10">
+              <div className="bg-white/5 border border-white/10 rounded-2xl lg:rounded-3xl p-5 lg:p-10">
                 <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
                   <BookOpen className="text-orange-500" />
                   Knowledge Check
@@ -229,7 +243,7 @@ export default function CoursePlayer() {
             )}
 
             {/* Description */}
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 lg:p-8">
+            <div className="bg-white/5 border border-white/10 rounded-2xl lg:rounded-3xl p-5 lg:p-8">
               <h3 className="text-xl font-bold mb-4">About this {activeLesson.type}</h3>
               <div className="text-white/60 leading-relaxed whitespace-pre-line select-text">
                 {activeLesson.description ? (
