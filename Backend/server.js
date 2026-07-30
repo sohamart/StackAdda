@@ -20,6 +20,7 @@ const startServer = async () => {
           "http://localhost:3000",
           "http://localhost:5173",
           "https://stack-adda.vercel.app",
+          "https://stackadda.vercel.app",
           "https://stackbackend-omega.vercel.app",
         ],
         methods: ["GET", "POST"],
