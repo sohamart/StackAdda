@@ -71,7 +71,6 @@ export default function StructuredCourses() {
           pin: true,
           scrub: 1,
           anticipatePin: 1,
-          invalidateOnRefresh: true, // Recalculate if window resizes
         },
       });
     }, sectionRef);
@@ -82,7 +81,7 @@ export default function StructuredCourses() {
   return (
     <section
       ref={sectionRef}
-      className={`relative bg-black h-screen overflow-hidden`}
+      className={`relative bg-black h-[100dvh] overflow-hidden`}
     >
       {/* Background glow */}
       <div className="absolute top-0 inset-x-0 h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
