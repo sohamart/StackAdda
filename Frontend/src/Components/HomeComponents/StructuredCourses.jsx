@@ -1,4 +1,4 @@
-import React, { useRef, useLayoutEffect } from "react";
+import React, { useRef, useLayoutEffect, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -40,22 +40,21 @@ const courses = [
 ];
 
 export default function StructuredCourses() {
-  const isMobileView = 
-    (typeof navigator !== "undefined" && navigator.userAgent.includes("StackAddaMobileApp")) || 
-    (typeof window !== "undefined" && window.innerWidth < 768);
+  const [isMobileView, setIsMobileView] = useState(
+    typeof window !== "undefined" && window.innerWidth < 768
+  );
+
+  useLayoutEffect(() => {
+    const handleResize = () => setIsMobileView(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const sectionRef = useRef(null);
   const scrollContainerRef = useRef(null);
 
   useLayoutEffect(() => {
-    // Only completely disable for the WebView if it's strictly a Web Wrapper requirement,
-    // but user wants horizontal scroll everywhere. Let's just run GSAP for all.
-    // If they explicitly wanted the mobile app to be a vertical list, they wouldn't have asked to center the slider on mobile.
-    if (typeof navigator !== "undefined" && navigator.userAgent.includes("StackAddaMobileApp")) {
-       // Keep it disabled ONLY for the mobile app webview if it causes the previous overlap bug,
-       // wait, the previous bug was vertical overlap pinning. Horizontal pinning might work! 
-       // But to be safe, if they want mobile horizontal scroll, let's enable it for everything.
-    }
+    if (isMobileView) return;
 
     const ctx = gsap.context(() => {
       const scrollWidth = scrollContainerRef.current.scrollWidth;
@@ -81,17 +80,17 @@ export default function StructuredCourses() {
   return (
     <section
       ref={sectionRef}
-      className={`relative bg-black h-[100dvh] overflow-hidden`}
+      className={`relative bg-black ${isMobileView ? "py-16" : "h-[100dvh] overflow-hidden"}`}
     >
       {/* Background glow */}
       <div className="absolute top-0 inset-x-0 h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[300px] bg-orange-500/5 blur-3xl pointer-events-none rounded-full" />
 
       {/* Main Container */}
-      <div className={`flex flex-col h-full w-full pt-16 md:pt-24`}>
+      <div className={`flex flex-col h-full w-full ${isMobileView ? "" : "pt-16 md:pt-24"}`}>
         
         {/* Sticky Heading */}
-        <div className={`text-center z-10 w-full flex-shrink-0 px-4`}>
+        <div className={`text-center z-10 w-full flex-shrink-0 px-4 ${isMobileView ? "mb-10" : ""}`}>
           <p className="uppercase tracking-[.25em] text-orange-500 font-bold text-xs sm:text-sm mb-3">
             Premium Content
           </p>
@@ -101,13 +100,13 @@ export default function StructuredCourses() {
         </div>
 
         {/* Courses Container */}
-        <div className={`flex-1 w-full flex items-center overflow-hidden mt-8`}>
+        <div className={`flex-1 w-full ${isMobileView ? "px-4" : "flex items-center overflow-hidden mt-8"}`}>
           <div
             ref={scrollContainerRef}
-            className={`flex flex-row flex-nowrap w-max gap-6 md:gap-10`}
+            className={`flex ${isMobileView ? "flex-col gap-6" : "flex-row flex-nowrap w-max gap-10"}`}
             style={{
-              paddingLeft: isMobileView ? "5vw" : "calc(50vw - min(35vw, 450px))",
-              paddingRight: isMobileView ? "5vw" : "calc(50vw - min(35vw, 450px))",
+              paddingLeft: isMobileView ? "0" : "calc(50vw - min(35vw, 450px))",
+              paddingRight: isMobileView ? "0" : "calc(50vw - min(35vw, 450px))",
             }}
           >
             {courses.map((course) => {
@@ -115,7 +114,7 @@ export default function StructuredCourses() {
               return (
                 <div
                   key={course.id}
-                  className={`w-[90vw] md:w-[70vw] max-w-[900px] shrink-0`}
+                  className={`${isMobileView ? "w-full" : "w-[90vw] md:w-[70vw] max-w-[900px] shrink-0"}`}
                 >
                   {/* Premium Modern Card */}
                   <div
