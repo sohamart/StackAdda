@@ -146,6 +146,33 @@ const syncYoutubeVideos = async () => {
         }
       }
     }
+
+    // 5. Cleanup deleted videos from DB
+    const allDbVideos = await YoutubeVideo.find({});
+    if (allDbVideos.length > 0) {
+      const allVideoIds = allDbVideos.map(v => v.videoId);
+      
+      for (let i = 0; i < allVideoIds.length; i += 50) {
+        const batch = allVideoIds.slice(i, i + 50);
+        try {
+          const checkRes = await axios.get(
+            `https://www.googleapis.com/youtube/v3/videos?part=id&id=${batch.join(",")}&key=${apiKey}`
+          );
+          
+          if (checkRes.data && checkRes.data.items) {
+             const validIds = new Set(checkRes.data.items.map(item => item.id));
+             
+             for (const videoId of batch) {
+                if (!validIds.has(videoId)) {
+                   await YoutubeVideo.deleteOne({ videoId });
+                }
+             }
+          }
+        } catch (err) {
+          console.error("Error checking video validity for batch:", err.message);
+        }
+      }
+    }
   } catch (error) {
     console.error("Failed to sync YouTube videos:", error);
   }
