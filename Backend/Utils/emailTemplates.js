@@ -227,6 +227,20 @@ const getPiracyWarningStudentEmail = (studentName) => {
   return getBaseTemplate("Security Warning", "Unauthorized recording detected on your account.", content);
 };
 
+const getNewContactAdminAlertEmail = (name, email, subject, message) => {
+  const content = `
+    <h1>New Contact Form Submission</h1>
+    <p>A new message has been submitted via the contact form on the website.</p>
+    <div style="background: rgba(255, 255, 255, 0.05); border-left: 4px solid #f97316; padding: 16px; margin: 20px 0; border-radius: 4px;">
+      <p style="margin: 0 0 10px 0;"><strong>Name:</strong> ${name}</p>
+      <p style="margin: 0 0 10px 0;"><strong>Email:</strong> ${email}</p>
+      <p style="margin: 0 0 10px 0;"><strong>Subject:</strong> ${subject || 'No Subject'}</p>
+      <p style="margin: 0;"><strong>Message:</strong><br/>${message.replace(/\n/g, "<br/>")}</p>
+    </div>
+  `;
+  return getBaseTemplate("New Contact Form Submission", `Message from ${name}`, content);
+};
+
 module.exports = {
   getWelcomeEmail,
   getEnrollmentEmail,
@@ -237,5 +251,6 @@ module.exports = {
   getAdminMessageEmail,
   getLiveClassScheduledEmail,
   getPiracyAlertAdminEmail,
-  getPiracyWarningStudentEmail
+  getPiracyWarningStudentEmail,
+  getNewContactAdminAlertEmail
 };
