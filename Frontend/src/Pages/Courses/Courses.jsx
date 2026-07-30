@@ -302,7 +302,7 @@ export default function Courses() {
                           <h3 className="text-lg font-bold text-white flex items-center gap-2">
                             Video Notes & Details
                           </h3>
-                          <p className="mt-4 text-sm text-white/70 whitespace-pre-line leading-relaxed max-h-[300px] overflow-y-auto pr-2 no-scrollbar">
+                          <p className="mt-4 text-sm text-white/70 whitespace-pre-line leading-relaxed max-h-[300px] overflow-y-auto pr-2 no-scrollbar" data-lenis-prevent="true">
                             {renderDescriptionWithLinks(activeVideo.description)}
                           </p>
                         </div>
@@ -336,7 +336,7 @@ export default function Courses() {
                       </div>
 
                       {/* Scrollable list */}
-                      <div className="space-y-2.5 overflow-y-auto max-h-[500px] pr-1.5 no-scrollbar">
+                      <div className="space-y-2.5 overflow-y-auto max-h-[500px] pr-1.5 no-scrollbar" data-lenis-prevent="true">
                         {filteredVideos.map((video, idx) => {
                           const isActive = activeVideo?.videoId === video.videoId;
                           const lectureNumber = videos.length - videos.findIndex((v) => v.videoId === video.videoId);

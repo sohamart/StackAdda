@@ -283,7 +283,7 @@ const addChapter = asyncHandler(async (req, res) => {
     });
   }
 
-  const course = await Course.findById(req.params.courseId);
+  const course = await Course.findById((req.params.id || req.params.courseId));
 
   if (!course) {
     return res.status(404).json({
@@ -318,7 +318,7 @@ const updateChapter = asyncHandler(async (req, res) => {
   const { title, description } = req.body;
 
   const course = await Course.findById(
-    req.params.courseId
+    req.params.id || (req.params.id || req.params.courseId)
   );
 
   if (!course) {
@@ -364,7 +364,7 @@ const updateChapter = asyncHandler(async (req, res) => {
 const deleteChapter = asyncHandler(async (req, res) => {
 
   const course = await Course.findById(
-    req.params.courseId
+    req.params.id || (req.params.id || req.params.courseId)
   );
 
   if (!course) {
@@ -419,7 +419,7 @@ const addLesson = asyncHandler(async (req, res) => {
   }
 
   const course = await Course.findById(
-    req.params.courseId
+    req.params.id || (req.params.id || req.params.courseId)
   );
 
   if (!course) {
@@ -499,7 +499,7 @@ const updateLesson = asyncHandler(async (req, res) => {
   } = req.body;
 
   const course = await Course.findById(
-    req.params.courseId
+    req.params.id || (req.params.id || req.params.courseId)
   );
 
   if (!course) {
@@ -597,7 +597,7 @@ const updateLesson = asyncHandler(async (req, res) => {
 const deleteLesson = asyncHandler(async (req, res) => {
 
   const course = await Course.findById(
-    req.params.courseId
+    req.params.id || (req.params.id || req.params.courseId)
   );
 
   if (!course) {
@@ -973,7 +973,7 @@ const enrollFreeCourse = asyncHandler(async (req, res) => {
   }
 
   const course = await Course.findById(
-    req.params.courseId
+    req.params.id || (req.params.id || req.params.courseId)
   );
 
   if (!course) {
@@ -1055,7 +1055,7 @@ const getMyCourses = asyncHandler(async (req, res) => {
 // ==========================
 const addLessonResource = asyncHandler(async (req, res) => {
   const { title, url } = req.body;
-  const course = await Course.findById(req.params.courseId);
+  const course = await Course.findById((req.params.id || req.params.courseId));
   if (!course) return res.status(404).json({ success: false, message: "Course not found." });
   const chapter = course.chapters.id(req.params.chapterId);
   const lesson = chapter?.lessons.id(req.params.lessonId);
@@ -1096,7 +1096,7 @@ const addLessonResource = asyncHandler(async (req, res) => {
 });
 
 const deleteLessonResource = asyncHandler(async (req, res) => {
-  const course = await Course.findById(req.params.courseId);
+  const course = await Course.findById((req.params.id || req.params.courseId));
   if (!course) return res.status(404).json({ success: false, message: "Course not found." });
   const lesson = course.chapters.id(req.params.chapterId)?.lessons.id(req.params.lessonId);
   if (!lesson) return res.status(404).json({ success: false, message: "Lesson not found." });
@@ -1112,7 +1112,7 @@ const deleteLessonResource = asyncHandler(async (req, res) => {
 });
 
 const downloadLessonResource = asyncHandler(async (req, res) => {
-  const course = await Course.findById(req.params.courseId).select(
+  const course = await Course.findById((req.params.id || req.params.courseId)).select(
     "title students chapters"
   );
 
@@ -1330,3 +1330,5 @@ module.exports = {
   exportEnrolledStudents,
   saveCourseBulk,
 };
+
+

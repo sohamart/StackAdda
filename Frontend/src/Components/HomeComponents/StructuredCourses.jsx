@@ -92,7 +92,7 @@ export default function StructuredCourses() {
   return (
     <section
       ref={sectionRef}
-      className={`relative bg-black ${isMobileView ? "py-16 min-h-[100dvh] flex flex-col justify-center" : "h-[100dvh] overflow-hidden"}`}
+      className={`relative bg-black min-h-[100dvh] flex flex-col justify-center overflow-hidden py-16 lg:py-0`}
     >
       <style>{`
         .hide-scrollbar::-webkit-scrollbar {
@@ -108,7 +108,7 @@ export default function StructuredCourses() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[300px] bg-orange-500/5 blur-3xl pointer-events-none rounded-full" />
 
       {/* Main Container */}
-      <div className={`flex flex-col h-full w-full ${isMobileView ? "" : "pt-16 md:pt-24"}`}>
+      <div className={`flex flex-col w-full ${isMobileView ? "" : "pt-8 md:pt-12"}`}>
         
         {/* Sticky Heading */}
         <div className={`text-center z-10 w-full flex-shrink-0 px-4 ${isMobileView ? "mb-10" : ""}`}>
@@ -121,7 +121,7 @@ export default function StructuredCourses() {
         </div>
 
         {/* Courses Container */}
-        <div className={`relative flex-1 w-full flex items-center mt-8 overflow-hidden group`}>
+        <div className={`relative flex-1 w-full flex mt-8 overflow-hidden group`}>
           
           {/* Mobile Arrows */}
           {isMobileView && (
@@ -145,7 +145,7 @@ export default function StructuredCourses() {
 
           <div
             ref={scrollContainerRef}
-            className={`flex flex-row flex-nowrap gap-6 md:gap-10 ${
+            className={`flex flex-row flex-nowrap items-stretch gap-6 md:gap-10 ${
               isMobileView 
                 ? "w-full overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-8" 
                 : "w-max"
@@ -160,25 +160,28 @@ export default function StructuredCourses() {
               return (
                 <div
                   key={course.id}
-                  className={`w-[90vw] md:w-[70vw] max-w-[900px] shrink-0 ${isMobileView ? "snap-center" : ""}`}
+                  className={`w-[90vw] md:w-[70vw] max-w-[900px] shrink-0 h-full ${isMobileView ? "snap-center" : ""}`}
                 >
                   {/* Premium Modern Card */}
                   <div
                     className={`
                       relative w-full
-                      h-auto min-h-[450px] md:h-[550px]
+                      h-full min-h-[400px]
                       rounded-[2rem] md:rounded-[2.5rem]
                       bg-[#0c0c0c]
                       border border-white/10
-                      shadow-2xl
+                      shadow-[0_0_30px_rgba(255,255,255,0.03)]
+                      hover:shadow-[0_0_50px_rgba(249,115,22,0.12)]
+                      hover:border-orange-500/20
+                      transition-all duration-500
                       overflow-hidden
                       flex flex-col
                     `}
                   >
                     {/* Subtle top edge highlight */}
-                    <div className="absolute top-0 inset-x-0 h-px w-full bg-gradient-to-r from-transparent via-orange-500/30 to-transparent" />
+                    <div className="absolute top-0 inset-x-0 h-px w-full bg-gradient-to-r from-transparent via-orange-500/30 to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
 
-                    <div className="relative z-10 p-6 sm:p-8 md:p-12 flex flex-col justify-between h-full">
+                    <div className="relative z-10 p-6 sm:p-8 md:p-10 flex flex-col justify-between h-full">
                       
                       {/* TOP HALF */}
                       <div className="flex flex-col md:flex-row justify-between md:items-start gap-4">

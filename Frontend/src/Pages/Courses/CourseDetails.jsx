@@ -55,6 +55,7 @@ export default function CourseDetails() {
   const [selectedPreview, setSelectedPreview] = useState(null);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     API.get(`/course/${slug}`)
       .then(({ data }) => {
         const nextCourse = data.course;
@@ -67,6 +68,15 @@ export default function CourseDetails() {
         toast.error(e.response?.data?.message || "Course not found.")
       );
   }, [slug]);
+
+  useEffect(() => {
+    if (course) {
+      // Force Lenis and GSAP to recalculate page height after content loads
+      setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+      }, 100);
+    }
+  }, [course]);
 
   const handleShare = async () => {
     try {
@@ -161,7 +171,7 @@ export default function CourseDetails() {
       const { data } = await API.post(`/course/enroll/${course._id}`);
 
       toast.success(data.message);
-      navigate(`/student/course/${course._id}`);
+      navigate(`/student/learn/${course._id}`);
     } catch (e) {
       toast.error(e.response?.data?.message || "Could not enroll.");
     } finally {

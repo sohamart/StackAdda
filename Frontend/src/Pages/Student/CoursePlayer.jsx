@@ -103,7 +103,7 @@ export default function CoursePlayer() {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto no-scrollbar">
+        <div className="flex-1 overflow-y-auto no-scrollbar" data-lenis-prevent="true">
           {course.chapters?.map((chapter, cIdx) => (
             <div key={chapter._id || cIdx} className="border-b border-white/5">
               <div className="px-4 py-3 bg-white/[0.02] text-sm font-bold text-white/80">
@@ -139,7 +139,7 @@ export default function CoursePlayer() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col h-full relative overflow-y-auto">
+      <div className="flex-1 flex flex-col h-full relative overflow-y-auto" data-lenis-prevent="true">
         {activeLesson ? (
           <div className="max-w-5xl mx-auto w-full p-4 lg:p-8 space-y-8">
             
