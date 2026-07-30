@@ -31,6 +31,7 @@ import StudentDashboard from "./Pages/Student/Dashboard";
 import StudentProfile from "./Pages/Student/Profile";
 import AttendLiveClass from "./Pages/LiveClass/AttendLiveClass";
 import StudentInstructors from "./Pages/Student/Instructors";
+import StudentMyCourses from "./Pages/Student/MyCourses";
 
 // Global Components
 import GlobalLiveAlert from "./Components/LiveClass/GlobalLiveAlert";
@@ -135,6 +136,7 @@ function App() {
           <Route index element={<StudentDashboard />} />
           <Route path="profile" element={<StudentProfile />} />
           <Route path="instructors" element={<StudentInstructors />} />
+          <Route path="my-courses" element={<StudentMyCourses />} />
           <Route path="learn/:id" element={<CoursePlayer />} />
         </Route>
         <Route

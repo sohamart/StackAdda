@@ -292,6 +292,27 @@ const Navbar = () => {
                       {isAdmin ? "Admin Dashboard" : "Dashboard"}
                     </Link>
 
+                    {!isAdmin && (
+                      <Link
+                        to="/student/my-courses"
+                        onClick={() => setProfileOpen(false)}
+                        className="
+                        flex
+                        items-center
+                        gap-3
+                        rounded-xl
+                        px-4
+                        py-3
+                        text-white
+                        hover:bg-white/5
+                        transition
+                        "
+                      >
+                        <BookOpen size={20} />
+                        My Courses
+                      </Link>
+                    )}
+
                     <Link
                       to={profilePath}
                       onClick={() => setProfileOpen(false)}
@@ -493,6 +514,19 @@ const Navbar = () => {
                     {isAdmin ? "Admin Dashboard" : "Dashboard"}
                   </div>
                 </NavLink>
+
+                {!isAdmin && (
+                  <NavLink
+                    to="/student/my-courses"
+                    onClick={() => setOpen(false)}
+                    className={menuClass}
+                  >
+                    <div className="flex items-center gap-3">
+                      <BookOpen size={20} />
+                      My Courses
+                    </div>
+                  </NavLink>
+                )}
 
                 <NavLink
                   to={profilePath}
