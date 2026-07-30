@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import Lenis from "lenis";
 import gsap from "gsap";
@@ -49,6 +49,30 @@ import CourseDetails from "./Pages/Courses/CourseDetails";
 import CoursePlayer from "./Pages/Student/CoursePlayer";
 
 function App() {
+  const [isAppLoaded, setIsAppLoaded] = useState(false);
+  const [isFadingOut, setIsFadingOut] = useState(false);
+
+  useEffect(() => {
+    // Handle global Splash Screen loading state
+    const handleLoad = () => {
+      setTimeout(() => {
+        setIsFadingOut(true);
+        setTimeout(() => setIsAppLoaded(true), 600); // Wait for fade transition
+      }, 1000); // Guarantee logo is visible for at least 1s
+    };
+
+    if (document.readyState === 'complete') {
+      handleLoad();
+    } else {
+      window.addEventListener('load', handleLoad);
+      const fallback = setTimeout(handleLoad, 4000);
+      return () => {
+        window.removeEventListener('load', handleLoad);
+        clearTimeout(fallback);
+      };
+    }
+  }, []);
+
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2,
@@ -72,6 +96,16 @@ function App() {
 
   return (
     <>
+      {!isAppLoaded && (
+        <div 
+          className={`fixed inset-0 z-[99999] bg-[#0c0c0c] flex items-center justify-center transition-opacity duration-700 ease-in-out ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+        >
+          <div className="relative flex items-center justify-center animate-pulse">
+             <div className="absolute inset-0 bg-orange-500/20 blur-[60px] rounded-full scale-150" />
+             <img src="/favicon.png" alt="Stack Adda" className="w-28 md:w-36 h-auto relative z-10" />
+          </div>
+        </div>
+      )}
       <GlobalLiveAlert />
       <Routes>
         {/* Public Routes */}

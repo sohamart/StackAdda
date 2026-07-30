@@ -79,6 +79,9 @@ export default function StructuredCourses() {
   };
 
   useLayoutEffect(() => {
+    const isMobileApp = typeof navigator !== "undefined" && navigator.userAgent.includes("StackAddaMobileApp");
+    if (isMobileApp) return;
+
     const ctx = gsap.context(() => {
       const cards = cardsRef.current;
       const overlays = overlaysRef.current;
@@ -164,13 +167,15 @@ export default function StructuredCourses() {
       ref={sectionRef}
       className="relative bg-black"
       style={{
-        height: `${(courses.length + 1) * 100}vh`,
+        height: typeof navigator !== "undefined" && navigator.userAgent.includes("StackAddaMobileApp") ? "auto" : `${(courses.length + 1) * 100}vh`,
       }}
     >
       {/* Pinned Section */}
       <div
         ref={pinRef}
-        className="sticky top-0 h-screen overflow-hidden flex flex-col items-center justify-start pt-16 md:pt-24 w-full px-4"
+        className={typeof navigator !== "undefined" && navigator.userAgent.includes("StackAddaMobileApp") 
+          ? "relative py-16 flex flex-col items-center justify-start w-full px-4 overflow-hidden" 
+          : "sticky top-0 h-screen overflow-hidden flex flex-col items-center justify-start pt-16 md:pt-24 w-full px-4"}
       >
         {/* Subtle background element (not too glowing) */}
         <div className="absolute top-0 inset-x-0 h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
@@ -187,7 +192,9 @@ export default function StructuredCourses() {
         </div>
 
         {/* Cards Container - Takes up remaining space */}
-        <div className="relative w-full flex-1 max-w-5xl flex items-center justify-center mt-6 sm:mt-10 mb-8 z-10">
+        <div className={typeof navigator !== "undefined" && navigator.userAgent.includes("StackAddaMobileApp") 
+          ? "relative w-full flex flex-col gap-6 items-center justify-center mt-6 mb-8 z-10 max-w-5xl"
+          : "relative w-full flex-1 max-w-5xl flex items-center justify-center mt-6 sm:mt-10 mb-8 z-10"}>
           {courses.map((course) => {
             const Icon = course.icon;
 
@@ -195,7 +202,9 @@ export default function StructuredCourses() {
               <div
                 key={course.id}
                 ref={addCard}
-                className="absolute w-full h-full max-h-[600px] flex items-center justify-center px-2 sm:px-0"
+                className={typeof navigator !== "undefined" && navigator.userAgent.includes("StackAddaMobileApp")
+                  ? "relative w-full h-auto flex items-center justify-center sm:px-0"
+                  : "absolute w-full h-full max-h-[600px] flex items-center justify-center px-2 sm:px-0"}
               >
                 {/* Premium Modern Card */}
                 <div
