@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { Loader2, MailCheck, Send, X, Search, Filter } from "lucide-react";
+import { Loader2, MailCheck, Send, X, Search, Filter, Trash2 } from "lucide-react";
 import { toast } from "react-toastify";
 import API from "../../api/axios";
 
@@ -30,6 +30,19 @@ export default function Contacts() {
       load();
     } catch {
       toast.update(toastId, { render: "Could not update message.", type: "error", isLoading: false, autoClose: 3000 });
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this contact query?")) return;
+    const toastId = toast.loading("Deleting contact...");
+    try {
+      await API.delete(`/contact/${id}`);
+      toast.update(toastId, { render: "Contact deleted successfully!", type: "success", isLoading: false, autoClose: 3000 });
+      if (replyOpen === id) cancelReply();
+      load();
+    } catch {
+      toast.update(toastId, { render: "Could not delete contact.", type: "error", isLoading: false, autoClose: 3000 });
     }
   };
 
@@ -126,6 +139,14 @@ export default function Contacts() {
                 <option value="read" className="bg-zinc-900 text-white">Read (Reviewing)</option>
                 <option value="closed" className="bg-zinc-900 text-white">Closed (Resolved)</option>
               </select>
+              
+              <button 
+                onClick={() => handleDelete(contact._id)}
+                className="p-2 h-fit rounded-xl border border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500/20 transition"
+                title="Delete Query"
+              >
+                <Trash2 size={18} />
+              </button>
             </div>
             <p className="mt-5 whitespace-pre-wrap leading-7 text-white/70 bg-black/20 p-4 rounded-2xl border border-white/5">{contact.message}</p>
             
