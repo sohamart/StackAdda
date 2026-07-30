@@ -128,14 +128,14 @@ export default function StructuredCourses() {
             <>
               <button 
                 onClick={() => scrollMobile("left")}
-                className="absolute left-2 z-20 w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-white active:scale-95 transition-transform"
+                className="absolute top-1/2 -translate-y-1/2 left-2 z-20 w-10 h-10 rounded-full bg-black/80 backdrop-blur-md border border-white/20 flex items-center justify-center text-white active:scale-95 transition-transform"
                 aria-label="Previous Course"
               >
                 <ChevronLeft size={24} />
               </button>
               <button 
                 onClick={() => scrollMobile("right")}
-                className="absolute right-2 z-20 w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-white active:scale-95 transition-transform"
+                className="absolute top-1/2 -translate-y-1/2 right-2 z-20 w-10 h-10 rounded-full bg-black/80 backdrop-blur-md border border-white/20 flex items-center justify-center text-white active:scale-95 transition-transform"
                 aria-label="Next Course"
               >
                 <ChevronRight size={24} />
