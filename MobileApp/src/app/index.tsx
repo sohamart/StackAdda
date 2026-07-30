@@ -6,7 +6,7 @@ import { Stack } from 'expo-router';
 // IMPORTANT: Replace this with your live website URL (e.g., "https://stackadda.com") 
 // If testing locally, use your computer's local IP address (e.g., "http://192.168.1.10:5173") 
 // Do NOT use "localhost" because the phone will look for the server inside the phone itself.
-const WEB_URL = "http://stack-adda.vercel.app";
+const WEB_URL = "http://10.85.113.171:5173";
 
 export default function WebWrapperScreen() {
   return (
