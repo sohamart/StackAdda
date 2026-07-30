@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Loader2, MailCheck, Send, X } from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
+import { Loader2, MailCheck, Send, X, Search, Filter } from "lucide-react";
 import { toast } from "react-toastify";
 import API from "../../api/axios";
 
@@ -8,6 +8,9 @@ export default function Contacts() {
   const [loading, setLoading] = useState(true);
   const [replyOpen, setReplyOpen] = useState(null);
   const [replyText, setReplyText] = useState("");
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
 
   const load = () =>
     API.get("/contact")
@@ -44,6 +47,20 @@ export default function Contacts() {
     setReplyText("");
   };
 
+  const filteredContacts = useMemo(() => {
+    return contacts.filter(c => {
+      const matchStatus = filterStatus === "all" || c.status === filterStatus;
+      const searchLower = searchQuery.toLowerCase();
+      const matchSearch = 
+        !searchQuery || 
+        (c.name || "").toLowerCase().includes(searchLower) ||
+        (c.email || "").toLowerCase().includes(searchLower) ||
+        (c.subject || "").toLowerCase().includes(searchLower) ||
+        (c.message || "").toLowerCase().includes(searchLower);
+      return matchStatus && matchSearch;
+    });
+  }, [contacts, filterStatus, searchQuery]);
+
   if (loading)
     return (
       <div className="flex h-[60vh] items-center justify-center">
@@ -53,12 +70,41 @@ export default function Contacts() {
 
   return (
     <section className="space-y-7 text-white">
-      <div>
-        <p className="text-orange-400 font-semibold tracking-widest text-xs uppercase">INBOX</p>
-        <h1 className="mt-1 text-3xl font-bold">Contact queries</h1>
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div>
+          <p className="text-orange-400 font-semibold tracking-widest text-xs uppercase">INBOX</p>
+          <h1 className="mt-1 text-3xl font-bold">Contact queries</h1>
+        </div>
+        
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={18} />
+            <input 
+              type="text" 
+              placeholder="Search by name, email..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full sm:w-64 rounded-xl border border-white/10 bg-white/5 pl-10 pr-4 py-2.5 text-sm outline-none focus:border-orange-500/50 transition"
+            />
+          </div>
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={18} />
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="w-full sm:w-auto appearance-none rounded-xl border border-white/10 bg-white/5 pl-10 pr-10 py-2.5 text-sm outline-none focus:border-orange-500/50 transition cursor-pointer"
+            >
+              <option value="all" className="bg-zinc-900">All Statuses</option>
+              <option value="new" className="bg-zinc-900">New (Open)</option>
+              <option value="read" className="bg-zinc-900">Read (Reviewing)</option>
+              <option value="closed" className="bg-zinc-900">Closed (Resolved)</option>
+            </select>
+          </div>
+        </div>
       </div>
+      
       <div className="space-y-4">
-        {contacts.map((contact) => (
+        {filteredContacts.map((contact) => (
           <article key={contact._id} className="rounded-3xl border border-white/10 bg-white/[.045] p-6 backdrop-blur-md">
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-between">
               <div>
@@ -112,10 +158,10 @@ export default function Contacts() {
             </p>
           </article>
         ))}
-        {!contacts.length && !loading && (
+        {!filteredContacts.length && !loading && (
           <div className="rounded-3xl border border-dashed border-white/15 p-16 text-center text-white/45">
             <MailCheck className="mx-auto" size={48} />
-            <p className="mt-4 font-semibold">No contact queries yet.</p>
+            <p className="mt-4 font-semibold">No queries found matching your criteria.</p>
           </div>
         )}
       </div>
