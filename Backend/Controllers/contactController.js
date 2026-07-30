@@ -2,7 +2,7 @@ const asyncHandler = require("express-async-handler");
 const Contact = require("../Models/Contact");
 const User = require("../Models/User");
 const sendEmail = require("../Utils/sendEmail");
-const { getContactEmail, getNewContactAdminAlertEmail } = require("../Utils/emailTemplates");
+const { getContactEmail, getNewContactAdminAlertEmail, getContactReadEmail, getContactResolvedEmail } = require("../Utils/emailTemplates");
 
 const createContact = asyncHandler(async (req, res) => {
   const { name, email, subject, message } = req.body;
@@ -33,5 +33,33 @@ const createContact = asyncHandler(async (req, res) => {
   res.status(201).json({ success: true, message: "Message sent successfully. We will get back to you soon.", contact });
 });
 const getContacts = asyncHandler(async (req, res) => { const contacts = await Contact.find().sort({ createdAt: -1 }); res.json({ success: true, contacts }); });
-const updateContact = asyncHandler(async (req, res) => { const contact = await Contact.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true, runValidators: true }); if (!contact) return res.status(404).json({ success: false, message: "Message not found." }); res.json({ success: true, contact }); });
+const updateContact = asyncHandler(async (req, res) => { 
+  const { status, replyMessage } = req.body;
+  const contact = await Contact.findById(req.params.id); 
+  
+  if (!contact) return res.status(404).json({ success: false, message: "Message not found." }); 
+
+  // If status changes to 'read'
+  if (status === 'read' && contact.status !== 'read' && contact.status !== 'closed') {
+    await sendEmail({
+      to: contact.email,
+      subject: "We're reviewing your message",
+      html: getContactReadEmail(contact.name, contact.subject)
+    });
+  }
+
+  // If status changes to 'closed'
+  if (status === 'closed' && contact.status !== 'closed') {
+    await sendEmail({
+      to: contact.email,
+      subject: `Update on your message: ${contact.subject || 'General enquiry'}`,
+      html: getContactResolvedEmail(contact.name, contact.subject, replyMessage)
+    });
+  }
+
+  contact.status = status;
+  await contact.save();
+
+  res.json({ success: true, contact }); 
+});
 module.exports = { createContact, getContacts, updateContact };

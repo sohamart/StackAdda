@@ -241,6 +241,30 @@ const getNewContactAdminAlertEmail = (name, email, subject, message) => {
   return getBaseTemplate("New Contact Form Submission", `Message from ${name}`, content);
 };
 
+const getContactReadEmail = (name, subject) => {
+  const content = `
+    <h1>We're reviewing your message</h1>
+    <p>Hi ${name},</p>
+    <p>This is to let you know that our team has read your message regarding "<strong>${subject || 'General enquiry'}</strong>" and is currently looking into it.</p>
+    <p>We'll get back to you with an update shortly.</p>
+  `;
+  return getBaseTemplate("Your message is being reviewed", "Our team has read your message.", content);
+};
+
+const getContactResolvedEmail = (name, subject, replyMessage) => {
+  const formattedReply = replyMessage ? replyMessage.replace(/\n/g, "<br/>") : "We have resolved your query.";
+  const content = `
+    <h1>Update on your inquiry</h1>
+    <p>Hi ${name},</p>
+    <p>Our team has an update regarding your message about "<strong>${subject || 'General enquiry'}</strong>":</p>
+    <div style="background: rgba(255, 255, 255, 0.05); border-left: 4px solid #f97316; padding: 16px; margin: 20px 0; border-radius: 4px;">
+      <p style="margin: 0;">${formattedReply}</p>
+    </div>
+    <p>This query has now been marked as closed. If you need further assistance, please feel free to contact us again.</p>
+  `;
+  return getBaseTemplate("Update on your message", "We have resolved your query.", content);
+};
+
 module.exports = {
   getWelcomeEmail,
   getEnrollmentEmail,
@@ -252,5 +276,7 @@ module.exports = {
   getLiveClassScheduledEmail,
   getPiracyAlertAdminEmail,
   getPiracyWarningStudentEmail,
-  getNewContactAdminAlertEmail
+  getNewContactAdminAlertEmail,
+  getContactReadEmail,
+  getContactResolvedEmail
 };
