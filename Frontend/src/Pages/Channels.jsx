@@ -51,14 +51,14 @@ export default function Channels() {
             {channels.map((ch) => (
               <article
                 key={ch._id}
-                className={`group relative rounded-[2rem] border p-8 backdrop-blur-2xl transition duration-500 flex flex-col justify-between ${
-                  ch.status === "Published" ? "hover:-translate-y-2" : ""
+                className={`group relative rounded-[2rem] border p-8 transition-all duration-500 flex flex-col justify-between ${
+                  ch.status === "Published" ? "hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(249,115,22,0.1)]" : ""
                 } ${
                   ch.featured
-                    ? "border-orange-500/30 bg-gradient-to-br from-orange-500/10 via-white/[0.02] to-black"
+                    ? "border-orange-500/20 bg-gradient-to-br from-orange-500/5 to-white/[0.02] backdrop-blur-xl"
                     : ch.status === "Published"
-                    ? "border-white/10 bg-white/[0.03] hover:border-orange-500/30"
-                    : "border-white/5 bg-white/[0.01] opacity-70"
+                    ? "border-white/5 bg-white/[0.02] hover:border-orange-500/20 backdrop-blur-md"
+                    : "border-white/5 bg-white/[0.01] opacity-60 backdrop-blur-md"
                 }`}
               >
                 {ch.featured && (
@@ -97,7 +97,7 @@ export default function Channels() {
                     </div>
                   </div>
 
-                  <p className="mt-6 text-sm leading-7 text-white/60">
+                  <p className="mt-5 text-sm leading-relaxed text-white/50 line-clamp-3">
                     {ch.description}
                   </p>
                 </div>
