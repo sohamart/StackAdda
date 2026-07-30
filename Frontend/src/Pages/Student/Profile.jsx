@@ -80,7 +80,7 @@ const Profile = () => {
 
       {/* Glow */}
 
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[420px] w-[420px] rounded-full bg-orange-500/20 blur-[170px]" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[420px] w-[420px] rounded-full bg-orange-500/20 blur-3xl" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
@@ -106,7 +106,7 @@ shadow-[0_0_80px_rgba(249,115,22,.15)]
 
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,.18),transparent_45%)]" />
 
-          <div className="absolute -right-24 -top-24 w-72 h-72 rounded-full bg-orange-500/20 blur-3xl" />
+          <div className="absolute -right-24 -top-24 w-72 h-72 rounded-full bg-orange-500/20 blur-xl" />
 
         </div>
 
@@ -120,7 +120,7 @@ rounded-3xl
 border
 border-white/10
 bg-white/[0.05]
-backdrop-blur-3xl
+backdrop-blur-md
 p-5
 sm:p-8
 "

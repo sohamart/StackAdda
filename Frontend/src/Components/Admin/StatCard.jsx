@@ -44,7 +44,7 @@ rounded-3xl
 border
 ${style.border}
 bg-white/[0.05]
-backdrop-blur-3xl
+backdrop-blur-md
 p-6
 transition-all
 duration-500
@@ -52,7 +52,7 @@ hover:-translate-y-1
 ${style.glow}
 `}
     >
-      <div className="absolute right-0 top-0 h-28 w-28 rounded-full bg-white/5 blur-3xl" />
+      <div className="absolute right-0 top-0 h-28 w-28 rounded-full bg-white/5 blur-xl" />
 
       <div className="relative flex items-center justify-between">
 

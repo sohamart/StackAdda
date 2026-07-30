@@ -10,7 +10,7 @@ rounded-3xl
 border
 border-white/10
 bg-white/[0.05]
-backdrop-blur-3xl
+backdrop-blur-md
 p-6
 "
     >

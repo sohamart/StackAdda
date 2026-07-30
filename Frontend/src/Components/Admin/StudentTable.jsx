@@ -21,7 +21,7 @@ const StudentTable = ({ students, onToggleRole }) => {
             border
             border-white/10
             bg-white/[0.04]
-            backdrop-blur-3xl
+            backdrop-blur-md
             p-4
             sm:p-6
             transition-all

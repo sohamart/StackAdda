@@ -75,7 +75,7 @@ const Navbar = () => {
       border
       border-white/10
       bg-white/5
-      backdrop-blur-3xl
+      backdrop-blur-md
       shadow-[0_10px_50px_rgba(0,0,0,.35)]
       "
     >
@@ -219,7 +219,7 @@ const Navbar = () => {
                   border
                   border-orange-500/10
                   bg-[#0F0F11]/95
-                  backdrop-blur-3xl
+                  backdrop-blur-md
                   shadow-[0_20px_60px_rgba(0,0,0,.45)]
                   overflow-hidden
                   "

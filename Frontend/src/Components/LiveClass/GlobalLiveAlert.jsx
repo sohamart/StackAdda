@@ -92,7 +92,7 @@ export default function GlobalLiveAlert() {
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 100, scale: 0.9 }}
             transition={{ type: "spring", bounce: 0.4, duration: 0.6 }}
-            className="w-80 md:w-96 rounded-2xl border border-orange-500/30 bg-black/90 backdrop-blur-3xl shadow-[0_20px_50px_rgba(249,115,22,0.25)] overflow-hidden"
+            className="w-80 md:w-96 rounded-2xl border border-orange-500/30 bg-black/90 backdrop-blur-md shadow-[0_20px_50px_rgba(249,115,22,0.25)] overflow-hidden"
           >
             <div className="flex items-center justify-between bg-orange-500/10 px-4 py-3 border-b border-orange-500/20">
               <div className="flex items-center gap-2">

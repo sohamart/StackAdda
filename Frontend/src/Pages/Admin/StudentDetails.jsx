@@ -121,7 +121,7 @@ const StudentDetails = () => {
       </div>
 
       {/* Profile Card */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.05] backdrop-blur-3xl">
+      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.05] backdrop-blur-md">
         <div className="relative mt-12 px-8 pb-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             {/* Left */}

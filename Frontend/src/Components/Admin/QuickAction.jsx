@@ -16,7 +16,7 @@ rounded-2xl
 border
 border-white/10
 bg-white/[0.05]
-backdrop-blur-3xl
+backdrop-blur-md
 px-5
 py-3
 transition-all
@@ -29,7 +29,7 @@ hover:shadow-[0_0_30px_rgba(249,115,22,.25)]
     >
       {/* Glow */}
 
-      <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-orange-500/10 blur-3xl transition-all duration-500 group-hover:bg-orange-500/20" />
+      <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-orange-500/10 blur-xl transition-all duration-500 group-hover:bg-orange-500/20" />
 
       <div className="relative flex items-center gap-3">
 

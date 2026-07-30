@@ -20,7 +20,7 @@ export default function LiveClassCard({ liveClass, onJoin }) {
     >
       {/* Background glowing effect if live */}
       {isLive && (
-        <div className="absolute -top-24 -right-24 h-48 w-48 rounded-full bg-orange-500/20 blur-[80px] pointer-events-none" />
+        <div className="absolute -top-24 -right-24 h-48 w-48 rounded-full bg-orange-500/20 blur-3xl pointer-events-none" />
       )}
 
       <div className="flex  flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">

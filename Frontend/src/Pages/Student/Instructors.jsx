@@ -93,7 +93,7 @@ export default function Instructors() {
             return (
               <article
                 key={instructor._id}
-                className="group relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/[0.04] p-6 backdrop-blur-3xl transition duration-350 hover:-translate-y-2 hover:border-orange-500/40"
+                className="group relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/[0.04] p-6 backdrop-blur-md transition duration-350 hover:-translate-y-2 hover:border-orange-500/40"
               >
                 {/* Glow behind photo */}
                 <div className="absolute -left-20 -top-20 h-40 w-40 rounded-full bg-orange-500/10 blur-2xl group-hover:bg-orange-500/20 transition-all duration-550" />

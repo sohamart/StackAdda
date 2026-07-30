@@ -25,8 +25,8 @@ const HeroSection = () => {
         rounded-full
         lg:bg-orange-500/25
         bg-orange-500/25
-        blur-[120px]
-        lg:blur-[180px]
+        blur-3xl
+        lg:blur-3xl
         
         
         "

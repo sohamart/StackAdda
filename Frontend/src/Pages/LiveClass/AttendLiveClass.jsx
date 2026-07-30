@@ -251,7 +251,7 @@ export default function AttendLiveClass() {
     <section className="relative min-h-screen overflow-hidden bg-[#09090B] text-white">
 
       {/* Background Glow */}
-      <div className="absolute left-1/2 top-0 h-[400px] w-[900px] -translate-x-1/2 rounded-full bg-orange-500/20 blur-[160px]" />
+      <div className="absolute left-1/2 top-0 h-[400px] w-[900px] -translate-x-1/2 rounded-full bg-orange-500/20 blur-3xl" />
 
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 py-5 sm:px-6 lg:px-8">
 

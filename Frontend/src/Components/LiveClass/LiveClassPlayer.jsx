@@ -259,7 +259,7 @@ export default function LiveClassPlayer({
     >
       {/* Orange Glow */}
 
-      <div className="pointer-events-none absolute left-1/2 top-0 h-[350px] w-[700px] -translate-x-1/2 rounded-full bg-orange-500/20 blur-[140px]" />
+      <div className="pointer-events-none absolute left-1/2 top-0 h-[350px] w-[700px] -translate-x-1/2 rounded-full bg-orange-500/20 blur-3xl" />
 
       {/* ================= HEADER ================= */}
 
@@ -454,7 +454,7 @@ export default function LiveClassPlayer({
 
                 <div className="relative">
 
-                  <div className="absolute inset-0 rounded-full bg-orange-500/30 blur-3xl animate-pulse" />
+                  <div className="absolute inset-0 rounded-full bg-orange-500/30 blur-xl animate-pulse" />
 
                   <PlayCircle
                     className="relative h-20 w-20 text-orange-500"

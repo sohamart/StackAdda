@@ -210,14 +210,14 @@ rounded-[32px]
 border
 border-white/10
 bg-[#0b0b0b]/95
-backdrop-blur-3xl
+backdrop-blur-md
 shadow-[0_0_60px_rgba(249,115,22,0.15)]
 "
         >
 
           {/* Orange Glow */}
-          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-orange-500/20 blur-[120px]" />
-          <div className="absolute -left-16 bottom-0 h-52 w-52 rounded-full bg-orange-500/10 blur-[100px]" />
+          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-orange-500/20 blur-3xl" />
+          <div className="absolute -left-16 bottom-0 h-52 w-52 rounded-full bg-orange-500/10 blur-3xl" />
 
           {/* Header */}
 

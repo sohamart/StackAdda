@@ -39,7 +39,7 @@ const YoutubeSection = () => {
             border
             border-orange-400/20
             bg-white/[0.04]
-            backdrop-blur-3xl
+            backdrop-blur-md
             transition-all
             duration-500
             hover:border-orange-400/40
@@ -47,8 +47,8 @@ const YoutubeSection = () => {
           "
         >
           {/* Orange Glow */}
-          <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-orange-500/20 blur-[120px]" />
-          <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-orange-300/10 blur-[120px]" />
+          <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-orange-500/20 blur-3xl" />
+          <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-orange-300/10 blur-3xl" />
 
           {/* Glass Overlay */}
           <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-orange-500/10" />
@@ -163,7 +163,7 @@ const YoutubeSection = () => {
                 <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-black/30 to-transparent" />
 
                 {/* Orange Glow */}
-                <div className="absolute bottom-0 left-1/2 h-24 w-72 -translate-x-1/2 rounded-full bg-orange-500/20 blur-[60px]" />
+                <div className="absolute bottom-0 left-1/2 h-24 w-72 -translate-x-1/2 rounded-full bg-orange-500/20 blur-3xl" />
 
                 {/* Action Button */}
                 <button

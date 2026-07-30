@@ -125,7 +125,7 @@ export default function Courses() {
       <div className="mx-auto max-w-7xl">
         {/* Banner Section */}
         <section className="relative overflow-hidden rounded-[2.25rem] border border-orange-500/20 bg-gradient-to-br from-orange-500/[.16] via-white/[.045] to-transparent p-7 md:p-12">
-          <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-orange-500/20 blur-[100px]" />
+          <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-orange-500/20 blur-3xl" />
           <div className="relative max-w-3xl">
             <p className="text-sm font-semibold tracking-[.25em] text-orange-300">
               STACK ADDA RESOURCE HUB
@@ -397,7 +397,7 @@ export default function Courses() {
           )}
 
           {activeTab === "terms" && (
-            <div className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-10 backdrop-blur-3xl shadow-2xl space-y-8 leading-relaxed max-w-4xl mx-auto">
+            <div className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-10 backdrop-blur-md shadow-2xl space-y-8 leading-relaxed max-w-4xl mx-auto">
               <h2 className="text-3xl font-black text-orange-400 border-b border-white/10 pb-4">
                 Terms & Conditions
               </h2>
@@ -448,7 +448,7 @@ export default function Courses() {
           )}
 
           {activeTab === "privacy" && (
-            <div className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-10 backdrop-blur-3xl shadow-2xl space-y-8 leading-relaxed max-w-4xl mx-auto">
+            <div className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-10 backdrop-blur-md shadow-2xl space-y-8 leading-relaxed max-w-4xl mx-auto">
               <h2 className="text-3xl font-black text-orange-400 border-b border-white/10 pb-4">
                 Privacy Policy
               </h2>

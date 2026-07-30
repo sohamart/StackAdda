@@ -33,7 +33,7 @@ export default function Courses() {
         return (
           <article
             key={video.videoId}
-            className="group flex flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-white/[.03] backdrop-blur-3xl transition duration-500 hover:-translate-y-3 hover:border-orange-500/40"
+            className="group flex flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-white/[.03] backdrop-blur-md transition duration-500 hover:-translate-y-3 hover:border-orange-500/40"
             style={{
               animation: `float ${5 + index}s ease-in-out infinite`,
             }}

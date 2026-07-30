@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../Context/AuthContext";
 import { toast } from "react-toastify";
 import API from "../../api/axios";
+import StructuredCourses from "./StructuredCourses";
 
 const fallbackTeam = [
   {
@@ -129,7 +130,7 @@ export default function HomeExtras() {
     <>
       {/* Team Section */}
       <section className="relative mx-auto max-w-7xl overflow-hidden px-5 py-24 text-white">
-        <div className="absolute left-1/2 top-1/2 h-80 w-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-orange-500/10 blur-[140px]" />
+        <div className="absolute left-1/2 top-1/2 h-80 w-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-orange-500/10 blur-3xl" />
 
         <div className="relative">
           <p className="text-center text-sm font-semibold tracking-[.25em] text-orange-400">
@@ -191,6 +192,9 @@ export default function HomeExtras() {
           )}
         </div>
       </section>
+
+      {/* Structured Courses Section */}
+      <StructuredCourses />
 
       {/* Reviews Section */}
       <section className="border-y border-white/10 bg-white/[.025] px-5 py-24 text-white">
@@ -255,7 +259,7 @@ export default function HomeExtras() {
             </button>
 
             {/* Glowing background inside modal */}
-            <div className="absolute -left-40 -top-40 h-80 w-80 rounded-full bg-orange-500/5 blur-3xl pointer-events-none" />
+            <div className="absolute -left-40 -top-40 h-80 w-80 rounded-full bg-orange-500/5 blur-xl pointer-events-none" />
 
             <div className="relative flex flex-col md:flex-row gap-8 overflow-y-auto no-scrollbar flex-grow">
               

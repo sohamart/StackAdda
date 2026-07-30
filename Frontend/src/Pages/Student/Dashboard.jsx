@@ -56,7 +56,7 @@ const Dashboard = () => {
   return (
     <div className="relative min-h-screen overflow-hidden text-white">
       {/* Background Glow */}
-      <div className="absolute -top-20 rounded-t-3xl left-1/2 h-[350px] w-[350px] -translate-x-1/2 rounded-full bg-orange-500/20 blur-[140px]" />
+      <div className="absolute -top-20 rounded-t-3xl left-1/2 h-[350px] w-[350px] -translate-x-1/2 rounded-full bg-orange-500/20 blur-3xl" />
 
       <div className="relative z-10 space-y-10">
         {!user?.isVerified && (
@@ -80,7 +80,7 @@ const Dashboard = () => {
         )}
 
         {/* Hero Banner */}
-        <section className="rounded-3xl border border-white/10 bg-white/[0.05] backdrop-blur-3xl p-8">
+        <section className="rounded-3xl border border-white/10 bg-white/[0.05] backdrop-blur-md p-8">
           <div className="flex flex-col lg:flex-row justify-between gap-8">
             <div>
               <p className="text-orange-400 font-medium">Welcome Back 👋</p>
@@ -115,7 +115,7 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div className="h-48 w-48 rounded-full border border-orange-500/30 bg-white/[0.04] backdrop-blur-3xl flex items-center justify-center self-center overflow-hidden">
+            <div className="h-48 w-48 rounded-full border border-orange-500/30 bg-white/[0.04] backdrop-blur-md flex items-center justify-center self-center overflow-hidden">
               {user?.profileImage?.url ? (
                 <img src={user.profileImage.url} alt="" className="h-full w-full object-cover" />
               ) : (
@@ -130,7 +130,7 @@ const Dashboard = () => {
           {stats.map((item, index) => (
             <div
               key={index}
-              className="rounded-3xl border border-white/10 bg-white/[0.05] backdrop-blur-3xl p-6 transition duration-300 hover:-translate-y-2 hover:border-orange-500/40 hover:shadow-[0_0_40px_rgba(249,115,22,.18)]"
+              className="rounded-3xl border border-white/10 bg-white/[0.05] backdrop-blur-md p-6 transition duration-300 hover:-translate-y-2 hover:border-orange-500/40 hover:shadow-[0_0_40px_rgba(249,115,22,.18)]"
             >
               <div className="flex justify-between items-center">
                 <div>
@@ -144,7 +144,7 @@ const Dashboard = () => {
         </section>
 
         {/* Watch Tutorials Banner */}
-        <section className="rounded-3xl border border-orange-500/20 bg-gradient-to-r from-orange-600/20 to-orange-500/5 backdrop-blur-3xl p-8 mb-5">
+        <section className="rounded-3xl border border-orange-500/20 bg-gradient-to-r from-orange-600/20 to-orange-500/5 backdrop-blur-md p-8 mb-5">
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <PlayCircle className="text-red-500" /> YouTube Programming Tutorials
           </h2>

@@ -238,7 +238,7 @@ export default function CourseDetails() {
         </Link>
 
         <section className="relative mt-6 overflow-hidden rounded-3xl border border-orange-500/20 bg-linear-to-br from-orange-500/[.14] via-white/4.5 to-transparent p-5 sm:p-7 md:p-10">
-          <div className="absolute -right-28 -top-24 h-96 w-96 rounded-full bg-orange-500/20 blur-[120px]" />
+          <div className="absolute -right-28 -top-24 h-96 w-96 rounded-full bg-orange-500/20 blur-3xl" />
 
           <div className="relative grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,.75fr)]">
             <div className="min-w-0">
