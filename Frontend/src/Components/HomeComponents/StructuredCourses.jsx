@@ -8,6 +8,8 @@ import {
   Database,
   Server,
   ArrowRight,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -50,8 +52,18 @@ export default function StructuredCourses() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const sectionRef = useRef(null);
   const scrollContainerRef = useRef(null);
+  const sectionRef = useRef(null);
+
+  const scrollMobile = (direction) => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = window.innerWidth * 0.8; // Scroll by roughly one card width
+      scrollContainerRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth"
+      });
+    }
+  };
 
   useLayoutEffect(() => {
     if (isMobileView) return;
@@ -80,8 +92,17 @@ export default function StructuredCourses() {
   return (
     <section
       ref={sectionRef}
-      className={`relative bg-black ${isMobileView ? "py-16" : "h-[100dvh] overflow-hidden"}`}
+      className={`relative bg-black ${isMobileView ? "py-16 min-h-[100dvh] flex flex-col justify-center" : "h-[100dvh] overflow-hidden"}`}
     >
+      <style>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
       {/* Background glow */}
       <div className="absolute top-0 inset-x-0 h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[300px] bg-orange-500/5 blur-3xl pointer-events-none rounded-full" />
@@ -100,13 +121,38 @@ export default function StructuredCourses() {
         </div>
 
         {/* Courses Container */}
-        <div className={`flex-1 w-full ${isMobileView ? "px-4" : "flex items-center overflow-hidden mt-8"}`}>
+        <div className={`relative flex-1 w-full flex items-center mt-8 overflow-hidden group`}>
+          
+          {/* Mobile Arrows */}
+          {isMobileView && (
+            <>
+              <button 
+                onClick={() => scrollMobile("left")}
+                className="absolute left-2 z-20 w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-white active:scale-95 transition-transform"
+                aria-label="Previous Course"
+              >
+                <ChevronLeft size={24} />
+              </button>
+              <button 
+                onClick={() => scrollMobile("right")}
+                className="absolute right-2 z-20 w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-white active:scale-95 transition-transform"
+                aria-label="Next Course"
+              >
+                <ChevronRight size={24} />
+              </button>
+            </>
+          )}
+
           <div
             ref={scrollContainerRef}
-            className={`flex ${isMobileView ? "flex-col gap-6" : "flex-row flex-nowrap w-max gap-10"}`}
+            className={`flex flex-row flex-nowrap gap-6 md:gap-10 ${
+              isMobileView 
+                ? "w-full overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-8" 
+                : "w-max"
+            }`}
             style={{
-              paddingLeft: isMobileView ? "0" : "calc(50vw - min(35vw, 450px))",
-              paddingRight: isMobileView ? "0" : "calc(50vw - min(35vw, 450px))",
+              paddingLeft: isMobileView ? "5vw" : "calc(50vw - min(35vw, 450px))",
+              paddingRight: isMobileView ? "5vw" : "calc(50vw - min(35vw, 450px))",
             }}
           >
             {courses.map((course) => {
@@ -114,7 +160,7 @@ export default function StructuredCourses() {
               return (
                 <div
                   key={course.id}
-                  className={`${isMobileView ? "w-full" : "w-[90vw] md:w-[70vw] max-w-[900px] shrink-0"}`}
+                  className={`w-[90vw] md:w-[70vw] max-w-[900px] shrink-0 ${isMobileView ? "snap-center" : ""}`}
                 >
                   {/* Premium Modern Card */}
                   <div
