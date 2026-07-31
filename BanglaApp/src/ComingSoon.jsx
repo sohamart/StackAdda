@@ -41,12 +41,12 @@ export default function ComingSoon() {
             <span className="text-xs md:text-sm font-bold tracking-[0.1em] md:tracking-[0.2em] text-white/90 uppercase text-center">We are launching soon</span>
           </div>
 
-          <a 
-            href="https://stackadda.me" 
-            className="px-6 py-3 md:px-8 md:py-4 rounded-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-400 hover:to-red-500 text-white font-bold transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(249,115,22,0.3)] text-xs md:text-sm tracking-[0.1em] uppercase"
+          <button 
+            onClick={() => window.history.back()} 
+            className="px-6 py-3 md:px-8 md:py-4 rounded-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-400 hover:to-red-500 text-white font-bold transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(249,115,22,0.3)] text-xs md:text-sm tracking-[0.1em] uppercase cursor-pointer"
           >
             Back to Stack Adda
-          </a>
+          </button>
         </div>
 
       </div>
