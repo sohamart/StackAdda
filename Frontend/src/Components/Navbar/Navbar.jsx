@@ -109,6 +109,13 @@ const Navbar = () => {
           </NavLink>
 
           <NavLink
+            to="/shorts"
+            className={menuClass}
+          >
+            Shorts
+          </NavLink>
+
+          <NavLink
             to="/channels"
             className={menuClass}
           >
@@ -466,6 +473,17 @@ const Navbar = () => {
               <div className="flex items-center gap-3">
                 <PlayCircle size={20} className="text-orange-400" />
                 Videos
+              </div>
+            </NavLink>
+
+            <NavLink
+              to="/shorts"
+              onClick={() => setOpen(false)}
+              className={menuClass}
+            >
+              <div className="flex items-center gap-3">
+                <PlayCircle size={20} className="text-orange-400" />
+                Shorts
               </div>
             </NavLink>
 

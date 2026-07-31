@@ -25,6 +25,7 @@ import VerifyEmail from "./Pages/Auth/VerifyEmail";
 import ForgotPassword from "./Pages/Auth/ForgotPassword";
 import ResetPassword from "./Pages/Auth/ResetPassword";
 import NotFound from "./Pages/NotFound";
+import Shorts from "./Pages/Shorts";
 
 // Student Pages
 import StudentDashboard from "./Pages/Student/Dashboard";
@@ -46,6 +47,7 @@ import AdminYoutubeVideos from "./Pages/Admin/YoutubeVideos";
 import AdminChannels from "./Pages/Admin/AdminChannels";
 import AdminCourseBuilder from "./Pages/Admin/CourseBuilder";
 import AdminCourses from "./Pages/Admin/AdminCourses";
+import AdminShorts from "./Pages/Admin/AdminShorts";
 import CourseDetails from "./Pages/Courses/CourseDetails";
 import CoursePlayer from "./Pages/Student/CoursePlayer";
 
@@ -118,6 +120,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/courses" element={<PublicCourses />} />
+          <Route path="/shorts" element={<Shorts />} />
           <Route path="/course/:slug" element={<CourseDetails />} />
           <Route path="/about" element={<About />} />
           <Route path="/channels" element={<Channels />} />
@@ -166,6 +169,7 @@ function App() {
           <Route path="channels" element={<AdminChannels />} />
           <Route path="courses" element={<AdminCourses />} />
           <Route path="course-builder" element={<AdminCourseBuilder />} />
+          <Route path="shorts" element={<AdminShorts />} />
         </Route>
 
         {/* 404 */}

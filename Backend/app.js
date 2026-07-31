@@ -20,6 +20,7 @@ const contactRoutes = require("./Routes/contactRoutes");
 const liveClassRoutes = require("./Routes/liveClassRoutes");
 const youtubeRoutes = require("./Routes/youtubeRoutes");
 const channelRoutes = require("./Routes/channelRoutes");
+const shortRoutes = require("./Routes/shortRoutes");
 
 /* ==========================
    Middlewares
@@ -61,6 +62,7 @@ app.use("/api/contact", contactRoutes);
 app.use("/api/live-class", liveClassRoutes);
 app.use("/api/youtube", youtubeRoutes);
 app.use("/api/channels", channelRoutes);
+app.use("/api/shorts", shortRoutes);
 
 /* ==========================
    Test Route
