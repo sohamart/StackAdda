@@ -19,6 +19,26 @@ const Shorts = () => {
     fetchShorts();
   }, [page]);
 
+  // Global Keyboard Navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!containerRef.current) return;
+      // Don't intercept if user is typing in an input (like comments)
+      if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'textarea') return;
+
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        containerRef.current.scrollBy({ top: window.innerHeight, behavior: "smooth" });
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        containerRef.current.scrollBy({ top: -window.innerHeight, behavior: "smooth" });
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const fetchShorts = async () => {
     try {
       const res = await API.get(`/shorts?page=${page}&limit=5`);
@@ -117,12 +137,25 @@ const Shorts = () => {
         </div>
       )}
 
+      {/* Keyboard Navigation Helper (Desktop Only) */}
+      <div className="absolute right-[5%] lg:right-[10%] xl:right-[15%] top-1/2 -translate-y-1/2 z-20 hidden md:flex flex-col items-center gap-4 text-white/50 pointer-events-none transition-opacity duration-1000">
+        <div className="rounded-3xl border border-white/10 bg-black/40 backdrop-blur-xl px-8 py-10 flex flex-col items-center gap-4 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
+          <kbd className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/20 font-sans text-3xl font-bold text-white shadow-inner animate-bounce">
+            ↓
+          </kbd>
+          <div className="text-center">
+            <p className="text-lg font-bold text-white tracking-wide">Down Arrow</p>
+            <p className="text-sm font-medium text-white/60 mt-1 uppercase tracking-widest">Next Video</p>
+          </div>
+        </div>
+      </div>
+
       {/* Absolute wrapper to guarantee explicit height for the scroll container */}
       <div className="relative z-10 h-full w-full">
         {/* Scroll Snapping Container */}
         <div
           ref={containerRef}
-          className="absolute inset-0 overflow-y-scroll snap-y snap-mandatory scrollbar-hide scroll-smooth"
+          className="absolute inset-0 overflow-y-scroll snap-y snap-mandatory scrollbar-hide"
         >
           {shorts.map((short, index) => (
             <div
