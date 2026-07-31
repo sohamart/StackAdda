@@ -102,7 +102,13 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
         {isActive ? (
           <div 
             className="absolute inset-0 z-0 cursor-pointer"
-            onClick={togglePlay}
+            onClick={() => {
+              if (globalMuted) {
+                setGlobalMuted(false);
+              } else {
+                togglePlay();
+              }
+            }}
           >
             <iframe
               ref={iframeRef}
@@ -192,6 +198,23 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
             >
               <div className="flex h-20 w-20 items-center justify-center rounded-full bg-black/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
                 <Play size={36} className="fill-white text-white ml-2" />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Tap to Unmute Overlay */}
+        <AnimatePresence>
+          {globalMuted && isActive && isVideoLoaded && isPlaying && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="absolute top-1/4 left-1/2 -translate-x-1/2 z-30 pointer-events-none"
+            >
+              <div className="flex flex-col items-center gap-2 bg-black/40 backdrop-blur-xl border border-white/10 px-5 py-3 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] animate-pulse">
+                <VolumeX size={24} className="text-white drop-shadow-md" />
+                <span className="text-[10px] md:text-xs font-bold text-white uppercase tracking-widest drop-shadow-md">Tap to Unmute</span>
               </div>
             </motion.div>
           )}

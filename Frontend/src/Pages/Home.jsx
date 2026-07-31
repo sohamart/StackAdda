@@ -6,6 +6,7 @@ import HeroSection from "../Components/HomeComponents/HeroSection";
 import SponsorBanner from "../Components/HomeComponents/SponsorBanner";
 import { Link } from "react-router-dom";
 import HomeExtras from "../Components/HomeComponents/HomeExtras";
+import HomeShorts from "../Components/HomeComponents/HomeShorts";
 
 const Home = () => {
   return (
@@ -74,6 +75,7 @@ const Home = () => {
           </Link>
         </div>
       </div>
+      <HomeShorts />
       <HomeExtras />
     </>
   );

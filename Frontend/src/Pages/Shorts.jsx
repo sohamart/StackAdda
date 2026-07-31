@@ -214,11 +214,9 @@ const Shorts = () => {
 
       {/* Absolute wrapper to guarantee explicit height for the scroll container */}
       <div className="relative z-10 h-full w-full">
-        {/* Scroll Snapping Container */}
         <div
           ref={containerRef}
           className="absolute inset-0 overflow-y-scroll snap-y snap-mandatory scrollbar-hide overscroll-contain touch-pan-y"
-          style={{ scrollBehavior: 'smooth' }}
         >
           {shorts.map((short, index) => (
             <div
