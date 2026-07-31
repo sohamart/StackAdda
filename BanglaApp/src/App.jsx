@@ -9,11 +9,19 @@ function App() {
 
   // Show Coming Soon page if the variable is set to true
   if (showComingSoon) {
-    return <ComingSoon />;
+    return (
+      <div className="no-scrollbar overflow-x-hidden">
+        <ComingSoon />
+      </div>
+    );
   }
 
   // Otherwise, show the Real Website
-  return <Home />;
+  return (
+    <div className="no-scrollbar overflow-x-hidden">
+      <Home />
+    </div>
+  );
 }
 
 export default App;
