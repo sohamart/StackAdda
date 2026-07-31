@@ -85,9 +85,17 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted, onRefreshFe
         {/* Video Inner Container (has overflow-hidden for video cropping) */}
         <div className="relative h-full w-full bg-black md:rounded-[2rem] overflow-hidden z-10">
           
-        {isActive ? (
+        {/* Thumbnail Background */}
+        <img 
+          src={short.thumbnail} 
+          alt={short.title} 
+          className="absolute top-0 left-0 w-full h-full object-cover opacity-40 z-0"
+        />
+
+        {/* YouTube Iframe (Only mounted when active) */}
+        {isActive && (
           <div 
-            className="absolute inset-0 z-0 cursor-pointer"
+            className="absolute inset-0 z-[5] cursor-pointer"
             onClick={() => {
               if (globalMuted) {
                 setGlobalMuted(false);
@@ -117,12 +125,6 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted, onRefreshFe
               allowFullScreen
             ></iframe>
           </div>
-        ) : (
-          <img 
-            src={short.thumbnail} 
-            alt={short.title} 
-            className="absolute top-0 left-0 w-full h-full object-cover opacity-70"
-          />
         )}
 
         {/* Top Gradient Overlay to hide YouTube Title Bar */}
@@ -138,7 +140,7 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted, onRefreshFe
 
         {/* Loading Animated Logo Overlay */}
         <AnimatePresence>
-          {isActive && !isVideoLoaded && (
+          {!isVideoLoaded && (
             <motion.div 
               initial={{ opacity: 1 }}
               exit={{ opacity: 0 }}

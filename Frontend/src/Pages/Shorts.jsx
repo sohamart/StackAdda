@@ -79,49 +79,7 @@ const Shorts = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Global Wheel/Trackpad Navigation (Strict 1-video scrolling everywhere)
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
 
-    let isScrolling = false;
-
-    const handleWheel = (e) => {
-      // Allow native scroll inside comment modals
-      if (e.target.closest('.comment-modal') || e.target.closest('.overflow-y-auto')) return;
-      
-      // Ignore tiny trackpad movements to prevent accidental scrolls
-      if (Math.abs(e.deltaY) < 15) return;
-
-      e.preventDefault();
-
-      if (isScrolling) return;
-
-      const direction = e.deltaY > 0 ? 1 : -1;
-      
-      isScrolling = true;
-      
-      const clientHeight = container.clientHeight;
-      const currentScroll = container.scrollTop;
-      
-      const currentIndex = Math.round(currentScroll / clientHeight);
-      const nextIndex = currentIndex + direction;
-      
-      container.scrollTo({ top: nextIndex * clientHeight, behavior: "smooth" });
-      if (!userInteractedWithMute) setGlobalMuted(false);
-
-      setTimeout(() => {
-        isScrolling = false;
-      }, 700);
-    };
-
-    // Attach to window so it catches trackpad ANYWHERE on the screen
-    window.addEventListener("wheel", handleWheel, { passive: false });
-
-    return () => {
-      window.removeEventListener("wheel", handleWheel);
-    };
-  }, []);
 
 
 
@@ -348,6 +306,11 @@ const Shorts = () => {
         <div 
           ref={containerRef}
           onTouchStart={() => {
+            if (!userInteractedWithMute && globalMuted) {
+              setGlobalMuted(false);
+            }
+          }}
+          onScroll={() => {
             if (!userInteractedWithMute && globalMuted) {
               setGlobalMuted(false);
             }
