@@ -36,6 +36,7 @@ import StudentMyCourses from "./Pages/Student/MyCourses";
 
 // Global Components
 import GlobalLiveAlert from "./Components/LiveClass/GlobalLiveAlert";
+import InstallPrompt from "./Components/InstallPrompt";
 
 // Admin Pages
 import AdminDashboard from "./Pages/Admin/Dashboard";
@@ -109,6 +110,7 @@ function App() {
           </div>
         </div>
       )}
+      <InstallPrompt />
       <GlobalLiveAlert />
       <Routes>
         {/* Public Routes */}

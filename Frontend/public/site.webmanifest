@@ -1,6 +1,7 @@
 {
   "name": "Stack Adda",
   "short_name": "StackAdda",
+  "start_url": "/",
   "icons": [
     {
       "src": "/favicon.png",
