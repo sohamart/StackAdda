@@ -47,7 +47,7 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
             <iframe
               ref={iframeRef}
               className="absolute top-0 left-0 w-full h-full pointer-events-none"
-              src={`https://www.youtube.com/embed/${short.videoId}?autoplay=1&mute=${globalMuted ? 1 : 0}&controls=0&modestbranding=1&rel=0&playsinline=1&loop=1&playlist=${short.videoId}&enablejsapi=1&disablekb=1&cc_load_policy=0`}
+              src={`https://www.youtube.com/embed/${short.videoId}?autoplay=1&mute=${globalMuted ? 1 : 0}&controls=0&modestbranding=1&rel=0&playsinline=1&loop=1&playlist=${short.videoId}&enablejsapi=1&disablekb=1&iv_load_policy=3`}
               title={short.title}
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -62,14 +62,15 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
           />
         )}
 
-        {/* Global Mute Toggle Button */}
-        <div className="absolute top-4 right-4 z-20 pointer-events-auto">
+        {/* Top Solid Overlay to hide YouTube Title Bar */}
+        <div className="absolute top-0 left-0 right-0 h-[72px] bg-black z-20 flex items-center justify-end px-4 pointer-events-auto">
+          {/* Global Mute Toggle Button */}
           <button
             onClick={(e) => {
               e.stopPropagation();
               setGlobalMuted(!globalMuted);
             }}
-            className="flex items-center gap-2 rounded-full bg-black/40 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-black/60 shadow-lg border border-white/10"
+            className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-white/20"
             title="Toggle Mute Globally"
           >
             {globalMuted ? (
@@ -101,18 +102,19 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
           )}
         </AnimatePresence>
 
-        {/* Premium Glass Video Info (Bottom Left) */}
+        {/* Dark Gradient Overlay for text visibility */}
+        <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black/90 to-transparent pointer-events-none z-10"></div>
+
+        {/* Video Info (Bottom Left) */}
         <div className="absolute bottom-6 left-4 right-16 z-20 pointer-events-none">
-          <div className="rounded-2xl bg-black/30 backdrop-blur-md p-4 border border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.3)]">
-            <h3 className="text-white font-bold text-[15px] leading-tight drop-shadow-md">
-              {short.title}
-            </h3>
-            {short.description && (
-              <p className="text-white/80 text-sm mt-2 line-clamp-2 drop-shadow-md font-light leading-snug">
-                {short.description}
-              </p>
-            )}
-          </div>
+          <h3 className="text-white font-bold text-[15px] leading-tight drop-shadow-md">
+            {short.title}
+          </h3>
+          {short.description && (
+            <p className="text-white/80 text-sm mt-2 line-clamp-2 drop-shadow-md font-light leading-snug">
+              {short.description}
+            </p>
+          )}
         </div>
 
         {/* Sidebar Controls */}
