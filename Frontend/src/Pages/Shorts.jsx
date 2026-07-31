@@ -235,7 +235,7 @@ const Shorts = () => {
       <h1 className="sr-only">Stack Adda Shorts</h1>
       
       {/* Top Toggle Switch */}
-      <div className="absolute top-[100px] md:top-[120px] left-1/2 -translate-x-1/2 z-50 flex gap-2 rounded-full bg-white/10 p-1 backdrop-blur-md shadow-[0_4px_30px_rgba(0,0,0,0.5)] border border-white/5">
+      <div className="absolute top-[90px] left-1/2 -translate-x-1/2 md:top-[120px] md:left-8 xl:left-[5%] md:translate-x-0 z-50 flex gap-2 rounded-full bg-white/10 p-1 backdrop-blur-md shadow-[0_4px_30px_rgba(0,0,0,0.5)] border border-white/5">
         <button
           onClick={() => setActiveTab('stackadda')}
           className={`rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 ${

@@ -158,6 +158,61 @@ const syncGlobalShorts = async () => {
 // Public Routes
 // ==========================
 
+// Middleware to ensure a short exists in DB (even if it's a global YouTube short)
+const ensureShortExists = async (req, res, next) => {
+  const mongoose = require("mongoose");
+  const Short = require("../Models/Short");
+  let short;
+  
+  if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+    short = await Short.findById(req.params.id).populate("creator", "name profileImage");
+  } else {
+    short = await Short.findOne({ videoId: req.params.id }).populate("creator", "name profileImage");
+  }
+
+  if (!short && !mongoose.Types.ObjectId.isValid(req.params.id)) {
+    try {
+      const apiKey = process.env.YOUTUBE_API_KEY || "AIzaSyBNXDxfkCEYgfwn0cYZ5iYyDOVZzu-XW2I";
+      const axios = require("axios");
+      const videosDetailsRes = await axios.get(
+        `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics,contentDetails&id=${req.params.id}&key=${apiKey}`
+      );
+      const detail = videosDetailsRes.data?.items?.[0];
+      
+      if (detail) {
+         short = await Short.create({
+           videoId: req.params.id,
+           title: detail.snippet?.title || "Coding Trick Short",
+           description: detail.snippet?.description || "",
+           thumbnail: detail.snippet?.thumbnails?.high?.url || detail.snippet?.thumbnails?.default?.url || `https://img.youtube.com/vi/${req.params.id}/hqdefault.jpg`,
+           category: "Coding",
+           type: "global",
+           tags: ["coding", "tricks", "shorts"],
+           isPublished: true, 
+           views: parseInt(detail.statistics?.viewCount || 0, 10),
+           likes: [],
+           savedBy: [],
+           commentsCount: 0,
+           creator: {
+             name: detail.snippet?.channelTitle || "YouTube Content Creator",
+           },
+           publishedAt: detail.snippet?.publishedAt || new Date()
+         });
+      }
+    } catch (err) {
+      console.error("Failed to fetch short from YouTube on-the-fly", err.message);
+    }
+  }
+
+  if (!short) {
+    return res.status(404).json({ success: false, message: "Short not found" });
+  }
+
+  req.short = short;
+  req.params.id = short._id.toString(); // Remap ID to real ObjectId for subsequent queries
+  next();
+};
+
 // Get all published shorts
 router.get(
   "/",
@@ -261,12 +316,9 @@ router.get(
 // Get Short by ID
 router.get(
   "/:id",
+  ensureShortExists,
   asyncHandler(async (req, res) => {
-    const short = await Short.findById(req.params.id).populate("creator", "name profileImage");
-    if (!short) {
-      return res.status(404).json({ success: false, message: "Short not found" });
-    }
-    res.status(200).json({ success: true, short });
+    res.status(200).json({ success: true, short: req.short });
   })
 );
 
@@ -303,9 +355,9 @@ router.get(
 router.post(
   "/:id/like",
   authMiddleware,
+  ensureShortExists,
   asyncHandler(async (req, res) => {
-    const short = await Short.findById(req.params.id);
-    if (!short) return res.status(404).json({ success: false, message: "Short not found" });
+    const short = req.short;
 
     const isLiked = short.likes.includes(req.user.id);
     if (isLiked) {
@@ -322,9 +374,9 @@ router.post(
 // Get Users who liked a short
 router.get(
   "/:id/likes",
+  ensureShortExists,
   asyncHandler(async (req, res) => {
     const short = await Short.findById(req.params.id).populate("likes", "name profileImage email");
-    if (!short) return res.status(404).json({ success: false, message: "Short not found" });
     res.status(200).json({ success: true, likes: short.likes });
   })
 );
@@ -333,9 +385,9 @@ router.get(
 router.post(
   "/:id/save",
   authMiddleware,
+  ensureShortExists,
   asyncHandler(async (req, res) => {
-    const short = await Short.findById(req.params.id);
-    if (!short) return res.status(404).json({ success: false, message: "Short not found" });
+    const short = req.short;
 
     const isSaved = short.savedBy.includes(req.user.id);
     if (isSaved) {
@@ -352,17 +404,15 @@ router.post(
 // Record View
 router.post(
   "/:id/view",
+  ensureShortExists,
   asyncHandler(async (req, res) => {
-    const short = await Short.findById(req.params.id);
-    if (!short) return res.status(404).json({ success: false, message: "Short not found" });
+    const short = req.short;
 
     short.views += 1;
     await short.save();
 
-    // If user is logged in, record history (optional implementation here)
     if (req.user) {
         // Find existing history to update or create new
-        // Assuming authMiddleware is optionally used for this route to inject req.user if present
     }
 
     res.status(200).json({ success: true, views: short.views });
@@ -372,9 +422,9 @@ router.post(
 // Share Short
 router.post(
   "/:id/share",
+  ensureShortExists,
   asyncHandler(async (req, res) => {
-    const short = await Short.findById(req.params.id);
-    if (!short) return res.status(404).json({ success: false, message: "Short not found" });
+    const short = req.short;
 
     short.shares += 1;
     await short.save();
@@ -387,6 +437,7 @@ router.post(
 router.post(
   "/:id/comment",
   authMiddleware,
+  ensureShortExists,
   asyncHandler(async (req, res) => {
     const { text } = req.body;
     if (!text) return res.status(400).json({ success: false, message: "Comment text is required" });
@@ -408,6 +459,7 @@ router.post(
 // Get Comments for a Short
 router.get(
   "/:id/comments",
+  ensureShortExists,
   asyncHandler(async (req, res) => {
     const comments = await ShortComment.find({ shortId: req.params.id })
       .sort({ createdAt: -1 })

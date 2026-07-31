@@ -127,7 +127,7 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
 
         {/* Top Gradient Overlay to hide YouTube Title Bar */}
         <div 
-          className="absolute top-0 left-0 right-0 h-[78px] z-20 flex items-center justify-end px-4 pointer-events-auto"
+          className="absolute top-0 left-0 right-0 h-[100px] z-20 flex items-start pt-6 justify-end px-4 pointer-events-auto"
           style={{
             background: 'linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)',
             backdropFilter: 'blur(8px)',
