@@ -100,10 +100,25 @@ const Shorts = () => {
     );
   }
 
+  const activeShort = shorts.find((s) => s._id === activeVideoId) || shorts[0];
+
   return (
     <div className="fixed inset-0 z-40 bg-black pt-20 md:pt-24 lg:pt-28">
+      {/* Ambient Background Glow for Desktop */}
+      {activeShort && (
+        <div className="absolute inset-0 z-0 hidden md:block overflow-hidden pointer-events-none transition-all duration-700 ease-in-out">
+          <img
+            key={activeShort._id}
+            src={activeShort.thumbnail}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover blur-[120px] opacity-40 scale-110"
+          />
+          <div className="absolute inset-0 bg-black/50"></div>
+        </div>
+      )}
+
       {/* Absolute wrapper to guarantee explicit height for the scroll container */}
-      <div className="relative h-full w-full">
+      <div className="relative z-10 h-full w-full">
         {/* Scroll Snapping Container */}
         <div
           ref={containerRef}
@@ -113,7 +128,7 @@ const Shorts = () => {
             <div
               key={`${short._id}-${index}`}
               data-id={short._id}
-              className="short-container h-full w-full flex justify-center bg-black"
+              className="short-container h-full w-full flex justify-center bg-transparent"
             >
             <ShortPlayer
               short={short}

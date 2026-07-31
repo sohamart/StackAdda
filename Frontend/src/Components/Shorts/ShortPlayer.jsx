@@ -18,9 +18,9 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
   }, [isActive, short._id]);
 
   return (
-    <div className="relative h-full w-full bg-black flex items-center justify-center snap-start snap-always scroll-m-0 overflow-hidden">
+    <div className="relative h-full w-full bg-transparent flex items-center justify-center snap-start snap-always scroll-m-0 overflow-hidden">
       {/* Video Player */}
-      <div className="relative h-full w-full max-w-[500px] sm:max-w-md bg-[#0F0F11]">
+      <div className="relative h-full w-full max-w-[500px] sm:max-w-md bg-black md:rounded-xl md:shadow-[0_0_50px_rgba(249,115,22,0.15)] md:border md:border-white/10 overflow-hidden">
         
         {isActive ? (
           <iframe
@@ -62,18 +62,18 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
           </button>
         </div>
 
-        {/* Dark Gradient Overlay for text visibility */}
-        <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black/90 to-transparent pointer-events-none z-10"></div>
-
+        {/* Premium Glass Video Info (Bottom Left) */}
         <div className="absolute bottom-6 left-4 right-16 z-20 pointer-events-none">
-          <h3 className="text-white font-bold text-[15px] leading-tight drop-shadow-md">
-            {short.title}
-          </h3>
-          {short.description && (
-            <p className="text-white/80 text-sm mt-2 line-clamp-2 drop-shadow-md font-light leading-snug">
-              {short.description}
-            </p>
-          )}
+          <div className="rounded-2xl bg-black/30 backdrop-blur-md p-4 border border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.3)]">
+            <h3 className="text-white font-bold text-[15px] leading-tight drop-shadow-md">
+              {short.title}
+            </h3>
+            {short.description && (
+              <p className="text-white/80 text-sm mt-2 line-clamp-2 drop-shadow-md font-light leading-snug">
+                {short.description}
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Sidebar Controls */}
