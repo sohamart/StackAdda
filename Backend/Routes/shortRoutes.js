@@ -1,11 +1,96 @@
 const express = require("express");
 const router = express.Router();
 const asyncHandler = require("express-async-handler");
+const axios = require("axios");
 const Short = require("../Models/Short");
 const ShortComment = require("../Models/ShortComment");
 const ShortHistory = require("../Models/ShortHistory");
 const authMiddleware = require("../Middleware/authMiddleware");
 const roleMiddleware = require("../Middleware/roleMiddleware");
+
+// ==========================
+// Sync Helpers
+// ==========================
+
+const getDurationInSeconds = (duration) => {
+  if (!duration) return 0;
+  const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  if (!match) return 0;
+  const hours = parseInt(match[1] || 0, 10);
+  const minutes = parseInt(match[2] || 0, 10);
+  const seconds = parseInt(match[3] || 0, 10);
+  return (hours * 3600) + (minutes * 60) + seconds;
+};
+
+const syncYoutubeShorts = async () => {
+  const apiKey = process.env.YOUTUBE_API_KEY || "AIzaSyBNXDxfkCEYgfwn0cYZ5iYyDOVZzu-XW2I";
+  const defaultChannelId = process.env.YOUTUBE_CHANNEL_ID || "UC5lX2UJ-nbyGYT6WYlhQskQ";
+  const channelIds = [defaultChannelId, "UCJJ6BYkQb7ScqhcfszAYKzA", "UC-6BdOOBFl6XSp_ZOoQIgJg"];
+
+  let newShortsCount = 0;
+
+  for (const channelId of channelIds) {
+    try {
+      const channelRes = await axios.get(
+        `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${channelId}&key=${apiKey}`
+      );
+      const channelData = channelRes.data;
+      const uploadsPlaylistId = channelData?.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
+      
+      if (!uploadsPlaylistId) continue;
+
+      const playlistRes = await axios.get(
+        `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&maxResults=50&key=${apiKey}`
+      );
+      const items = playlistRes.data?.items || [];
+
+      const videoIds = items.map(item => item?.snippet?.resourceId?.videoId).filter(Boolean);
+      if (videoIds.length === 0) continue;
+
+      const videosDetailsRes = await axios.get(
+        `https://www.googleapis.com/youtube/v3/videos?part=statistics,contentDetails&id=${videoIds.join(",")}&key=${apiKey}`
+      );
+      const detailsItems = videosDetailsRes.data?.items || [];
+
+      for (const item of items) {
+        const videoId = item?.snippet?.resourceId?.videoId;
+        const title = item?.snippet?.title;
+        const description = item?.snippet?.description;
+        const thumbnailUrl = item?.snippet?.thumbnails?.maxres?.url || item?.snippet?.thumbnails?.high?.url || item?.snippet?.thumbnails?.default?.url;
+
+        const detail = detailsItems.find(d => d.id === videoId);
+        if (!detail) continue;
+
+        const durationInSeconds = getDurationInSeconds(detail.contentDetails?.duration);
+        
+        // Duration <= 61 seconds is considered a short
+        if (durationInSeconds > 0 && durationInSeconds <= 61) {
+          const exists = await Short.findOne({ videoId });
+          if (exists) {
+             exists.views = parseInt(detail.statistics?.viewCount || exists.views, 10);
+             await exists.save();
+          } else {
+             await Short.create({
+               videoId,
+               title: title || "New Short",
+               description: description || "",
+               thumbnail: thumbnailUrl || `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+               category: "Education",
+               tags: [],
+               isPublished: true, 
+               views: parseInt(detail.statistics?.viewCount || 0, 10),
+             });
+             newShortsCount++;
+          }
+        }
+      }
+    } catch (err) {
+      console.error(`Failed to sync shorts for channel ${channelId}:`, err.message);
+    }
+  }
+
+  return newShortsCount;
+};
 
 // ==========================
 // Public Routes
@@ -216,8 +301,25 @@ router.get(
   authMiddleware,
   roleMiddleware("admin"),
   asyncHandler(async (req, res) => {
+    // Optionally trigger background sync here or just let the button do it. 
+    // We'll rely on the manual Sync button.
     const shorts = await Short.find().sort({ createdAt: -1 }).populate("creator", "name");
     res.status(200).json({ success: true, shorts });
+  })
+);
+
+// Sync Shorts from Channels (Admin)
+router.post(
+  "/admin/sync",
+  authMiddleware,
+  roleMiddleware("admin"),
+  asyncHandler(async (req, res) => {
+    try {
+      const addedCount = await syncYoutubeShorts();
+      res.status(200).json({ success: true, message: `Successfully synced. Added ${addedCount} new shorts.` });
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Failed to sync shorts" });
+    }
   })
 );
 
