@@ -7,9 +7,11 @@ import { Loader2 } from "lucide-react";
 
 const Shorts = () => {
   const { id } = useParams();
+  const [activeTab, setActiveTab] = useState('stackadda');
   const [shorts, setShorts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
+  const [pageToken, setPageToken] = useState("");
   const [hasMore, setHasMore] = useState(true);
   const [activeVideoId, setActiveVideoId] = useState(null);
   const [globalMuted, setGlobalMuted] = useState(true);
@@ -20,7 +22,14 @@ const Shorts = () => {
 
   useEffect(() => {
     fetchShorts();
-  }, [page]);
+  }, [page, activeTab]);
+
+  useEffect(() => {
+    setShorts([]);
+    setPage(1);
+    setPageToken("");
+    setHasMore(true);
+  }, [activeTab]);
 
   // Global Keyboard Navigation
   useEffect(() => {
@@ -89,10 +98,13 @@ const Shorts = () => {
 
   const fetchShorts = async () => {
     try {
-      if (page === 1 && id) {
+      setLoading(true);
+      const endpoint = activeTab === 'stackadda' ? '/shorts' : '/shorts/global';
+      
+      if (page === 1 && id && activeTab === 'stackadda') {
          const [singleRes, listRes] = await Promise.all([
            API.get(`/shorts/${id}`).catch(() => null),
-           API.get(`/shorts?page=${page}&limit=5`)
+           API.get(`${endpoint}?page=${page}&limit=5`)
          ]);
          
          let initialShorts = listRes.data?.success ? listRes.data.shorts : [];
@@ -105,13 +117,24 @@ const Shorts = () => {
          if (initialShorts.length === 0) setHasMore(false);
          else setShorts(initialShorts);
       } else {
-         const res = await API.get(`/shorts?page=${page}&limit=5`);
+         const url = activeTab === 'stackadda' 
+             ? `/shorts?page=${page}&limit=5` 
+             : `/shorts/global?pageToken=${pageToken}&limit=5`;
+             
+         const res = await API.get(url);
          if (res.data.success) {
            if (res.data.shorts.length === 0) setHasMore(false);
-           else setShorts((prev) => {
-             const newShorts = res.data.shorts.filter(s => s._id !== id);
-             return page === 1 ? newShorts : [...prev, ...newShorts];
-           });
+           else {
+             if (activeTab === 'global' && res.data.nextPageToken) {
+               setPageToken(res.data.nextPageToken);
+             } else if (activeTab === 'global' && !res.data.nextPageToken) {
+               setHasMore(false);
+             }
+             setShorts((prev) => {
+               const newShorts = res.data.shorts.filter(s => s._id !== id);
+               return page === 1 ? newShorts : [...prev, ...newShorts];
+             });
+           }
          }
       }
     } catch (error) {
@@ -179,7 +202,25 @@ const Shorts = () => {
   if (shorts.length === 0 && !loading) {
     return (
       <div className="flex h-screen flex-col items-center justify-center bg-black text-white pt-20">
-        <h2 className="text-2xl font-bold">No Shorts Available</h2>
+        <div className="absolute top-[100px] md:top-[120px] z-50 flex gap-2 rounded-full bg-white/10 p-1 backdrop-blur-md">
+          <button
+            onClick={() => setActiveTab('stackadda')}
+            className={`rounded-full px-4 py-2 text-sm font-semibold transition-all ${
+              activeTab === 'stackadda' ? 'bg-orange-500 text-white' : 'text-white/70 hover:text-white'
+            }`}
+          >
+            Stack Adda Shorts
+          </button>
+          <button
+            onClick={() => setActiveTab('global')}
+            className={`rounded-full px-4 py-2 text-sm font-semibold transition-all ${
+              activeTab === 'global' ? 'bg-orange-500 text-white' : 'text-white/70 hover:text-white'
+            }`}
+          >
+            Coding Tricks
+          </button>
+        </div>
+        <h2 className="text-2xl font-bold mt-10">No Shorts Available</h2>
         <p className="text-white/50 mt-2">Check back later for new content!</p>
       </div>
     );
@@ -192,6 +233,27 @@ const Shorts = () => {
     <SEO title="Shorts" description="Watch bite-sized coding tutorials and tips on Stack Adda." canonicalUrl="/shorts" />
     <div className="fixed inset-0 z-40 bg-black pt-20 md:pt-24 lg:pt-28">
       <h1 className="sr-only">Stack Adda Shorts</h1>
+      
+      {/* Top Toggle Switch */}
+      <div className="absolute top-[100px] md:top-[120px] left-1/2 -translate-x-1/2 z-50 flex gap-2 rounded-full bg-white/10 p-1 backdrop-blur-md shadow-[0_4px_30px_rgba(0,0,0,0.5)] border border-white/5">
+        <button
+          onClick={() => setActiveTab('stackadda')}
+          className={`rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 ${
+            activeTab === 'stackadda' ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/30' : 'text-white/70 hover:text-white hover:bg-white/5'
+          }`}
+        >
+          Stack Adda
+        </button>
+        <button
+          onClick={() => setActiveTab('global')}
+          className={`rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 ${
+            activeTab === 'global' ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/30' : 'text-white/70 hover:text-white hover:bg-white/5'
+          }`}
+        >
+          Coding Tricks
+        </button>
+      </div>
+
       {/* Ambient Background Base for Desktop */}
       <div className="fixed inset-0 z-0 hidden md:block overflow-hidden pointer-events-none bg-[#050505]"></div>
 

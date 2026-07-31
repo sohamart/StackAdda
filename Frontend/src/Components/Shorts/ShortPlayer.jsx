@@ -14,7 +14,6 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isLikesModalOpen, setIsLikesModalOpen] = useState(false);
   const iframeRef = useRef(null);
-  const bgIframeRef = useRef(null);
 
   useEffect(() => {
     setIsPlaying(isActive);
@@ -26,14 +25,10 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
     }
   }, [isActive, short._id]);
 
-  // Sync isPlaying with isActive when it changes
   useEffect(() => {
     const func = isActive ? "playVideo" : "pauseVideo";
     if (iframeRef.current) {
       iframeRef.current.contentWindow.postMessage(`{"event":"command","func":"${func}","args":""}`, "*");
-    }
-    if (bgIframeRef.current) {
-      bgIframeRef.current.contentWindow.postMessage(`{"event":"command","func":"${func}","args":""}`, "*");
     }
   }, [isActive]);
 
@@ -62,9 +57,6 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
     if (iframeRef.current) {
       iframeRef.current.contentWindow.postMessage(`{"event":"command","func":"${func}","args":""}`, "*");
     }
-    if (bgIframeRef.current) {
-      bgIframeRef.current.contentWindow.postMessage(`{"event":"command","func":"${func}","args":""}`, "*");
-    }
     setIsPlaying(!isPlaying);
   };
 
@@ -78,16 +70,8 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
             className="absolute w-[80vw] h-[80vh] blur-[80px] opacity-[0.55]"
             style={{ WebkitMaskImage: 'radial-gradient(ellipse at center, black 15%, transparent 75%)' }}
           >
-            {/* Instant Fallback Thumbnail to prevent delay */}
-            <img src={short.thumbnail} alt="" className="absolute inset-0 w-full h-full object-cover scale-[1.3] pointer-events-none" />
-            
-            {/* Real-time Video for dynamic reflection */}
-            <iframe
-              ref={bgIframeRef}
-              className="absolute inset-0 w-full h-full pointer-events-none scale-[1.3]"
-              src={`https://www.youtube.com/embed/${short.videoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&playsinline=1&loop=1&playlist=${short.videoId}&disablekb=1&enablejsapi=1`}
-              frameBorder="0"
-            ></iframe>
+            {/* Pulse Animated Thumbnail to act as reflection without sync issues */}
+            <img src={short.thumbnail} alt="" className="absolute inset-0 w-full h-full object-cover scale-[1.3] pointer-events-none animate-[pulse_4s_ease-in-out_infinite]" />
           </div>
         </div>
       )}

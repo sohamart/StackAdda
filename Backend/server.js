@@ -20,6 +20,12 @@ const startServer = async () => {
         try {
           const added = await shortRoutes.syncYoutubeShorts();
           console.log(`Auto-sync complete. Added ${added} shorts.`);
+          
+          if (shortRoutes.syncGlobalShorts) {
+            console.log('Running auto-sync for Global Coding Shorts...');
+            const addedGlobal = await shortRoutes.syncGlobalShorts();
+            console.log(`Global auto-sync complete. Added ${addedGlobal} shorts.`);
+          }
         } catch (error) {
           console.error('Auto-sync failed:', error.message);
         }

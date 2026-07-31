@@ -95,6 +95,65 @@ const syncYoutubeShorts = async () => {
   return newShortsCount;
 };
 
+const syncGlobalShorts = async () => {
+  const apiKey = process.env.YOUTUBE_API_KEY || "AIzaSyBNXDxfkCEYgfwn0cYZ5iYyDOVZzu-XW2I";
+  let newShortsCount = 0;
+
+  try {
+    const searchRes = await axios.get(
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=coding+tricks+%23shorts&type=video&videoDuration=short&key=${apiKey}`
+    );
+    const items = searchRes.data?.items || [];
+    const videoIds = items.map(item => item?.id?.videoId).filter(Boolean);
+    
+    if (videoIds.length === 0) return 0;
+
+    const videosDetailsRes = await axios.get(
+      `https://www.googleapis.com/youtube/v3/videos?part=statistics,contentDetails&id=${videoIds.join(",")}&key=${apiKey}`
+    );
+    const detailsItems = videosDetailsRes.data?.items || [];
+
+    for (const item of items) {
+      const videoId = item?.id?.videoId;
+      const title = item?.snippet?.title;
+      const description = item?.snippet?.description;
+      const thumbnailUrl = item?.snippet?.thumbnails?.high?.url || item?.snippet?.thumbnails?.default?.url;
+
+      const detail = detailsItems.find(d => d.id === videoId);
+      if (!detail) continue;
+
+      const durationInSeconds = getDurationInSeconds(detail.contentDetails?.duration);
+      const publishedAt = item?.snippet?.publishedAt || new Date();
+      
+      if (durationInSeconds > 0 && durationInSeconds <= 61) {
+        const exists = await Short.findOne({ videoId });
+        if (exists) {
+           exists.views = parseInt(detail.statistics?.viewCount || exists.views, 10);
+           exists.publishedAt = publishedAt;
+           await exists.save();
+        } else {
+           await Short.create({
+             videoId,
+             title: title || "Coding Trick Short",
+             description: description || "",
+             thumbnail: thumbnailUrl || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+             category: "Coding",
+             type: "global",
+             tags: ["coding", "tricks", "shorts"],
+             isPublished: true, 
+             views: parseInt(detail.statistics?.viewCount || 0, 10),
+             publishedAt,
+           });
+           newShortsCount++;
+        }
+      }
+    }
+  } catch (err) {
+    console.error(`Failed to sync global shorts:`, err.message);
+  }
+  return newShortsCount;
+};
+
 // ==========================
 // Public Routes
 // ==========================
@@ -107,13 +166,71 @@ router.get(
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const shorts = await Short.find({ isPublished: true })
+    const shorts = await Short.find({ isPublished: true, type: { $ne: 'global' } })
       .sort({ publishedAt: -1, createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .populate("creator", "name profileImage");
 
     res.status(200).json({ success: true, shorts });
+  })
+);
+
+// Get global coding shorts dynamically from YouTube
+router.get(
+  "/global",
+  asyncHandler(async (req, res) => {
+    const pageToken = req.query.pageToken || "";
+    const apiKey = process.env.YOUTUBE_API_KEY || "AIzaSyBNXDxfkCEYgfwn0cYZ5iYyDOVZzu-XW2I";
+    
+    let apiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=coding+tips+tricks+%23shorts&type=video&videoDuration=short&key=${apiKey}`;
+    if (pageToken) apiUrl += `&pageToken=${pageToken}`;
+
+    const searchRes = await axios.get(apiUrl);
+    const items = searchRes.data?.items || [];
+    const nextPageToken = searchRes.data?.nextPageToken;
+
+    const videoIds = items.map(item => item?.id?.videoId).filter(Boolean);
+    
+    let shorts = [];
+    if (videoIds.length > 0) {
+      const videosDetailsRes = await axios.get(
+        `https://www.googleapis.com/youtube/v3/videos?part=statistics,contentDetails&id=${videoIds.join(",")}&key=${apiKey}`
+      );
+      const detailsItems = videosDetailsRes.data?.items || [];
+
+      for (const item of items) {
+        const videoId = item?.id?.videoId;
+        if (!videoId) continue;
+        
+        const detail = detailsItems.find(d => d.id === videoId);
+        if (!detail) continue;
+
+        const durationInSeconds = getDurationInSeconds(detail.contentDetails?.duration);
+        if (durationInSeconds > 0 && durationInSeconds <= 61) {
+           shorts.push({
+             _id: videoId, // Using videoId as _id so frontend key logic works
+             videoId,
+             title: item?.snippet?.title || "Coding Trick Short",
+             description: item?.snippet?.description || "",
+             thumbnail: item?.snippet?.thumbnails?.high?.url || item?.snippet?.thumbnails?.default?.url || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+             category: "Coding",
+             type: "global",
+             tags: ["coding", "tricks", "shorts"],
+             isPublished: true, 
+             views: parseInt(detail.statistics?.viewCount || 0, 10),
+             likes: [],
+             commentsCount: 0,
+             creator: {
+               name: item?.snippet?.channelTitle || "YouTube Content Creator",
+             },
+             publishedAt: item?.snippet?.publishedAt || new Date()
+           });
+        }
+      }
+    }
+
+    res.status(200).json({ success: true, shorts, nextPageToken });
   })
 );
 
@@ -352,6 +469,21 @@ router.post(
   })
 );
 
+// Sync Global Coding Shorts (Admin)
+router.post(
+  "/admin/sync-global",
+  authMiddleware,
+  roleMiddleware("admin"),
+  asyncHandler(async (req, res) => {
+    try {
+      const addedCount = await syncGlobalShorts();
+      res.status(200).json({ success: true, message: `Successfully synced global shorts. Added ${addedCount} new shorts.` });
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Failed to sync global shorts" });
+    }
+  })
+);
+
 // Add Short
 router.post(
   "/admin/add",
@@ -455,4 +587,5 @@ router.put(
 );
 
 router.syncYoutubeShorts = syncYoutubeShorts;
+router.syncGlobalShorts = syncGlobalShorts;
 module.exports = router;
