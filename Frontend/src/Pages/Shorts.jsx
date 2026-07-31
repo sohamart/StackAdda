@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import API from "../api/axios";
 import ShortPlayer from "../Components/Shorts/ShortPlayer";
 import { Loader2 } from "lucide-react";
 
@@ -20,12 +20,8 @@ const Shorts = () => {
   }, [page]);
 
   const fetchShorts = async () => {
-    if (!hasMore && page !== 1) return;
-    
     try {
-      const res = await axios.get(`http://localhost:5000/api/shorts?page=${page}&limit=5`, {
-        withCredentials: true,
-      });
+      const res = await API.get(`/shorts?page=${page}&limit=5`);
       if (res.data.success) {
         if (res.data.shorts.length === 0) {
           setHasMore(false);
@@ -111,7 +107,7 @@ const Shorts = () => {
         {/* Scroll Snapping Container */}
         <div
           ref={containerRef}
-          className="absolute inset-0 overflow-y-scroll snap-y snap-mandatory scrollbar-hide"
+          className="absolute inset-0 overflow-y-scroll snap-y snap-mandatory scrollbar-hide scroll-smooth"
         >
           {shorts.map((short, index) => (
             <div
@@ -129,9 +125,14 @@ const Shorts = () => {
         ))}
         
         {/* Infinite Scroll Loader Trigger */}
-        {hasMore && (
+        {hasMore ? (
           <div ref={loaderRef} className="h-20 w-full flex items-center justify-center snap-start">
             <Loader2 className="h-6 w-6 animate-spin text-white/50" />
+          </div>
+        ) : (
+          <div className="h-20 w-full flex flex-col items-center justify-center snap-start pb-8">
+            <div className="h-[2px] w-12 bg-white/20 rounded mb-2"></div>
+            <p className="text-white/50 text-sm font-medium">End of shorts.</p>
           </div>
         )}
       </div>

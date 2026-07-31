@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import API from "../../api/axios";
 import { Plus, Trash2, Eye, EyeOff, Star, CheckCircle, RefreshCw } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -22,9 +22,7 @@ const AdminShorts = () => {
 
   const fetchShorts = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/shorts/admin/all", {
-        withCredentials: true,
-      });
+      const res = await API.get("/shorts/admin/all");
       if (res.data.success) {
         setShorts(res.data.shorts);
       }
@@ -41,9 +39,7 @@ const AdminShorts = () => {
 
     setAdding(true);
     try {
-      const res = await axios.post("http://localhost:5000/api/shorts/admin/add", formData, {
-        withCredentials: true,
-      });
+      const res = await API.post("/shorts/admin/add", formData);
       if (res.data.success) {
         toast.success("Short added successfully");
         setFormData({ videoUrl: "", title: "", description: "", category: "Education" });
@@ -59,9 +55,7 @@ const AdminShorts = () => {
   const handleSync = async () => {
     setSyncing(true);
     try {
-      const res = await axios.post("http://localhost:5000/api/shorts/admin/sync", {}, {
-        withCredentials: true,
-      });
+      const res = await API.post("/shorts/admin/sync", {});
       if (res.data.success) {
         toast.success(res.data.message || "Synced successfully");
         fetchShorts();
@@ -75,9 +69,7 @@ const AdminShorts = () => {
 
   const togglePublish = async (id) => {
     try {
-      const res = await axios.put(`http://localhost:5000/api/shorts/admin/publish/${id}`, {}, {
-        withCredentials: true,
-      });
+      const res = await API.put(`/shorts/admin/publish/${id}`, {});
       if (res.data.success) {
         toast.success("Publish status updated");
         setShorts(shorts.map((s) => (s._id === id ? { ...s, isPublished: !s.isPublished } : s)));
@@ -89,9 +81,7 @@ const AdminShorts = () => {
 
   const toggleFeature = async (id) => {
     try {
-      const res = await axios.put(`http://localhost:5000/api/shorts/admin/feature/${id}`, {}, {
-        withCredentials: true,
-      });
+      const res = await API.put(`/shorts/admin/feature/${id}`, {});
       if (res.data.success) {
         toast.success("Featured status updated");
         setShorts(shorts.map((s) => (s._id === id ? { ...s, featured: !s.featured } : s)));
@@ -104,9 +94,7 @@ const AdminShorts = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this short?")) return;
     try {
-      const res = await axios.delete(`http://localhost:5000/api/shorts/admin/${id}`, {
-        withCredentials: true,
-      });
+      const res = await API.delete(`/shorts/admin/${id}`);
       if (res.data.success) {
         toast.success("Short deleted");
         setShorts(shorts.filter((s) => s._id !== id));

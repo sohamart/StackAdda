@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Trash2 } from "lucide-react";
-import axios from "axios";
+import API from "../../api/axios";
 import { useAuth } from "../../Context/AuthContext";
 import toast from "react-hot-toast";
 
@@ -21,9 +21,7 @@ const CommentModal = ({ isOpen, onClose, shortId, onCommentCountChange }) => {
   const fetchComments = async () => {
     setFetching(true);
     try {
-      const res = await axios.get(`http://localhost:5000/api/shorts/${shortId}/comments`, {
-        withCredentials: true,
-      });
+      const res = await API.get(`/shorts/${shortId}/comments`);
       if (res.data.success) {
         setComments(res.data.comments);
       }
@@ -44,10 +42,9 @@ const CommentModal = ({ isOpen, onClose, shortId, onCommentCountChange }) => {
 
     setLoading(true);
     try {
-      const res = await axios.post(
-        `http://localhost:5000/api/shorts/${shortId}/comment`,
-        { text: newComment },
-        { withCredentials: true }
+      const res = await API.post(
+        `/shorts/${shortId}/comment`,
+        { text: newComment }
       );
       if (res.data.success) {
         setComments([res.data.comment, ...comments]);
@@ -65,9 +62,7 @@ const CommentModal = ({ isOpen, onClose, shortId, onCommentCountChange }) => {
 
   const handleDeleteComment = async (commentId) => {
     try {
-      const res = await axios.delete(`http://localhost:5000/api/shorts/comment/${commentId}`, {
-        withCredentials: true,
-      });
+      const res = await API.delete(`/shorts/comment/${commentId}`);
       if (res.data.success) {
         setComments(comments.filter((c) => c._id !== commentId));
         if (onCommentCountChange) onCommentCountChange(comments.length - 1);

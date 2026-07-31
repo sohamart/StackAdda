@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Heart, MessageCircle, Share2, Bookmark } from "lucide-react";
-import axios from "axios";
+import API from "../../api/axios";
 import { useAuth } from "../../Context/AuthContext";
 import toast from "react-hot-toast";
 
@@ -35,7 +35,7 @@ const ShortSidebar = ({
     setLikesCount(isLiked ? likesCount - 1 : likesCount + 1);
 
     try {
-      await axios.post(`http://localhost:5000/api/shorts/${short._id}/like`, {}, { withCredentials: true });
+      await API.post(`/shorts/${short._id}/like`);
     } catch (error) {
       // Revert if error
       setIsLiked(!isLiked);
@@ -52,7 +52,7 @@ const ShortSidebar = ({
     setIsSaved(!isSaved);
 
     try {
-      await axios.post(`http://localhost:5000/api/shorts/${short._id}/save`, {}, { withCredentials: true });
+      await API.post(`/shorts/${short._id}/save`);
       if (!isSaved) toast.success("Saved to your collection");
     } catch (error) {
       setIsSaved(!isSaved);

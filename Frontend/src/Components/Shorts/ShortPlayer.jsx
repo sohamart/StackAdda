@@ -3,7 +3,7 @@ import { Play, Volume2, VolumeX } from "lucide-react";
 import ShortSidebar from "./ShortSidebar";
 import CommentModal from "./CommentModal";
 import ShareModal from "./ShareModal";
-import axios from "axios";
+import API from "../../api/axios";
 import { motion, AnimatePresence } from "framer-motion";
 
 const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
@@ -13,7 +13,7 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
   // Record view when it becomes active
   useEffect(() => {
     if (isActive) {
-      axios.post(`http://localhost:5000/api/shorts/${short._id}/view`).catch(console.error);
+      API.post(`/shorts/${short._id}/view`).catch(console.error);
     }
   }, [isActive, short._id]);
 
@@ -25,7 +25,7 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
         {isActive ? (
           <iframe
             className="absolute top-0 left-0 w-full h-full"
-            src={`https://www.youtube.com/embed/${short.videoId}?autoplay=1&mute=${globalMuted ? 1 : 0}&controls=1&modestbranding=1&rel=0&playsinline=1`}
+            src={`https://www.youtube.com/embed/${short.videoId}?autoplay=1&mute=${globalMuted ? 1 : 0}&controls=1&modestbranding=1&rel=0&playsinline=1&loop=1&playlist=${short.videoId}`}
             title={short.title}
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
