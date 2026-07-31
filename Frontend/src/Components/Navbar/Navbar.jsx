@@ -136,6 +136,27 @@ const Navbar = () => {
             Contact
           </NavLink>
 
+          {/* More Dropdown */}
+          <div className="relative group cursor-pointer">
+            <div className="flex items-center gap-1 text-white hover:text-orange-400 transition duration-300">
+              More <ChevronDown size={16} className="group-hover:rotate-180 transition-transform duration-300" />
+            </div>
+            {/* Dropdown Menu */}
+            <div className="absolute left-0 top-full mt-2 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-2 group-hover:translate-y-0 transition-all duration-300 z-50">
+              <div className="bg-[#0F0F11]/95 backdrop-blur-md border border-white/10 rounded-xl p-2 shadow-xl">
+                <a 
+                  href="https://stackaddabangla.vercel.app" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-white hover:bg-white/10 hover:text-orange-400 rounded-lg transition-colors font-medium"
+                >
+                  <img src="/favicon.png" className="w-4 h-4 rounded-full" alt="" />
+                  Stack Adda Bangla
+                </a>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         {/* Right Side */}
@@ -519,6 +540,20 @@ const Navbar = () => {
                 Contact
               </div>
             </NavLink>
+
+            {/* Mobile External Link */}
+            <a
+              href="https://stackaddabangla.vercel.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              className="text-white hover:text-orange-400 transition duration-300"
+            >
+              <div className="flex items-center gap-3">
+                <img src="/favicon.png" className="w-5 h-5 rounded-full" alt="" />
+                Stack Adda Bangla
+              </div>
+            </a>
 
             {user ? (
               <>
