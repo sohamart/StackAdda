@@ -19,6 +19,7 @@ import {
   ChevronDown,
   PlayCircle,
   Tv,
+  Bookmark,
 } from "lucide-react";
 
 import { useAuth } from "../../Context/AuthContext";
@@ -153,6 +154,15 @@ const Navbar = () => {
                   <img src="/favicon.png" className="w-4 h-4 rounded-full" alt="" />
                   Stack Adda Bangla
                 </a>
+                <div 
+                  onClick={() => {
+                    if(!user) { navigate("/login"); } else { navigate("/student/saved-videos"); }
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-white hover:bg-white/10 hover:text-orange-400 rounded-lg transition-colors font-medium cursor-pointer"
+                >
+                  <Bookmark size={16} />
+                  My Saved Videos
+                </div>
               </div>
             </div>
           </div>
@@ -321,6 +331,7 @@ const Navbar = () => {
                     </Link>
 
                     {!isAdmin && (
+                      <>
                       <Link
                         to="/student/my-courses"
                         onClick={() => setProfileOpen(false)}
@@ -339,6 +350,26 @@ const Navbar = () => {
                         <BookOpen size={20} />
                         My Courses
                       </Link>
+                      
+                      <Link
+                        to="/student/saved-videos"
+                        onClick={() => setProfileOpen(false)}
+                        className="
+                        flex
+                        items-center
+                        gap-3
+                        rounded-xl
+                        px-4
+                        py-3
+                        text-white
+                        hover:bg-white/5
+                        transition
+                        "
+                      >
+                        <Bookmark size={20} />
+                        Saved Videos
+                      </Link>
+                      </>
                     )}
 
                     <Link
@@ -569,6 +600,7 @@ const Navbar = () => {
                 </NavLink>
 
                 {!isAdmin && (
+                  <>
                   <NavLink
                     to="/student/my-courses"
                     onClick={() => setOpen(false)}
@@ -579,6 +611,17 @@ const Navbar = () => {
                       My Courses
                     </div>
                   </NavLink>
+                  <NavLink
+                    to="/student/saved-videos"
+                    onClick={() => setOpen(false)}
+                    className={menuClass}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Bookmark size={20} />
+                      Saved Videos
+                    </div>
+                  </NavLink>
+                  </>
                 )}
 
                 <NavLink

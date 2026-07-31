@@ -3,6 +3,7 @@ import { Heart, MessageCircle, Share2, Bookmark } from "lucide-react";
 import API from "../../api/axios";
 import { useAuth } from "../../Context/AuthContext";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const formatNumber = (num) => {
   if (!num) return "0";
@@ -25,9 +26,12 @@ const ShortSidebar = ({
   
   const [commentsCount, setCommentsCount] = useState(0); // Optional: if you pass comments count from API
 
+  const navigate = useNavigate();
+
   const handleLike = async () => {
     if (!user) {
       toast.error("Please login to like");
+      navigate("/login");
       return;
     }
     // Optimistic UI update
@@ -47,6 +51,7 @@ const ShortSidebar = ({
   const handleSave = async () => {
     if (!user) {
       toast.error("Please login to save");
+      navigate("/login");
       return;
     }
     setIsSaved(!isSaved);
@@ -76,7 +81,14 @@ const ShortSidebar = ({
 
       {/* Comment */}
       <div className="flex flex-col items-center gap-1">
-        <button onClick={onOpenComments} className={iconClass}>
+        <button onClick={() => {
+          if (!user) {
+            toast.error("Please login to comment");
+            navigate("/login");
+            return;
+          }
+          onOpenComments();
+        }} className={iconClass}>
           <MessageCircle size={26} className="fill-white/20" />
         </button>
         <span className="text-xs font-semibold text-white drop-shadow-md">

@@ -33,6 +33,7 @@ import StudentProfile from "./Pages/Student/Profile";
 import AttendLiveClass from "./Pages/LiveClass/AttendLiveClass";
 import StudentInstructors from "./Pages/Student/Instructors";
 import StudentMyCourses from "./Pages/Student/MyCourses";
+import SavedVideos from "./Pages/Student/SavedVideos";
 
 // Global Components
 import GlobalLiveAlert from "./Components/LiveClass/GlobalLiveAlert";
@@ -142,6 +143,7 @@ function App() {
           <Route path="profile" element={<StudentProfile />} />
           <Route path="instructors" element={<StudentInstructors />} />
           <Route path="my-courses" element={<StudentMyCourses />} />
+          <Route path="saved-videos" element={<SavedVideos />} />
           <Route path="learn/:id" element={<CoursePlayer />} />
         </Route>
         <Route

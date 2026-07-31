@@ -167,6 +167,18 @@ router.get(
   })
 );
 
+// Get Saved Shorts
+router.get(
+  "/user/saved",
+  authMiddleware,
+  asyncHandler(async (req, res) => {
+    const shorts = await Short.find({ savedBy: req.user.id })
+      .sort({ createdAt: -1 })
+      .populate("creator", "name profileImage");
+    res.status(200).json({ success: true, shorts });
+  })
+);
+
 // Toggle Like
 router.post(
   "/:id/like",
