@@ -12,6 +12,7 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const iframeRef = useRef(null);
+  const bgIframeRef = useRef(null);
 
   useEffect(() => {
     setIsPlaying(isActive);
@@ -25,9 +26,12 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
 
   // Sync isPlaying with isActive when it changes
   useEffect(() => {
+    const func = isActive ? "playVideo" : "pauseVideo";
     if (iframeRef.current) {
-      const func = isActive ? "playVideo" : "pauseVideo";
       iframeRef.current.contentWindow.postMessage(`{"event":"command","func":"${func}","args":""}`, "*");
+    }
+    if (bgIframeRef.current) {
+      bgIframeRef.current.contentWindow.postMessage(`{"event":"command","func":"${func}","args":""}`, "*");
     }
   }, [isActive]);
 
@@ -52,11 +56,14 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
   }, []);
 
   const togglePlay = () => {
+    const func = isPlaying ? "pauseVideo" : "playVideo";
     if (iframeRef.current) {
-      const func = isPlaying ? "pauseVideo" : "playVideo";
       iframeRef.current.contentWindow.postMessage(`{"event":"command","func":"${func}","args":""}`, "*");
-      setIsPlaying(!isPlaying);
     }
+    if (bgIframeRef.current) {
+      bgIframeRef.current.contentWindow.postMessage(`{"event":"command","func":"${func}","args":""}`, "*");
+    }
+    setIsPlaying(!isPlaying);
   };
 
   return (
@@ -74,8 +81,9 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
             
             {/* Real-time Video for dynamic reflection */}
             <iframe
+              ref={bgIframeRef}
               className="absolute inset-0 w-full h-full pointer-events-none scale-[1.3]"
-              src={`https://www.youtube.com/embed/${short.videoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&playsinline=1&loop=1&playlist=${short.videoId}&disablekb=1`}
+              src={`https://www.youtube.com/embed/${short.videoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&playsinline=1&loop=1&playlist=${short.videoId}&disablekb=1&enablejsapi=1`}
               frameBorder="0"
             ></iframe>
           </div>
