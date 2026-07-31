@@ -1,14 +1,46 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Copy, Globe, MessageCircle, Send } from "lucide-react";
 import toast from "react-hot-toast";
 
 const ShareModal = ({ isOpen, onClose, shortId }) => {
+  const [copied, setCopied] = useState(false);
   const shareUrl = `${window.location.origin}/shorts/${shortId}`;
 
+  const fallbackCopyTextToClipboard = (text) => {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.top = "-9999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      const successful = document.execCommand('copy');
+      if (successful) {
+        toast.success("Link copied to clipboard!");
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
+      else toast.error("Failed to copy link");
+    } catch (err) {
+      toast.error("Failed to copy link");
+    }
+    document.body.removeChild(textArea);
+  };
+
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(shareUrl);
-    toast.success("Link copied to clipboard!");
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(shareUrl)
+        .then(() => {
+          toast.success("Link copied to clipboard!");
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        })
+        .catch(() => fallbackCopyTextToClipboard(shareUrl));
+    } else {
+      fallbackCopyTextToClipboard(shareUrl);
+    }
   };
 
   const shareOptions = [
@@ -87,9 +119,9 @@ const ShareModal = ({ isOpen, onClose, shortId }) => {
               />
               <button
                 onClick={copyToClipboard}
-                className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-500"
+                className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-500 w-[80px]"
               >
-                Copy
+                {copied ? "Copied" : "Copy"}
               </button>
             </div>
           </motion.div>

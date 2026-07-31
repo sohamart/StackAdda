@@ -16,6 +16,7 @@ const ShortSidebar = ({
   short,
   onOpenComments,
   onOpenShare,
+  onOpenLikes,
 }) => {
   const { user } = useAuth();
   
@@ -70,8 +71,8 @@ const ShortSidebar = ({
   return (
     <div className="absolute bottom-8 right-4 flex flex-col items-center gap-7 z-20 pb-4">
       {/* Like */}
-      <div className="flex flex-col items-center gap-1">
-        <button onClick={handleLike} className={`${iconClass} ${isLiked ? 'text-red-500' : ''}`}>
+      <div className="flex flex-col items-center gap-1 cursor-pointer" onClick={onOpenLikes}>
+        <button onClick={(e) => { e.stopPropagation(); handleLike(); }} className={`${iconClass} ${isLiked ? 'text-red-500' : ''}`}>
           <Heart size={26} className={isLiked ? "fill-red-500" : ""} />
         </button>
         <span className="text-xs font-semibold text-white drop-shadow-md">
@@ -92,8 +93,17 @@ const ShortSidebar = ({
           <MessageCircle size={26} className="fill-white/20" />
         </button>
         <span className="text-xs font-semibold text-white drop-shadow-md">
-          {/* We'd ideally need comments count passed down, for now just show a dot or text */}
-          Chat
+          {formatNumber(short.commentsCount || 0)}
+        </span>
+      </div>
+
+      {/* Share */}
+      <div className="flex flex-col items-center gap-1">
+        <button onClick={onOpenShare} className={iconClass}>
+          <Share2 size={26} className="fill-white/20" />
+        </button>
+        <span className="text-xs font-semibold text-white drop-shadow-md">
+          Share
         </span>
       </div>
 

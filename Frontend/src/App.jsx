@@ -124,6 +124,7 @@ function App() {
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/courses" element={<PublicCourses />} />
           <Route path="/shorts" element={<Shorts />} />
+          <Route path="/shorts/:id" element={<Shorts />} />
           <Route path="/course/:slug" element={<CourseDetails />} />
           <Route path="/about" element={<About />} />
           <Route path="/channels" element={<Channels />} />

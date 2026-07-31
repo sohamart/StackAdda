@@ -70,6 +70,10 @@ const shortSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    commentsCount: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

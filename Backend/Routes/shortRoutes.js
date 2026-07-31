@@ -202,6 +202,16 @@ router.post(
   })
 );
 
+// Get Users who liked a short
+router.get(
+  "/:id/likes",
+  asyncHandler(async (req, res) => {
+    const short = await Short.findById(req.params.id).populate("likes", "name profileImage email");
+    if (!short) return res.status(404).json({ success: false, message: "Short not found" });
+    res.status(200).json({ success: true, likes: short.likes });
+  })
+);
+
 // Toggle Save
 router.post(
   "/:id/save",
@@ -272,6 +282,8 @@ router.post(
 
     const populatedComment = await ShortComment.findById(comment._id).populate("userId", "name profileImage");
 
+    await Short.findByIdAndUpdate(req.params.id, { $inc: { commentsCount: 1 } });
+
     res.status(201).json({ success: true, comment: populatedComment });
   })
 );
@@ -300,7 +312,9 @@ router.delete(
       return res.status(403).json({ success: false, message: "Not authorized" });
     }
 
+    const shortId = comment.shortId;
     await comment.deleteOne();
+    await Short.findByIdAndUpdate(shortId, { $inc: { commentsCount: -1 } });
     res.status(200).json({ success: true, message: "Comment deleted" });
   })
 );
@@ -440,4 +454,5 @@ router.put(
   })
 );
 
+router.syncYoutubeShorts = syncYoutubeShorts;
 module.exports = router;

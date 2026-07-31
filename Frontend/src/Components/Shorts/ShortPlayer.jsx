@@ -3,6 +3,7 @@ import { Play, Volume2, VolumeX } from "lucide-react";
 import ShortSidebar from "./ShortSidebar";
 import CommentModal from "./CommentModal";
 import ShareModal from "./ShareModal";
+import LikesModal from "./LikesModal";
 import API from "../../api/axios";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -11,6 +12,7 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isLikesModalOpen, setIsLikesModalOpen] = useState(false);
   const iframeRef = useRef(null);
   const bgIframeRef = useRef(null);
 
@@ -248,6 +250,7 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
           short={short}
           onOpenComments={() => setIsCommentModalOpen(true)}
           onOpenShare={() => setIsShareModalOpen(true)}
+          onOpenLikes={() => setIsLikesModalOpen(true)}
         />
         </div>
 
@@ -264,6 +267,11 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
       <ShareModal
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
+        shortId={short._id}
+      />
+      <LikesModal
+        isOpen={isLikesModalOpen}
+        onClose={() => setIsLikesModalOpen(false)}
         shortId={short._id}
       />
     </div>

@@ -4,12 +4,27 @@ const http = require("http");
 const { Server } = require("socket.io");
 const app = require("./app");
 const connectDB = require("./Config/db");
+const cron = require("node-cron");
+const shortRoutes = require("./Routes/shortRoutes");
 
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
   try {
     await connectDB();
+
+    // Auto-sync YouTube Shorts every 12 hours
+    if (shortRoutes.syncYoutubeShorts) {
+      cron.schedule('0 */12 * * *', async () => {
+        console.log('Running auto-sync for YouTube Shorts...');
+        try {
+          const added = await shortRoutes.syncYoutubeShorts();
+          console.log(`Auto-sync complete. Added ${added} shorts.`);
+        } catch (error) {
+          console.error('Auto-sync failed:', error.message);
+        }
+      });
+    }
 
     const server = http.createServer(app);
 

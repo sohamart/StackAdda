@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useParams } from "react-router-dom";
 import SEO from "../Components/SEO";
 import API from "../api/axios";
 import ShortPlayer from "../Components/Shorts/ShortPlayer";
 import { Loader2 } from "lucide-react";
 
 const Shorts = () => {
+  const { id } = useParams();
   const [shorts, setShorts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -87,13 +89,30 @@ const Shorts = () => {
 
   const fetchShorts = async () => {
     try {
-      const res = await API.get(`/shorts?page=${page}&limit=5`);
-      if (res.data.success) {
-        if (res.data.shorts.length === 0) {
-          setHasMore(false);
-        } else {
-          setShorts((prev) => (page === 1 ? res.data.shorts : [...prev, ...res.data.shorts]));
-        }
+      if (page === 1 && id) {
+         const [singleRes, listRes] = await Promise.all([
+           API.get(`/shorts/${id}`).catch(() => null),
+           API.get(`/shorts?page=${page}&limit=5`)
+         ]);
+         
+         let initialShorts = listRes.data?.success ? listRes.data.shorts : [];
+         if (singleRes && singleRes.data?.success) {
+           const specificShort = singleRes.data.short;
+           initialShorts = initialShorts.filter(s => s._id !== id);
+           initialShorts.unshift(specificShort);
+         }
+         
+         if (initialShorts.length === 0) setHasMore(false);
+         else setShorts(initialShorts);
+      } else {
+         const res = await API.get(`/shorts?page=${page}&limit=5`);
+         if (res.data.success) {
+           if (res.data.shorts.length === 0) setHasMore(false);
+           else setShorts((prev) => {
+             const newShorts = res.data.shorts.filter(s => s._id !== id);
+             return page === 1 ? newShorts : [...prev, ...newShorts];
+           });
+         }
       }
     } catch (error) {
       console.error("Error fetching shorts", error);
