@@ -127,34 +127,14 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
 
         {/* Top Gradient Overlay to hide YouTube Title Bar */}
         <div 
-          className="absolute top-0 left-0 right-0 h-[100px] z-20 flex items-start pt-6 justify-end px-4 pointer-events-auto"
+          className="absolute top-0 left-0 right-0 h-[100px] z-20 pointer-events-none"
           style={{
             background: 'linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)',
             backdropFilter: 'blur(8px)',
             WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
             maskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)'
           }}
-        >
-          {/* Global Mute Toggle Button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setGlobalMuted(!globalMuted);
-            }}
-            className="flex items-center gap-2 rounded-full bg-black/40 border border-white/10 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-xl transition-all hover:bg-white/20 hover:scale-105 active:scale-95 shadow-lg"
-            title="Toggle Mute Globally"
-          >
-            {globalMuted ? (
-              <>
-                <VolumeX size={18} /> <span className="hidden sm:inline">Unmute</span>
-              </>
-            ) : (
-              <>
-                <Volume2 size={18} /> <span className="hidden sm:inline">Mute</span>
-              </>
-            )}
-          </button>
-        </div>
+        ></div>
 
         {/* Loading Animated Logo Overlay */}
         <AnimatePresence>

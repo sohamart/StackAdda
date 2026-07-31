@@ -236,9 +236,10 @@ router.get(
   "/global",
   asyncHandler(async (req, res) => {
     const pageToken = req.query.pageToken || "";
+    const q = req.query.q ? encodeURIComponent(req.query.q) : "coding+tips+tricks+%23shorts";
     const apiKey = process.env.YOUTUBE_API_KEY || "AIzaSyBNXDxfkCEYgfwn0cYZ5iYyDOVZzu-XW2I";
     
-    let apiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=coding+tips+tricks+%23shorts&type=video&videoDuration=short&key=${apiKey}`;
+    let apiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${q}&type=video&videoDuration=short&key=${apiKey}`;
     if (pageToken) apiUrl += `&pageToken=${pageToken}`;
 
     const searchRes = await axios.get(apiUrl);

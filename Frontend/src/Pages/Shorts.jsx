@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import SEO from "../Components/SEO";
 import API from "../api/axios";
 import ShortPlayer from "../Components/Shorts/ShortPlayer";
-import { Loader2 } from "lucide-react";
+import { Loader2, Volume2, VolumeX } from "lucide-react";
 
 const Shorts = () => {
   const { id } = useParams();
@@ -12,6 +12,7 @@ const Shorts = () => {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [pageToken, setPageToken] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [hasMore, setHasMore] = useState(true);
   const [activeVideoId, setActiveVideoId] = useState(null);
   const [globalMuted, setGlobalMuted] = useState(true);
@@ -29,6 +30,11 @@ const Shorts = () => {
     setPage(1);
     setPageToken("");
     setHasMore(true);
+    
+    if (activeTab === 'global') {
+      const queries = ["javascript coding shorts", "python coding tricks", "web development tips", "machine learning shorts", "ai coding tricks", "react js shorts", "css tricks shorts", "html css coding short", "programmer humor shorts"];
+      setSearchQuery(queries[Math.floor(Math.random() * queries.length)]);
+    }
   }, [activeTab]);
 
   // Global Keyboard Navigation
@@ -119,7 +125,7 @@ const Shorts = () => {
       } else {
          const url = activeTab === 'stackadda' 
              ? `/shorts?page=${page}&limit=5` 
-             : `/shorts/global?pageToken=${pageToken}&limit=5`;
+             : `/shorts/global?pageToken=${pageToken}&q=${encodeURIComponent(searchQuery)}&limit=5`;
              
          const res = await API.get(url);
          if (res.data.success) {
@@ -235,10 +241,10 @@ const Shorts = () => {
       <h1 className="sr-only">Stack Adda Shorts</h1>
       
       {/* Top Toggle Switch */}
-      <div className="absolute top-[90px] left-1/2 -translate-x-1/2 md:top-[120px] md:left-8 xl:left-[5%] md:translate-x-0 z-50 flex gap-2 rounded-full bg-white/10 p-1 backdrop-blur-md shadow-[0_4px_30px_rgba(0,0,0,0.5)] border border-white/5">
+      <div className="absolute top-[100px] md:top-[120px] left-4 md:left-8 xl:left-[10%] z-50 flex gap-1 rounded-full bg-black/40 p-1 md:p-1.5 backdrop-blur-md shadow-[0_4px_30px_rgba(0,0,0,0.5)] border border-white/10">
         <button
           onClick={() => setActiveTab('stackadda')}
-          className={`rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 ${
+          className={`rounded-full px-4 py-1.5 text-xs md:px-6 md:py-2.5 md:text-base font-semibold transition-all duration-300 ${
             activeTab === 'stackadda' ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/30' : 'text-white/70 hover:text-white hover:bg-white/5'
           }`}
         >
@@ -246,13 +252,30 @@ const Shorts = () => {
         </button>
         <button
           onClick={() => setActiveTab('global')}
-          className={`rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 ${
+          className={`rounded-full px-4 py-1.5 text-xs md:px-6 md:py-2.5 md:text-base font-semibold transition-all duration-300 ${
             activeTab === 'global' ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/30' : 'text-white/70 hover:text-white hover:bg-white/5'
           }`}
         >
           Coding Tricks
         </button>
       </div>
+
+      {/* Global Mute Toggle Button */}
+      <button
+        onClick={() => setGlobalMuted(!globalMuted)}
+        className="absolute top-[100px] md:top-[120px] right-4 md:right-8 xl:right-[10%] z-50 flex items-center gap-2 rounded-full bg-black/40 border border-white/10 px-4 py-1.5 md:px-6 md:py-2.5 text-xs md:text-base font-semibold text-white backdrop-blur-xl transition-all hover:bg-white/20 hover:scale-105 active:scale-95 shadow-lg"
+        title="Toggle Mute Globally"
+      >
+        {globalMuted ? (
+          <>
+            <VolumeX className="w-4 h-4 md:w-5 md:h-5" /> <span className="hidden sm:inline">Unmute</span>
+          </>
+        ) : (
+          <>
+            <Volume2 className="w-4 h-4 md:w-5 md:h-5" /> <span className="hidden sm:inline">Mute</span>
+          </>
+        )}
+      </button>
 
       {/* Ambient Background Base for Desktop */}
       <div className="fixed inset-0 z-0 hidden md:block overflow-hidden pointer-events-none bg-[#050505]"></div>
