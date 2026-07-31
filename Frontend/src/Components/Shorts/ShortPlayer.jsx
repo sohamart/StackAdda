@@ -102,11 +102,19 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
           )}
         </AnimatePresence>
 
-        {/* Dark Gradient Overlay for text visibility */}
-        <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black/90 to-transparent pointer-events-none z-10"></div>
+        {/* Premium Dark Gradient Overlay with smooth faded blur and subtle orange tint */}
+        <div 
+          className="absolute bottom-0 left-0 right-0 h-[45%] pointer-events-none z-10"
+          style={{
+            background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(249,115,22,0.05) 50%, transparent 100%)',
+            backdropFilter: 'blur(8px)',
+            WebkitMaskImage: 'linear-gradient(to top, black 40%, transparent 100%)',
+            maskImage: 'linear-gradient(to top, black 40%, transparent 100%)'
+          }}
+        ></div>
 
         {/* Video Info (Bottom Left) */}
-        <div className="absolute bottom-6 left-4 right-16 z-20 pointer-events-none">
+        <div className="absolute bottom-6 left-4 right-16 z-20 pointer-events-none border-l-[3px] border-orange-500 pl-3">
           <h3 className="text-white font-bold text-[15px] leading-tight drop-shadow-md">
             {short.title}
           </h3>
