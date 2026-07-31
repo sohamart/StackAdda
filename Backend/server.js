@@ -22,6 +22,8 @@ const startServer = async () => {
           "https://stack-adda.vercel.app",
           "https://stackadda.vercel.app",
           "https://stackbackend-omega.vercel.app",
+          "https://stackadda.me",
+          "https://www.stackadda.me",
         ],
         methods: ["GET", "POST"],
         credentials: true,

@@ -40,6 +40,8 @@ app.use(
       "https://stack-adda.vercel.app",
       "https://stackadda.vercel.app",
       "https://stackbackend-omega.vercel.app",
+      "https://stackadda.me",
+      "https://www.stackadda.me",
     ],
     credentials: true,
   })
