@@ -105,17 +105,19 @@ const Shorts = () => {
 
   return (
     <div className="fixed inset-0 z-40 bg-black pt-20 md:pt-24 lg:pt-28">
-      {/* Scroll Snapping Container */}
-      <div
-        ref={containerRef}
-        className="h-full w-full overflow-y-scroll snap-y snap-mandatory scrollbar-hide flex flex-col items-center"
-      >
-        {shorts.map((short, index) => (
-          <div
-            key={`${short._id}-${index}`}
-            data-id={short._id}
-            className="short-container h-full w-full flex-shrink-0"
-          >
+      {/* Absolute wrapper to guarantee explicit height for the scroll container */}
+      <div className="relative h-full w-full">
+        {/* Scroll Snapping Container */}
+        <div
+          ref={containerRef}
+          className="absolute inset-0 overflow-y-scroll snap-y snap-mandatory scrollbar-hide"
+        >
+          {shorts.map((short, index) => (
+            <div
+              key={`${short._id}-${index}`}
+              data-id={short._id}
+              className="short-container h-full w-full flex justify-center bg-black"
+            >
             <ShortPlayer
               short={short}
               isActive={activeVideoId === short._id || (!activeVideoId && index === 0)} // fallback to first item
@@ -129,6 +131,7 @@ const Shorts = () => {
             <Loader2 className="h-6 w-6 animate-spin text-white/50" />
           </div>
         )}
+      </div>
       </div>
     </div>
   );
