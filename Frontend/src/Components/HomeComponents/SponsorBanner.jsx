@@ -37,18 +37,42 @@ export default function SponsorBanner() {
         Trusted by World-Class Platforms
       </p>
 
-      <div className="sponsor-track flex items-center gap-16 md:gap-24 relative z-20">
-        {/* Double the array to make seamless infinite loop */}
-        {[...sponsors, ...sponsors].map((sp, idx) => (
-          <div
-            key={idx}
-            className="group flex items-center gap-3 text-lg md:text-2xl font-black text-white/30 hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-white hover:to-orange-200 transition-all duration-500 tracking-wider cursor-default"
-          >
-            {/* Glowing gradient indicator dot */}
-            <span className="h-2.5 w-2.5 rounded-full bg-gradient-to-br from-orange-400 to-red-600 shadow-[0_0_12px_rgba(249,115,22,0.8)] opacity-50 group-hover:opacity-100 group-hover:scale-125 transition-all duration-300" />
-            {sp.name}
+      <div className="relative w-full h-[60px] flex items-center justify-start overflow-visible">
+        {/* Dimmed Track (Background) */}
+        <div className="sponsor-track flex items-center gap-16 md:gap-24 absolute left-0 z-20">
+          {[...sponsors, ...sponsors].map((sp, idx) => (
+            <div
+              key={`dim-${idx}`}
+              className="flex items-center gap-3 text-lg md:text-2xl font-black text-white/20 tracking-wider cursor-default"
+            >
+              {/* Dimmed dot */}
+              <span className="h-2.5 w-2.5 rounded-full bg-white/10" />
+              {sp.name}
+            </div>
+          ))}
+        </div>
+
+        {/* Highlighted Track (Foreground, Masked to Center via Static Wrapper) */}
+        <div 
+          className="absolute inset-0 z-30 pointer-events-none"
+          style={{
+            WebkitMaskImage: 'radial-gradient(ellipse 20% 150% at 50% 50%, black 15%, transparent 100%)',
+            maskImage: 'radial-gradient(ellipse 20% 150% at 50% 50%, black 15%, transparent 100%)'
+          }}
+        >
+          <div className="sponsor-track flex items-center gap-16 md:gap-24 absolute left-0 h-full">
+            {[...sponsors, ...sponsors].map((sp, idx) => (
+              <div
+                key={`high-${idx}`}
+                className="flex items-center gap-3 text-lg md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-orange-200 tracking-wider cursor-default"
+              >
+                {/* Glowing gradient indicator dot */}
+                <span className="h-2.5 w-2.5 rounded-full bg-gradient-to-br from-orange-400 to-red-600 shadow-[0_0_12px_rgba(249,115,22,0.8)] scale-125 transition-transform" />
+                {sp.name}
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
     </div>
   );
