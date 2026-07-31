@@ -7,7 +7,7 @@ import LikesModal from "./LikesModal";
 import API from "../../api/axios";
 import { motion, AnimatePresence } from "framer-motion";
 
-const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
+const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted, onRefreshFeed }) => {
   const [isPlaying, setIsPlaying] = useState(isActive);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
@@ -210,12 +210,13 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
         </div>
 
         {/* Sidebar Controls */}
-        <ShortSidebar
-          short={short}
-          onOpenComments={() => setIsCommentModalOpen(true)}
-          onOpenShare={() => setIsShareModalOpen(true)}
-          onOpenLikes={() => setIsLikesModalOpen(true)}
-        />
+          <ShortSidebar 
+            short={short} 
+            onOpenComments={() => setIsCommentModalOpen(true)} 
+            onOpenShare={() => setIsShareModalOpen(true)}
+            onOpenLikes={() => setIsLikesModalOpen(true)}
+            onRefreshFeed={onRefreshFeed}
+          />
         </div>
 
         {/* Crisp Pulsing Outline (On top of video to prevent being hidden) */}

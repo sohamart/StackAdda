@@ -7,15 +7,18 @@ import { Loader2, Volume2, VolumeX } from "lucide-react";
 
 const Shorts = () => {
   const { id } = useParams();
-  const [activeTab, setActiveTab] = useState('stackadda');
+  const [activeTab, setActiveTab] = useState(() => localStorage.getItem("shortsActiveTab") || 'stackadda');
   const [shorts, setShorts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [pageToken, setPageToken] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [publishedAfter, setPublishedAfter] = useState("");
   const [hasMore, setHasMore] = useState(true);
   const [activeVideoId, setActiveVideoId] = useState(null);
   const [globalMuted, setGlobalMuted] = useState(true);
+  const [userInteractedWithMute, setUserInteractedWithMute] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const containerRef = useRef(null);
   const observerRef = useRef(null);
@@ -23,17 +26,34 @@ const Shorts = () => {
 
   useEffect(() => {
     fetchShorts();
-  }, [page, activeTab]);
+  }, [page, activeTab, refreshTrigger]);
 
-  useEffect(() => {
+  const refreshGlobalFeed = () => {
+    const allTerms = ["react", "node", "javascript", "python", "css", "html", "java", "c++", "go", "rust", "php", "ruby", "swift", "kotlin", "sql", "mongodb", "docker", "aws", "linux", "git", "api", "json", "graphql", "tailwind", "bootstrap", "typescript", "express", "django", "flask", "spring", "laravel", "vue", "angular", "svelte", "nextjs", "vim", "vscode", "github", "npm", "webpack", "vite", "babel", "jest", "bash", "regex", "algorithms", "leetcode", "system design", "machine learning", "deep learning", "tensorflow", "pytorch", "pandas", "data science", "mysql", "postgresql", "redis", "firebase", "supabase", "auth0", "jwt", "oauth", "rest api", "pwa", "spa", "seo", "web security", "coding tips", "programming hacks"];
+    
+    const term1 = allTerms[Math.floor(Math.random() * allTerms.length)];
+    let term2 = allTerms[Math.floor(Math.random() * allTerms.length)];
+    while (term1 === term2) term2 = allTerms[Math.floor(Math.random() * allTerms.length)];
+    
+    setSearchQuery(`coding shorts ${term1} ${term2}`);
+    
     setShorts([]);
     setPage(1);
     setPageToken("");
     setHasMore(true);
+    setRefreshTrigger(prev => prev + 1);
+  };
+
+  useEffect(() => {
+    localStorage.setItem("shortsActiveTab", activeTab);
     
     if (activeTab === 'global') {
-      const queries = ["javascript coding shorts", "python coding tricks", "web development tips", "machine learning shorts", "ai coding tricks", "react js shorts", "css tricks shorts", "html css coding short", "programmer humor shorts"];
-      setSearchQuery(queries[Math.floor(Math.random() * queries.length)]);
+      refreshGlobalFeed();
+    } else {
+      setShorts([]);
+      setPage(1);
+      setPageToken("");
+      setHasMore(true);
     }
   }, [activeTab]);
 
@@ -47,9 +67,11 @@ const Shorts = () => {
       if (e.key === "ArrowDown") {
         e.preventDefault();
         containerRef.current.scrollBy({ top: window.innerHeight, behavior: "smooth" });
+        if (!userInteractedWithMute) setGlobalMuted(false);
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
         containerRef.current.scrollBy({ top: -window.innerHeight, behavior: "smooth" });
+        if (!userInteractedWithMute) setGlobalMuted(false);
       }
     };
 
@@ -86,6 +108,7 @@ const Shorts = () => {
       const nextIndex = currentIndex + direction;
       
       container.scrollTo({ top: nextIndex * clientHeight, behavior: "smooth" });
+      if (!userInteractedWithMute) setGlobalMuted(false);
 
       setTimeout(() => {
         isScrolling = false;
@@ -262,7 +285,10 @@ const Shorts = () => {
 
       {/* Global Mute Toggle Button */}
       <button
-        onClick={() => setGlobalMuted(!globalMuted)}
+        onClick={() => {
+          setGlobalMuted(!globalMuted);
+          setUserInteractedWithMute(true);
+        }}
         className="absolute top-[100px] md:top-[120px] right-4 md:right-8 xl:right-[10%] z-50 flex items-center gap-2 rounded-full bg-black/40 border border-white/10 px-4 py-1.5 md:px-6 md:py-2.5 text-xs md:text-base font-semibold text-white backdrop-blur-xl transition-all hover:bg-white/20 hover:scale-105 active:scale-95 shadow-lg"
         title="Toggle Mute Globally"
       >
@@ -318,8 +344,19 @@ const Shorts = () => {
 
       {/* Absolute wrapper to guarantee explicit height for the scroll container */}
       <div className="relative z-10 h-full w-full">
-        <div
+        {/* Main Scrolling Container */}
+        <div 
           ref={containerRef}
+          onTouchStart={() => {
+            if (!userInteractedWithMute && globalMuted) {
+              setGlobalMuted(false);
+            }
+          }}
+          onClick={() => {
+            if (!userInteractedWithMute && globalMuted) {
+              setGlobalMuted(false);
+            }
+          }}
           className="absolute inset-0 overflow-y-scroll snap-y snap-mandatory scrollbar-hide overscroll-contain touch-pan-y"
         >
           {shorts.map((short, index) => (
@@ -332,6 +369,7 @@ const Shorts = () => {
               short={short}
               isActive={activeVideoId === short._id || (!activeVideoId && index === 0)}
               globalMuted={globalMuted}
+              onRefreshFeed={refreshGlobalFeed}
               setGlobalMuted={setGlobalMuted}
             />
           </div>

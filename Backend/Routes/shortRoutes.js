@@ -242,9 +242,28 @@ router.get(
     let apiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${q}&type=video&videoDuration=short&key=${apiKey}`;
     if (pageToken) apiUrl += `&pageToken=${pageToken}`;
 
-    const searchRes = await axios.get(apiUrl);
-    const items = searchRes.data?.items || [];
-    const nextPageToken = searchRes.data?.nextPageToken;
+    let items = [];
+    let nextPageToken = "";
+
+    try {
+      const searchRes = await axios.get(apiUrl);
+      items = searchRes.data?.items || [];
+      nextPageToken = searchRes.data?.nextPageToken || "";
+    } catch (error) {
+      console.error("YouTube API failed (Quota/Limit):", error.message);
+    }
+
+    if (items.length === 0) {
+      // Fallback: fetch previously cached 'global' shorts from MongoDB randomly
+      const cachedShorts = await Short.aggregate([
+        { $match: { type: 'global', isPublished: true } },
+        { $sample: { size: 10 } }
+      ]);
+      
+      if (cachedShorts.length > 0) {
+         return res.status(200).json({ success: true, shorts: cachedShorts, nextPageToken: "" });
+      }
+    }
 
     const videoIds = items.map(item => item?.id?.videoId).filter(Boolean);
     

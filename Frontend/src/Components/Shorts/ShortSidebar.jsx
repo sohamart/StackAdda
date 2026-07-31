@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Heart, MessageCircle, Share2, Bookmark } from "lucide-react";
+import { Heart, MessageCircle, Share2, Bookmark, RefreshCw } from "lucide-react";
 import API from "../../api/axios";
 import { useAuth } from "../../Context/AuthContext";
 import toast from "react-hot-toast";
@@ -17,6 +17,7 @@ const ShortSidebar = ({
   onOpenComments,
   onOpenShare,
   onOpenLikes,
+  onRefreshFeed,
 }) => {
   const { user } = useAuth();
   
@@ -70,6 +71,18 @@ const ShortSidebar = ({
 
   return (
     <div className="absolute bottom-8 right-4 flex flex-col items-center gap-7 z-20 pb-4">
+      {/* Refresh Global Feed (Only for global) */}
+      {short.type === 'global' && onRefreshFeed && (
+        <div className="flex flex-col items-center gap-1 mb-2">
+          <button onClick={onRefreshFeed} className={iconClass}>
+            <RefreshCw size={26} className="text-white drop-shadow-lg" />
+          </button>
+          <span className="text-xs font-semibold text-white drop-shadow-md">
+            New
+          </span>
+        </div>
+      )}
+
       {/* Like */}
       <div className="flex flex-col items-center gap-1 cursor-pointer" onClick={onOpenLikes}>
         <button onClick={(e) => { e.stopPropagation(); handleLike(); }} className={`${iconClass} ${isLiked ? 'text-red-500' : ''}`}>
@@ -98,24 +111,28 @@ const ShortSidebar = ({
       </div>
 
       {/* Share */}
-      <div className="flex flex-col items-center gap-1">
-        <button onClick={onOpenShare} className={iconClass}>
-          <Share2 size={26} className="fill-white/20" />
-        </button>
-        <span className="text-xs font-semibold text-white drop-shadow-md">
-          Share
-        </span>
-      </div>
+      {short.type !== 'global' && (
+        <div className="flex flex-col items-center gap-1">
+          <button onClick={onOpenShare} className={iconClass}>
+            <Share2 size={26} className="fill-white/20" />
+          </button>
+          <span className="text-xs font-semibold text-white drop-shadow-md">
+            Share
+          </span>
+        </div>
+      )}
 
       {/* Save */}
-      <div className="flex flex-col items-center gap-1">
-        <button onClick={handleSave} className={`${iconClass} ${isSaved ? 'text-orange-500' : ''}`}>
-          <Bookmark size={26} className={isSaved ? "fill-orange-500" : ""} />
-        </button>
-        <span className="text-xs font-semibold text-white drop-shadow-md">
-          Save
-        </span>
-      </div>
+      {short.type !== 'global' && (
+        <div className="flex flex-col items-center gap-1">
+          <button onClick={handleSave} className={`${iconClass} ${isSaved ? 'text-orange-500' : ''}`}>
+            <Bookmark size={26} className={isSaved ? "fill-orange-500" : ""} />
+          </button>
+          <span className="text-xs font-semibold text-white drop-shadow-md">
+            Save
+          </span>
+        </div>
+      )}
 
       {/* Profile Pic of Creator */}
       {short.creator && (
