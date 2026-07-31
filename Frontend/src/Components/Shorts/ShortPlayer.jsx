@@ -7,7 +7,7 @@ import LikesModal from "./LikesModal";
 import API from "../../api/axios";
 import { motion, AnimatePresence } from "framer-motion";
 
-const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted, onRefreshFeed }) => {
+const ShortPlayer = ({ short, isActive, isAdjacent, globalMuted, setGlobalMuted, onRefreshFeed }) => {
   const [isPlaying, setIsPlaying] = useState(isActive);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);

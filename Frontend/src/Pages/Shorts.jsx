@@ -110,16 +110,28 @@ const Shorts = () => {
              
          const res = await API.get(url);
          if (res.data.success) {
-           if (res.data.shorts.length === 0) setHasMore(false);
-           else {
-             if (activeTab === 'global' && res.data.nextPageToken) {
-               setPageToken(res.data.nextPageToken);
-             } else if (activeTab === 'global' && !res.data.nextPageToken) {
-               setHasMore(false);
+           if (res.data.shorts.length === 0) {
+             setHasMore(false);
+           } else {
+             if (activeTab === 'global') {
+               if (res.data.nextPageToken) {
+                 setPageToken(res.data.nextPageToken);
+               } else {
+                 // The current query ran out! Generate a NEW query for the next fetch seamlessly!
+                 const allTerms = ["react", "node", "javascript", "python", "css", "html", "java", "c++", "go", "rust", "php", "ruby", "swift", "kotlin", "sql", "mongodb", "docker", "aws", "linux", "git", "api", "json", "graphql", "tailwind", "bootstrap", "typescript", "express", "django", "flask", "spring", "laravel", "vue", "angular", "svelte", "nextjs", "vim", "vscode", "github", "npm", "webpack", "vite", "babel", "jest", "bash", "regex", "algorithms", "leetcode", "system design", "machine learning", "deep learning", "tensorflow", "pytorch", "pandas", "data science", "mysql", "postgresql", "redis", "firebase", "supabase", "auth0", "jwt", "oauth", "rest api", "pwa", "spa", "seo", "web security", "coding tips", "programming hacks"];
+                 const term1 = allTerms[Math.floor(Math.random() * allTerms.length)];
+                 let term2 = allTerms[Math.floor(Math.random() * allTerms.length)];
+                 while (term1 === term2) term2 = allTerms[Math.floor(Math.random() * allTerms.length)];
+                 
+                 setSearchQuery(`coding shorts ${term1} ${term2}`);
+                 setPageToken(""); // Start fresh on the new query
+               }
              }
+             
+             // Append the new shorts. We allow duplicates here so that if the fallback 
+             // returns previously seen videos, the feed still grows and doesn't get stuck in an infinite loading loop.
              setShorts((prev) => {
-               const newShorts = res.data.shorts.filter(s => s._id !== id);
-               return page === 1 ? newShorts : [...prev, ...newShorts];
+               return [...prev, ...res.data.shorts];
              });
            }
          }
@@ -331,6 +343,11 @@ const Shorts = () => {
             <ShortPlayer
               short={short}
               isActive={activeVideoId === short._id || (!activeVideoId && index === 0)}
+              isAdjacent={
+                activeVideoId 
+                  ? Math.abs(shorts.findIndex(s => s._id === activeVideoId) - index) <= 1 
+                  : index <= 1
+              }
               globalMuted={globalMuted}
               onRefreshFeed={refreshGlobalFeed}
               setGlobalMuted={setGlobalMuted}
