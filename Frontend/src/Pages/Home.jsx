@@ -6,7 +6,7 @@ import HeroSection from "../Components/HomeComponents/HeroSection";
 import SponsorBanner from "../Components/HomeComponents/SponsorBanner";
 import { Link } from "react-router-dom";
 import HomeExtras from "../Components/HomeComponents/HomeExtras";
-import HomeShorts from "../Components/HomeComponents/HomeShorts";
+import MobileShortsPromo from "../Components/HomeComponents/MobileShortsPromo";
 
 const Home = () => {
   return (
@@ -75,7 +75,7 @@ const Home = () => {
           </Link>
         </div>
       </div>
-      <HomeShorts />
+      <MobileShortsPromo />
       <HomeExtras />
     </>
   );
