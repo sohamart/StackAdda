@@ -105,7 +105,7 @@ const Navbar = () => {
             to="/courses"
             className={menuClass}
           >
-            Videos
+            Courses
           </NavLink>
 
           <NavLink
@@ -493,7 +493,7 @@ const Navbar = () => {
             >
               <div className="flex items-center gap-3">
                 <PlayCircle size={20} className="text-orange-400" />
-                Videos
+                Courses
               </div>
             </NavLink>
 

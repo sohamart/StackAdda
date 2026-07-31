@@ -81,10 +81,22 @@ export default function CourseDetails() {
 
   const handleShare = async () => {
     try {
-      await navigator.clipboard.writeText(window.location.href);
-      toast.success("Course link copied to clipboard!");
+      const shareData = {
+        title: course?.title || "Stack Adda Course",
+        text: course?.description || "Check out this amazing course on Stack Adda!",
+        url: window.location.href,
+      };
+
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success("Course link copied to clipboard!");
+      }
     } catch (err) {
-      toast.error("Failed to copy link.");
+      if (err.name !== 'AbortError') {
+        toast.error("Failed to share.");
+      }
     }
   };
 
