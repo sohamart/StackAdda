@@ -7,30 +7,53 @@ import API from "../../api/axios";
 import { motion, AnimatePresence } from "framer-motion";
 
 const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
+  const [isPlaying, setIsPlaying] = useState(isActive);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const iframeRef = useRef(null);
 
-  // Record view when it becomes active
   useEffect(() => {
+    setIsPlaying(isActive);
     if (isActive) {
       API.post(`/shorts/${short._id}/view`).catch(console.error);
     }
   }, [isActive, short._id]);
 
+  // Sync isPlaying with isActive when it changes
+  useEffect(() => {
+    if (iframeRef.current) {
+      const func = isActive ? "playVideo" : "pauseVideo";
+      iframeRef.current.contentWindow.postMessage(`{"event":"command","func":"${func}","args":""}`, "*");
+    }
+  }, [isActive]);
+
+  const togglePlay = () => {
+    if (iframeRef.current) {
+      const func = isPlaying ? "pauseVideo" : "playVideo";
+      iframeRef.current.contentWindow.postMessage(`{"event":"command","func":"${func}","args":""}`, "*");
+      setIsPlaying(!isPlaying);
+    }
+  };
+
   return (
     <div className="relative h-full w-full bg-transparent flex items-center justify-center snap-start snap-always scroll-m-0 overflow-hidden">
-      {/* Video Player */}
       <div className="relative h-full w-full max-w-[500px] sm:max-w-md bg-black md:rounded-xl md:shadow-[0_0_50px_rgba(249,115,22,0.15)] md:border md:border-white/10 overflow-hidden">
         
         {isActive ? (
-          <iframe
-            className="absolute top-0 left-0 w-full h-full"
-            src={`https://www.youtube.com/embed/${short.videoId}?autoplay=1&mute=${globalMuted ? 1 : 0}&controls=1&modestbranding=1&rel=0&playsinline=1&loop=1&playlist=${short.videoId}`}
-            title={short.title}
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-          ></iframe>
+          <div 
+            className="absolute inset-0 z-0 cursor-pointer"
+            onClick={togglePlay}
+          >
+            <iframe
+              ref={iframeRef}
+              className="absolute top-0 left-0 w-full h-full pointer-events-none"
+              src={`https://www.youtube.com/embed/${short.videoId}?autoplay=1&mute=${globalMuted ? 1 : 0}&controls=0&modestbranding=1&rel=0&playsinline=1&loop=1&playlist=${short.videoId}&enablejsapi=1&disablekb=1&cc_load_policy=0`}
+              title={short.title}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            ></iframe>
+          </div>
         ) : (
           <img 
             src={short.thumbnail} 
@@ -39,28 +62,44 @@ const ShortPlayer = ({ short, isActive, globalMuted, setGlobalMuted }) => {
           />
         )}
 
-        {/* Top Solid Overlay to hide YouTube Title Bar */}
-        <div className="absolute top-0 left-0 right-0 h-[72px] bg-black z-20 flex items-center justify-end px-4 pointer-events-auto">
-          {/* Global Mute Toggle Button */}
+        {/* Global Mute Toggle Button */}
+        <div className="absolute top-4 right-4 z-20 pointer-events-auto">
           <button
             onClick={(e) => {
               e.stopPropagation();
               setGlobalMuted(!globalMuted);
             }}
-            className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-white/20"
+            className="flex items-center gap-2 rounded-full bg-black/40 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-black/60 shadow-lg border border-white/10"
             title="Toggle Mute Globally"
           >
             {globalMuted ? (
               <>
-                <VolumeX size={18} /> <span>Unmute</span>
+                <VolumeX size={18} /> <span className="hidden sm:inline">Unmute</span>
               </>
             ) : (
               <>
-                <Volume2 size={18} /> <span>Mute</span>
+                <Volume2 size={18} /> <span className="hidden sm:inline">Mute</span>
               </>
             )}
           </button>
         </div>
+
+        {/* Play Button Overlay (when paused manually) */}
+        <AnimatePresence>
+          {!isPlaying && isActive && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.5 }}
+              transition={{ duration: 0.2 }}
+              className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
+            >
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-black/50 backdrop-blur-md shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
+                <Play size={32} className="fill-white text-white ml-1" />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Premium Glass Video Info (Bottom Left) */}
         <div className="absolute bottom-6 left-4 right-16 z-20 pointer-events-none">
