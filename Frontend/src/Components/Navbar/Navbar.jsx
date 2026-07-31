@@ -145,7 +145,7 @@ const Navbar = () => {
             <div className="absolute left-0 top-full mt-2 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-2 group-hover:translate-y-0 transition-all duration-300 z-50">
               <div className="bg-[#0F0F11]/95 backdrop-blur-md border border-white/10 rounded-xl p-2 shadow-xl">
                 <a 
-                  href="https://stackaddabangla.vercel.app" 
+                  href="https://bangla.stackadda.me" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 px-4 py-2 text-sm text-white hover:bg-white/10 hover:text-orange-400 rounded-lg transition-colors font-medium"
@@ -543,7 +543,7 @@ const Navbar = () => {
 
             {/* Mobile External Link */}
             <a
-              href="https://stackaddabangla.vercel.app"
+              href="https://bangla.stackadda.me"
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setOpen(false)}
