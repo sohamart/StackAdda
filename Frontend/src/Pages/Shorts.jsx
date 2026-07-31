@@ -9,6 +9,7 @@ const Shorts = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [activeVideoId, setActiveVideoId] = useState(null);
+  const [globalMuted, setGlobalMuted] = useState(true);
 
   const containerRef = useRef(null);
   const observerRef = useRef(null);
@@ -120,7 +121,9 @@ const Shorts = () => {
             >
             <ShortPlayer
               short={short}
-              isActive={activeVideoId === short._id || (!activeVideoId && index === 0)} // fallback to first item
+              isActive={activeVideoId === short._id || (!activeVideoId && index === 0)}
+              globalMuted={globalMuted}
+              setGlobalMuted={setGlobalMuted}
             />
           </div>
         ))}
