@@ -14,7 +14,7 @@ export default function Home() {
           <a href="#" className="hover:text-white transition">About Us</a>
           <a href="#" className="hover:text-white transition">Contact</a>
         </div>
-        <button className="px-6 py-2.5 bg-white/10 hover:bg-white/20 rounded-full text-sm font-bold transition">
+        <button className="px-6 py-2.5 bg-white/10  hover:bg-white/20 rounded-full text-sm font-bold transition">
           Login
         </button>
       </nav>
