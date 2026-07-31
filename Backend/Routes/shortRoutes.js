@@ -62,12 +62,14 @@ const syncYoutubeShorts = async () => {
         if (!detail) continue;
 
         const durationInSeconds = getDurationInSeconds(detail.contentDetails?.duration);
+        const publishedAt = item?.snippet?.publishedAt || new Date();
         
         // Duration <= 61 seconds is considered a short
         if (durationInSeconds > 0 && durationInSeconds <= 61) {
           const exists = await Short.findOne({ videoId });
           if (exists) {
              exists.views = parseInt(detail.statistics?.viewCount || exists.views, 10);
+             exists.publishedAt = publishedAt;
              await exists.save();
           } else {
              await Short.create({
@@ -79,6 +81,7 @@ const syncYoutubeShorts = async () => {
                tags: [],
                isPublished: true, 
                views: parseInt(detail.statistics?.viewCount || 0, 10),
+               publishedAt,
              });
              newShortsCount++;
           }
@@ -105,7 +108,7 @@ router.get(
     const skip = (page - 1) * limit;
 
     const shorts = await Short.find({ isPublished: true })
-      .sort({ createdAt: -1 })
+      .sort({ publishedAt: -1, createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .populate("creator", "name profileImage");
@@ -131,7 +134,7 @@ router.get(
   "/recommended",
   asyncHandler(async (req, res) => {
     const shorts = await Short.find({ isPublished: true, featured: true })
-      .sort({ createdAt: -1 })
+      .sort({ publishedAt: -1, createdAt: -1 })
       .limit(10)
       .populate("creator", "name profileImage");
     res.status(200).json({ success: true, shorts });
@@ -173,7 +176,7 @@ router.get(
   authMiddleware,
   asyncHandler(async (req, res) => {
     const shorts = await Short.find({ savedBy: req.user.id })
-      .sort({ createdAt: -1 })
+      .sort({ publishedAt: -1, createdAt: -1 })
       .populate("creator", "name profileImage");
     res.status(200).json({ success: true, shorts });
   })
@@ -315,7 +318,7 @@ router.get(
   asyncHandler(async (req, res) => {
     // Optionally trigger background sync here or just let the button do it. 
     // We'll rely on the manual Sync button.
-    const shorts = await Short.find().sort({ createdAt: -1 }).populate("creator", "name");
+    const shorts = await Short.find().sort({ publishedAt: -1, createdAt: -1 }).populate("creator", "name");
     res.status(200).json({ success: true, shorts });
   })
 );
