@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import SEO from "../../Components/SEO";
 import { useSearchParams } from "react-router-dom";
 import {
   Search,
@@ -121,6 +122,8 @@ export default function Courses() {
   }
 
   return (
+    <>
+    <SEO title="Courses & Tutorials" description="Explore Stack Adda's structured courses and YouTube tutorials." canonicalUrl="/courses" />
     <main className="min-h-screen overflow-hidden bg-[#09090B] px-5 pb-20 pt-32 text-white md:px-10">
       <div className="mx-auto max-w-7xl">
         {/* Banner Section */}
@@ -484,5 +487,6 @@ export default function Courses() {
         </div>
       </div>
     </main>
+    </>
   );
 }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import SEO from "../Components/SEO";
 import LoginForm from "..//Components//Login//LoginForm";
 import RegisterForm from "..//Components//Login//RegisterForm";
 import { GraduationCap, ShieldCheck } from "lucide-react";
@@ -22,6 +23,8 @@ const Login = () => {
   }, [user, loading, navigate]);
 
   return (
+    <>
+    <SEO title="Login" description="Login or register to your Stack Adda account to start learning." canonicalUrl="/login" />
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-black px-4 py-28 sm:px-6 lg:py-32">
 
       {/* Background Glow */}
@@ -99,9 +102,9 @@ const Login = () => {
 
             <div className="lg:hidden text-center mb-2">
 
-              <h1 className="text-4xl font-black text-white">
+              <div className="text-4xl font-black text-white">
                 Stack <span className="text-orange-400">Adda</span>
-              </h1>
+              </div>
 
             </div>
 
@@ -189,6 +192,7 @@ const Login = () => {
       </div>
 
     </div>
+    </>
   );
 };
 

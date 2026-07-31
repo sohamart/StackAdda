@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import SEO from "../../Components/SEO";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   Award,
@@ -240,7 +241,28 @@ export default function CourseDetails() {
 
   const isEnrolled = user && (user.role === "admin" || user.enrolledCourses?.includes(course._id));
 
+  const courseSchema = {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": course.title,
+    "description": course.description,
+    "provider": {
+      "@type": "Organization",
+      "name": "Stack Adda",
+      "sameAs": "https://stackadda.me"
+    },
+    "image": course.thumbnail?.url || "https://stackadda.me/favicon.png"
+  };
+
   return (
+    <>
+    <SEO 
+      title={course.title} 
+      description={course.description} 
+      canonicalUrl={`/course/${course.slug || slug}`} 
+      ogImage={course.thumbnail?.url} 
+      schema={courseSchema} 
+    />
     <main className="min-h-screen bg-[#09090B] px-4 pb-20 pt-28 text-white sm:px-6 md:px-10 md:pt-32">
       <div className="mx-auto max-w-7xl">
         <Link to="/courses" className="text-sm font-medium text-orange-400">
@@ -580,5 +602,6 @@ export default function CourseDetails() {
         </div>
       )}
     </main>
+    </>
   );
 }

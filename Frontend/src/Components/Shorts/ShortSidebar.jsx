@@ -60,10 +60,10 @@ const ShortSidebar = ({
     }
   };
 
-  const iconClass = "flex items-center justify-center h-12 w-12 rounded-full bg-black/40 backdrop-blur-md text-white transition-transform hover:scale-110 active:scale-95 shadow-[0_4px_15px_rgba(0,0,0,0.2)]";
+  const iconClass = "flex items-center justify-center h-12 w-12 rounded-full bg-white/5 border border-white/10 backdrop-blur-2xl text-white transition-all duration-300 hover:bg-white/20 hover:scale-110 active:scale-95 shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_0_20px_rgba(249,115,22,0.3)] hover:border-orange-500/50";
 
   return (
-    <div className="absolute bottom-20 right-4 flex flex-col items-center gap-6 z-20">
+    <div className="absolute bottom-8 right-4 flex flex-col items-center gap-7 z-20 pb-4">
       {/* Like */}
       <div className="flex flex-col items-center gap-1">
         <button onClick={handleLike} className={`${iconClass} ${isLiked ? 'text-red-500' : ''}`}>
@@ -95,20 +95,10 @@ const ShortSidebar = ({
         </span>
       </div>
 
-      {/* Share */}
-      <div className="flex flex-col items-center gap-1">
-        <button onClick={onOpenShare} className={iconClass}>
-          <Share2 size={26} className="fill-white/20" />
-        </button>
-        <span className="text-xs font-semibold text-white drop-shadow-md">
-          {formatNumber(short.shares || 0)}
-        </span>
-      </div>
-
       {/* Profile Pic of Creator */}
       {short.creator && (
-        <div className="mt-4 flex flex-col items-center gap-1">
-          <div className="relative h-12 w-12 rounded-full border-2 border-orange-500 p-[2px] overflow-hidden">
+        <div className="mt-2 flex flex-col items-center gap-1 group cursor-pointer">
+          <div className="relative h-12 w-12 rounded-full border-2 border-orange-500 p-[2px] overflow-hidden transition-transform duration-300 group-hover:scale-110 shadow-[0_0_15px_rgba(249,115,22,0.4)]">
             <img 
               src={short.creator.profileImage?.url || `https://ui-avatars.com/api/?name=${short.creator.name}&background=f97316&color=fff`} 
               alt={short.creator.name}

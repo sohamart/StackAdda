@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import SEO from "../Components/SEO";
 import API from "../api/axios";
 import ShortPlayer from "../Components/Shorts/ShortPlayer";
 import { Loader2 } from "lucide-react";
@@ -38,6 +39,51 @@ const Shorts = () => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  // Global Wheel/Trackpad Navigation (Strict 1-video scrolling everywhere)
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    let isScrolling = false;
+
+    const handleWheel = (e) => {
+      // Allow native scroll inside comment modals
+      if (e.target.closest('.comment-modal') || e.target.closest('.overflow-y-auto')) return;
+      
+      // Ignore tiny trackpad movements to prevent accidental scrolls
+      if (Math.abs(e.deltaY) < 15) return;
+
+      e.preventDefault();
+
+      if (isScrolling) return;
+
+      const direction = e.deltaY > 0 ? 1 : -1;
+      
+      isScrolling = true;
+      
+      const clientHeight = container.clientHeight;
+      const currentScroll = container.scrollTop;
+      
+      const currentIndex = Math.round(currentScroll / clientHeight);
+      const nextIndex = currentIndex + direction;
+      
+      container.scrollTo({ top: nextIndex * clientHeight, behavior: "smooth" });
+
+      setTimeout(() => {
+        isScrolling = false;
+      }, 700);
+    };
+
+    // Attach to window so it catches trackpad ANYWHERE on the screen
+    window.addEventListener("wheel", handleWheel, { passive: false });
+
+    return () => {
+      window.removeEventListener("wheel", handleWheel);
+    };
+  }, []);
+
+
 
   const fetchShorts = async () => {
     try {
@@ -123,31 +169,47 @@ const Shorts = () => {
   const activeShort = shorts.find((s) => s._id === activeVideoId) || shorts[0];
 
   return (
+    <>
+    <SEO title="Shorts" description="Watch bite-sized coding tutorials and tips on Stack Adda." canonicalUrl="/shorts" />
     <div className="fixed inset-0 z-40 bg-black pt-20 md:pt-24 lg:pt-28">
-      {/* Ambient Background Glow for Desktop */}
-      {activeShort && (
-        <div className="absolute inset-0 z-0 hidden md:block overflow-hidden pointer-events-none transition-all duration-700 ease-in-out">
-          <img
-            key={activeShort._id}
-            src={activeShort.thumbnail}
-            alt=""
-            className="absolute inset-0 w-full h-full object-cover blur-[120px] opacity-40 scale-110"
-          />
-          <div className="absolute inset-0 bg-black/50"></div>
-        </div>
-      )}
+      <h1 className="sr-only">Stack Adda Shorts</h1>
+      {/* Ambient Background Base for Desktop */}
+      <div className="fixed inset-0 z-0 hidden md:block overflow-hidden pointer-events-none bg-[#050505]"></div>
 
-      {/* Keyboard Navigation Helper (Desktop Only) */}
-      <div className="absolute right-[5%] lg:right-[10%] xl:right-[15%] top-1/2 -translate-y-1/2 z-20 hidden md:flex flex-col items-center gap-4 text-white/50 pointer-events-none transition-opacity duration-1000">
-        <div className="rounded-3xl border border-white/10 bg-black/40 backdrop-blur-xl px-8 py-10 flex flex-col items-center gap-4 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
-          <kbd className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/20 font-sans text-3xl font-bold text-white shadow-inner animate-bounce">
-            ↓
-          </kbd>
-          <div className="text-center">
-            <p className="text-lg font-bold text-white tracking-wide">Down Arrow</p>
-            <p className="text-sm font-medium text-white/60 mt-1 uppercase tracking-widest">Next Video</p>
+      {/* Navigation Helper (Desktop Only) - Left Up Arrow */}
+      <div className="absolute left-[5%] lg:left-[8%] xl:left-[12%] top-1/2 -translate-y-1/2 z-20 hidden md:flex flex-col items-center gap-4 transition-opacity duration-1000">
+        <button 
+          onClick={() => {
+            if (containerRef.current) {
+               containerRef.current.scrollBy({ top: -containerRef.current.clientHeight, behavior: "smooth" });
+            }
+          }}
+          className="group flex flex-col items-center gap-3 rounded-[2rem] border border-white/5 bg-white/5 backdrop-blur-2xl p-5 transition-all duration-300 hover:bg-white/10 hover:border-orange-500/30 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] active:scale-95"
+          title="Previous Video"
+        >
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-black/40 shadow-inner group-hover:bg-orange-500/20 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white/70 group-hover:text-orange-400 group-hover:-translate-y-1 transition-all duration-300"><path d="m18 15-6-6-6 6"/></svg>
           </div>
-        </div>
+          <p className="text-xs font-bold text-white/50 tracking-[0.2em] uppercase group-hover:text-orange-400 transition-colors">Prev</p>
+        </button>
+      </div>
+
+      {/* Navigation Helper (Desktop Only) - Right Down Arrow */}
+      <div className="absolute right-[5%] lg:right-[8%] xl:right-[12%] top-1/2 -translate-y-1/2 z-20 hidden md:flex flex-col items-center gap-4 transition-opacity duration-1000">
+        <button 
+          onClick={() => {
+            if (containerRef.current) {
+               containerRef.current.scrollBy({ top: containerRef.current.clientHeight, behavior: "smooth" });
+            }
+          }}
+          className="group flex flex-col items-center gap-3 rounded-[2rem] border border-white/5 bg-white/5 backdrop-blur-2xl p-5 transition-all duration-300 hover:bg-white/10 hover:border-orange-500/30 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] active:scale-95"
+          title="Next Video"
+        >
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-black/40 shadow-inner group-hover:bg-orange-500/20 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white/70 group-hover:text-orange-400 group-hover:translate-y-1 transition-all duration-300"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+          <p className="text-xs font-bold text-white/50 tracking-[0.2em] uppercase group-hover:text-orange-400 transition-colors">Next</p>
+        </button>
       </div>
 
       {/* Absolute wrapper to guarantee explicit height for the scroll container */}
@@ -155,7 +217,8 @@ const Shorts = () => {
         {/* Scroll Snapping Container */}
         <div
           ref={containerRef}
-          className="absolute inset-0 overflow-y-scroll snap-y snap-mandatory scrollbar-hide"
+          className="absolute inset-0 overflow-y-scroll snap-y snap-mandatory scrollbar-hide overscroll-contain touch-pan-y"
+          style={{ scrollBehavior: 'smooth' }}
         >
           {shorts.map((short, index) => (
             <div
@@ -186,7 +249,8 @@ const Shorts = () => {
       </div>
       </div>
     </div>
+    </>
   );
-};
+}
 
 export default Shorts;

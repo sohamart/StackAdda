@@ -1,4 +1,5 @@
 import React from "react";
+import SEO from "../Components/SEO";
 import YoutubeSection from "../Components/HomeComponents/YoutubeSection";
 import Courses from "../Components/HomeComponents/Courses";
 import HeroSection from "../Components/HomeComponents/HeroSection";
@@ -9,6 +10,19 @@ import HomeExtras from "../Components/HomeComponents/HomeExtras";
 const Home = () => {
   return (
     <>
+      <SEO 
+        title="Home"
+        description="Learn practical coding and build real-world applications with Stack Adda."
+        keywords="coding, tutorials, full stack, web development, mern stack, react, nodejs"
+        canonicalUrl="/"
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "name": "Stack Adda",
+          "url": "https://stackadda.me",
+          "logo": "https://stackadda.me/favicon.png"
+        }}
+      />
       {/* First Screen */}
       <div className="relative lg:h-[89vh] h-[70vh] w-full overflow-hidden bg-black sm:px-8 lg:px-16">
         <HeroSection />

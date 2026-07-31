@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Tv, ExternalLink, Users, PlayCircle, Star, Loader2, Clock } from "lucide-react";
 import API from "../api/axios";
-
+import SEO from "../Components/SEO";
 export default function Channels() {
   const [channels, setChannels] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,6 +26,8 @@ export default function Channels() {
   }, []);
 
   return (
+    <>
+    <SEO title="Channels" description="Explore the Stack Adda network of YouTube channels for development journey." canonicalUrl="/channels" />
     <main className="relative min-h-screen overflow-x-hidden bg-[#09090B] px-4 sm:px-6 md:px-10 pt-28 md:pt-32 pb-20 md:pb-24 text-white">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[400px] w-[500px] rounded-full bg-orange-500/10 blur-3xl pointer-events-none" />
       
@@ -136,5 +138,6 @@ export default function Channels() {
         )}
       </section>
     </main>
+    </>
   );
 }
