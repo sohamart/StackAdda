@@ -3,10 +3,9 @@ import SEO from "../Components/SEO";
 import YoutubeSection from "../Components/HomeComponents/YoutubeSection";
 import Courses from "../Components/HomeComponents/Courses";
 import HeroSection from "../Components/HomeComponents/HeroSection";
-import SponsorBanner from "../Components/HomeComponents/SponsorBanner";
 import { Link } from "react-router-dom";
 import HomeExtras from "../Components/HomeComponents/HomeExtras";
-import MobileShortsPromo from "../Components/HomeComponents/MobileShortsPromo";
+import SponsorBanner from "../Components/HomeComponents/SponsorBanner";
 
 const Home = () => {
   return (
@@ -75,7 +74,6 @@ const Home = () => {
           </Link>
         </div>
       </div>
-      <MobileShortsPromo />
       <HomeExtras />
     </>
   );

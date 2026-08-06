@@ -38,6 +38,7 @@ import SavedVideos from "./Pages/Student/SavedVideos";
 // Global Components
 import GlobalLiveAlert from "./Components/LiveClass/GlobalLiveAlert";
 import InstallPrompt from "./Components/InstallPrompt";
+import AIAvatar from "./Components/AIAvatar";
 
 // Admin Pages
 import AdminDashboard from "./Pages/Admin/Dashboard";
@@ -113,6 +114,7 @@ function App() {
       )}
       <InstallPrompt />
       <GlobalLiveAlert />
+      <AIAvatar />
       <Routes>
         {/* Public Routes */}
         <Route element={<MainLayout />}>

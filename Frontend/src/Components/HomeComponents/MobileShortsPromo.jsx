@@ -21,25 +21,11 @@ const MobileShortsPromo = () => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-[100] animate-[bounce_4s_infinite]">
-      
-      {/* Close Button */}
-      <button 
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          setIsVisible(false);
-        }}
-        className="absolute -top-3 -left-3 z-50 w-6 h-6 md:w-7 md:h-7 bg-[#1a1a1a] border border-white/20 rounded-full flex items-center justify-center text-white/60 hover:text-white hover:bg-red-500 transition-colors shadow-lg cursor-pointer"
-        title="Hide Promo"
-      >
-        <X size={14} />
-      </button>
-
+    <div className="w-full mb-4 px-2">
       {/* Small Promo Card */}
       <Link 
         to="/shorts" 
-        className="relative flex items-center w-[210px] md:w-[250px] h-[85px] md:h-[100px] bg-gradient-to-r from-[#1a0f0a] to-[#2a1405] border border-orange-500/30 rounded-2xl shadow-[0_10px_40px_rgba(249,115,22,0.15)] group transition-all duration-500 hover:scale-[1.02] hover:border-orange-500/60"
+        className="relative flex items-center w-full h-[85px] md:h-[100px] bg-gradient-to-r from-[#1a0f0a] to-[#2a1405] border border-orange-500/30 rounded-2xl shadow-[0_10px_40px_rgba(249,115,22,0.15)] group transition-all duration-500 hover:scale-[1.02] hover:border-orange-500/60"
       >
         {/* Ambient Glow behind card */}
         <div className="absolute inset-0 bg-orange-500/10 blur-xl rounded-2xl animate-pulse group-hover:bg-orange-500/20 transition-colors"></div>

@@ -22,6 +22,7 @@ const youtubeRoutes = require("./Routes/youtubeRoutes");
 const channelRoutes = require("./Routes/channelRoutes");
 const shortRoutes = require("./Routes/shortRoutes");
 const seoRoutes = require("./Routes/seoRoutes");
+const aiRoutes = require("./Routes/aiRoutes");
 
 /* ==========================
    Middlewares
@@ -64,6 +65,7 @@ app.use("/api/live-class", liveClassRoutes);
 app.use("/api/youtube", youtubeRoutes);
 app.use("/api/channels", channelRoutes);
 app.use("/api/shorts", shortRoutes);
+app.use("/api/ai", aiRoutes);
 
 // Serve Sitemap and Robots.txt at root
 app.use("/", seoRoutes);
@@ -93,3 +95,4 @@ app.use((req, res) => {
 app.use(errorHandler);
 
 module.exports = app;
+

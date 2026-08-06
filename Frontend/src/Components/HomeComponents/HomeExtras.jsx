@@ -5,6 +5,7 @@ import { useAuth } from "../../Context/AuthContext";
 import { toast } from "react-toastify";
 import API from "../../api/axios";
 import StructuredCourses from "./StructuredCourses";
+import HomeShorts from "./HomeShorts";
 
 const fallbackTeam = [
   {
@@ -195,6 +196,9 @@ export default function HomeExtras() {
 
       {/* Structured Courses Section */}
       <StructuredCourses />
+
+      {/* Shorts Section */}
+      <HomeShorts />
 
       {/* Reviews Section */}
       <section className="border-y border-white/10 bg-white/[.025] px-5 py-24 text-white">
