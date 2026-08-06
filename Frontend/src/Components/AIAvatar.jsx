@@ -30,17 +30,42 @@ const AIAvatar = () => {
     navigate(path);
   };
 
-  const handleSend = async (e) => {
-    e.preventDefault();
-    if (!input.trim()) return;
+  const [placeholderText, setPlaceholderText] = useState("");
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [charIndex, setCharIndex] = useState(0);
 
-    const userMessage = { role: "user", content: input };
+  const placeholders = [
+    "Ask me anything about Stack Adda...",
+    "What courses do you offer?",
+    "How can I learn MERN stack?",
+    "Who are the founders of Stack Adda?",
+    "Are there any coding shorts?"
+  ];
+
+  useEffect(() => {
+    const currentText = placeholders[placeholderIndex];
+    if (charIndex < currentText.length) {
+      const timeout = setTimeout(() => {
+        setPlaceholderText((prev) => prev + currentText[charIndex]);
+        setCharIndex((prev) => prev + 1);
+      }, 50);
+      return () => clearTimeout(timeout);
+    } else {
+      const timeout = setTimeout(() => {
+        setPlaceholderText("");
+        setCharIndex(0);
+        setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
+      }, 2500);
+      return () => clearTimeout(timeout);
+    }
+  }, [charIndex, placeholderIndex]);
+
+  const sendMessage = async (text) => {
+    const userMessage = { role: "user", content: text };
     setMessages((prev) => [...prev, userMessage]);
-    setInput("");
     setLoading(true);
 
     try {
-      // API expects the whole conversation history
       const res = await API.post("/ai/chat", {
         messages: [...messages, userMessage],
       });
@@ -65,6 +90,19 @@ const AIAvatar = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSend = async (e) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+    const textToSend = input;
+    setInput("");
+    await sendMessage(textToSend);
+  };
+
+  const handleSuggestionClick = (question) => {
+    if (!isOpen) setIsOpen(true);
+    sendMessage(question);
   };
 
   return (
@@ -153,25 +191,31 @@ const AIAvatar = () => {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Suggested / Sponsored Links */}
+          {/* Suggested Questions */}
           <div className="px-3 pb-2 flex gap-2 overflow-x-auto scrollbar-none whitespace-nowrap" data-lenis-prevent="true">
             <button
-              onClick={() => handleLinkClick("/courses")}
+              onClick={() => handleSuggestionClick("What is Stack Adda?")}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-orange-500/20 to-orange-400/10 hover:from-orange-500/30 hover:to-orange-400/20 border border-orange-500/20 rounded-full text-xs text-orange-400 transition"
             >
-              <Zap size={12} className="fill-orange-400" /> New Features
+              <Sparkles size={12} className="text-orange-400" /> What is Stack Adda?
             </button>
             <button
-              onClick={() => handleLinkClick("/shorts")}
+              onClick={() => handleSuggestionClick("How to buy a course?")}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-white/[0.05] hover:bg-white/[0.1] border border-white/5 rounded-full text-xs text-white/70 transition"
             >
-              🚀 Coding Shorts
+              How to buy a course?
             </button>
             <button
-              onClick={() => handleLinkClick("/channels")}
+              onClick={() => handleSuggestionClick("Do you have free tutorials?")}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-white/[0.05] hover:bg-white/[0.1] border border-white/5 rounded-full text-xs text-white/70 transition"
             >
-              📺 Channels
+              Do you have free tutorials?
+            </button>
+            <button
+              onClick={() => handleSuggestionClick("Who are the founders?")}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white/[0.05] hover:bg-white/[0.1] border border-white/5 rounded-full text-xs text-white/70 transition"
+            >
+              Who are the founders?
             </button>
           </div>
 
@@ -185,7 +229,7 @@ const AIAvatar = () => {
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask me anything about Stack Adda..."
+                placeholder={placeholderText}
                 className="w-full bg-[#131316] border border-white/10 text-white text-sm rounded-xl py-3 pl-4 pr-12 focus:outline-none focus:border-orange-500/50 transition-colors placeholder:text-white/30"
               />
               <button
