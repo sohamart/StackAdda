@@ -31,11 +31,24 @@ const Shorts = () => {
   const refreshGlobalFeed = () => {
     const allTerms = ["react", "node", "javascript", "python", "css", "html", "java", "c++", "go", "rust", "php", "ruby", "swift", "kotlin", "sql", "mongodb", "docker", "aws", "linux", "git", "api", "json", "graphql", "tailwind", "bootstrap", "typescript", "express", "django", "flask", "spring", "laravel", "vue", "angular", "svelte", "nextjs", "vim", "vscode", "github", "npm", "webpack", "vite", "babel", "jest", "bash", "regex", "algorithms", "leetcode", "system design", "machine learning", "deep learning", "tensorflow", "pytorch", "pandas", "data science", "mysql", "postgresql", "redis", "firebase", "supabase", "auth0", "jwt", "oauth", "rest api", "pwa", "spa", "seo", "web security", "coding tips", "programming hacks"];
     
+    const baseQueries = [
+      "coding tips and tricks hindi",
+      "coding tips and tricks english",
+      "funny coding moments",
+      "developer funny shorts",
+      "programming jokes",
+      "tech tips hindi",
+      "coding hacks",
+      "software engineering funny",
+      "web development tips hindi"
+    ];
+
     const term1 = allTerms[Math.floor(Math.random() * allTerms.length)];
     let term2 = allTerms[Math.floor(Math.random() * allTerms.length)];
     while (term1 === term2) term2 = allTerms[Math.floor(Math.random() * allTerms.length)];
     
-    setSearchQuery(`coding shorts ${term1} ${term2}`);
+    const baseQuery = baseQueries[Math.floor(Math.random() * baseQueries.length)];
+    setSearchQuery(`${baseQuery} ${term1} ${term2} #shorts`);
     
     setShorts([]);
     setPage(1);
@@ -119,11 +132,25 @@ const Shorts = () => {
                } else {
                  // The current query ran out! Generate a NEW query for the next fetch seamlessly!
                  const allTerms = ["react", "node", "javascript", "python", "css", "html", "java", "c++", "go", "rust", "php", "ruby", "swift", "kotlin", "sql", "mongodb", "docker", "aws", "linux", "git", "api", "json", "graphql", "tailwind", "bootstrap", "typescript", "express", "django", "flask", "spring", "laravel", "vue", "angular", "svelte", "nextjs", "vim", "vscode", "github", "npm", "webpack", "vite", "babel", "jest", "bash", "regex", "algorithms", "leetcode", "system design", "machine learning", "deep learning", "tensorflow", "pytorch", "pandas", "data science", "mysql", "postgresql", "redis", "firebase", "supabase", "auth0", "jwt", "oauth", "rest api", "pwa", "spa", "seo", "web security", "coding tips", "programming hacks"];
+                 
+                 const baseQueries = [
+                   "coding tips and tricks hindi",
+                   "coding tips and tricks english",
+                   "funny coding moments",
+                   "developer funny shorts",
+                   "programming jokes",
+                   "tech tips hindi",
+                   "coding hacks",
+                   "software engineering funny",
+                   "web development tips hindi"
+                 ];
+                 
                  const term1 = allTerms[Math.floor(Math.random() * allTerms.length)];
                  let term2 = allTerms[Math.floor(Math.random() * allTerms.length)];
                  while (term1 === term2) term2 = allTerms[Math.floor(Math.random() * allTerms.length)];
                  
-                 setSearchQuery(`coding shorts ${term1} ${term2}`);
+                 const baseQuery = baseQueries[Math.floor(Math.random() * baseQueries.length)];
+                 setSearchQuery(`${baseQuery} ${term1} ${term2} #shorts`);
                  setPageToken(""); // Start fresh on the new query
                }
              }
