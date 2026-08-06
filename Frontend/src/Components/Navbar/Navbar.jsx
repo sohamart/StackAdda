@@ -28,6 +28,7 @@ const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const navigate = useNavigate();
 
   const { user, logout } = useAuth();
@@ -138,12 +139,16 @@ const Navbar = () => {
           </NavLink>
 
           {/* More Dropdown */}
-          <div className="relative group cursor-pointer">
-            <div className="flex items-center gap-1 text-white hover:text-orange-400 transition duration-300">
-              More <ChevronDown size={16} className="group-hover:rotate-180 transition-transform duration-300" />
+          <div 
+            className="relative group cursor-pointer"
+            onClick={() => setMoreOpen(!moreOpen)}
+            onMouseLeave={() => setMoreOpen(false)}
+          >
+            <div className={`flex items-center gap-1 transition duration-300 ${moreOpen ? 'text-orange-400' : 'text-white hover:text-orange-400'}`}>
+              More <ChevronDown size={16} className={`transition-transform duration-300 ${moreOpen ? 'rotate-180' : 'group-hover:rotate-180'}`} />
             </div>
             {/* Dropdown Menu */}
-            <div className="absolute left-0 top-full mt-2 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-2 group-hover:translate-y-0 transition-all duration-300 z-50">
+            <div className={`absolute left-0 top-full mt-2 w-48 transition-all duration-300 z-50 ${moreOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-2 group-hover:translate-y-0'}`}>
               <div className="bg-[#0F0F11]/95 backdrop-blur-md border border-white/10 rounded-xl p-2 shadow-xl">
                 <a 
                   href="https://bangla.stackadda.me" 
