@@ -104,9 +104,10 @@ const AIAvatar = () => {
       }
     } catch (error) {
       console.error("AI Chat error:", error);
+      const errorMsg = error.response?.data?.message || error.message || "Unknown error occurred.";
       setMessages((prev) => [
         ...prev,
-        { role: "model", content: "Sorry, I am facing some issues right now. Make sure the API key is set." },
+        { role: "model", content: `Sorry, I am facing some issues right now. Error: ${errorMsg}` },
       ]);
     } finally {
       setLoading(false);
