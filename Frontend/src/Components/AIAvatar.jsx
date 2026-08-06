@@ -12,6 +12,27 @@ const AIAvatar = () => {
       content: "Hello! I'm the Stack Adda AI Assistant. 👋 How can I help you learn and build today?",
     },
   ]);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const res = await API.get("/ai/chat/history");
+        if (res.data.success && res.data.messages.length > 0) {
+          // Prepend the default greeting, then add the history
+          setMessages([
+            {
+              role: "model",
+              content: "Hello! I'm the Stack Adda AI Assistant. 👋 How can I help you learn and build today?",
+            },
+            ...res.data.messages,
+          ]);
+        }
+      } catch (error) {
+        // Ignored. If user is not logged in or error, just use default message.
+      }
+    };
+    fetchHistory();
+  }, []);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
