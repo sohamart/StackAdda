@@ -53,8 +53,10 @@ const chatWithAI = asyncHandler(async (req, res) => {
     
     // --- 1. Gather Context Data ---
     // Fetch aggregate YouTube views
-    const ytVideos = await YoutubeVideo.find({});
-    const shorts = await Short.find({});
+    const [ytVideos, shorts] = await Promise.all([
+      YoutubeVideo.find({}),
+      Short.find({})
+    ]);
     
     const totalYtViews = ytVideos.reduce((acc, curr) => acc + (curr.views || 0), 0);
     const totalShortViews = shorts.reduce((acc, curr) => acc + (curr.views || 0), 0);
