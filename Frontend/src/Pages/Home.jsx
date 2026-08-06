@@ -23,21 +23,22 @@ const Home = () => {
           "logo": "https://stackadda.me/favicon.png"
         }}
       />
-      {/* First Screen */}
-      <div className="relative lg:h-[89vh] h-[70vh] w-full overflow-hidden bg-black sm:px-8 lg:px-16">
-        <HeroSection />
-      </div>
-
-      
-
-      {/* Second Screen */}
-      <div className="relative w-full rounded-t-[60px] lg:rounded-t-[120px] border-t border-white/20 bg-black overflow-hidden">
+      <div className="fixed top-0 left-0 w-full z-0">
+  <div className="relative lg:h-[89vh] h-[70vh] w-full overflow-hidden bg-black sm:px-8 lg:px-16">
+    <HeroSection />
+  </div>
+</div>
+<div className="lg:h-[89vh] h-[70vh]"></div>
+      {/* Scrollable Content (Covers the Fixed Hero) */}
+      <div className="relative z-10 w-full bg-black">
+        {/* Second Screen */}
+        <div className="relative w-full rounded-t-[60px] lg:rounded-t-[120px] border-t border-white/20 overflow-hidden">
         <SponsorBanner />
         <YoutubeSection />
       </div>
 
-      {/* Third Screen */}
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Third Screen */}
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <p className="pt-4 text-center text-sm font-semibold tracking-[.25em] text-orange-400">LEARN WITH STACK ADDA</p>
         <h1 className="mt-3 text-3xl sm:text-4xl lg:text-5xl text-center uppercase text-white font-black">
           YouTube Tutorials
@@ -74,7 +75,8 @@ const Home = () => {
           </Link>
         </div>
       </div>
-      <HomeExtras />
+        <HomeExtras />
+      </div>
     </>
   );
 };
