@@ -168,6 +168,11 @@ const chatWithAI = asyncHandler(async (req, res) => {
 const getChatHistory = asyncHandler(async (req, res) => {
   try {
     const user = req.user;
+    
+    if (!user) {
+      return res.status(200).json({ success: true, messages: [] });
+    }
+
     const chatHistory = await ChatHistory.findOne({ user: user._id });
 
     if (!chatHistory) {

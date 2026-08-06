@@ -11,7 +11,7 @@ router.post("/chat", optionalAuthMiddleware, chatWithAI);
 
 // @route   GET /api/ai/chat/history
 // @desc    Get user's chat history
-// @access  Private
-router.get("/chat/history", authMiddleware, getChatHistory);
+// @access  Public (Optional Auth)
+router.get("/chat/history", optionalAuthMiddleware, getChatHistory);
 
 module.exports = router;
