@@ -176,7 +176,7 @@ const Navbar = () => {
 
         {/* Right Side */}
 
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden lg:flex items-center gap-4">
 
           {!user ? (
 
@@ -471,7 +471,7 @@ const Navbar = () => {
           <button
             onClick={() => setOpen(!open)}
             aria-label="Toggle menu"
-            className="text-white md:hidden"
+            className="text-white lg:hidden"
           >
             {open ? <X size={28} /> : <Menu size={28} />}
           </button>
@@ -483,7 +483,7 @@ const Navbar = () => {
           open ? "max-h-[700px]" : "max-h-0"
         }`}
       >
-        <div className="border-t border-white/10 px-6 py-6 md:hidden">
+        <div className="border-t border-white/10 px-6 py-6 lg:hidden">
 
           {user && (
             <div className="mb-6 flex items-center gap-4">
