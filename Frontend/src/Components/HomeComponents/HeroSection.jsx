@@ -1,5 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom';
+import { ChevronsUp } from 'lucide-react';
 
 const HeroSection = () => {
   const navigator = useNavigate();
@@ -157,6 +158,26 @@ const HeroSection = () => {
 
         </div>
 
+        {/* Scroll Up Indicator for Parallax */}
+        <div 
+          className="absolute bottom-2 lg:bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 cursor-pointer group" 
+          onClick={() => window.scrollTo({ top: window.innerHeight * 0.8, behavior: 'smooth' })}
+        >
+          {/* Animated Chevrons */}
+          <div className="flex flex-col items-center -space-y-1 opacity-50 group-hover:opacity-100 transition-opacity">
+            <ChevronsUp size={24} className="text-orange-500 animate-[bounce_2s_infinite]" />
+          </div>
+          
+          {/* Text */}
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-[10px] sm:text-xs uppercase tracking-[0.3em] font-semibold text-white/50 group-hover:text-white transition-colors">
+              Scroll Up
+            </span>
+            <span className="text-[8px] uppercase tracking-[0.2em] text-white/30">
+              to explore
+            </span>
+          </div>
+        </div>
      
     </>
   )

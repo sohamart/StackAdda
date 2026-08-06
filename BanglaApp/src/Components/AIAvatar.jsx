@@ -57,8 +57,8 @@ const AIAvatar = () => {
     setLoading(true);
 
     try {
-      // Pointing to the main backend API on port 5000
-      const res = await fetch("http://localhost:5000/api/ai/chat", {
+      const baseUrl = import.meta.env.VITE_API_URL || "https://stackbackend-omega.vercel.app/api";
+      const res = await fetch(`${baseUrl}/ai/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

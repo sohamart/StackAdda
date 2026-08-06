@@ -30,7 +30,7 @@ const Home = () => {
 </div>
 <div className="lg:h-[89vh] h-[70vh]"></div>
       {/* Scrollable Content (Covers the Fixed Hero) */}
-      <div className="relative z-10 w-full bg-black">
+      <div className="relative z-10 w-full rounded-t-[60px] lg:rounded-t-[120px] bg-black">
         {/* Second Screen */}
         <div className="relative w-full rounded-t-[60px] lg:rounded-t-[120px] border-t border-white/20 overflow-hidden">
         <SponsorBanner />
