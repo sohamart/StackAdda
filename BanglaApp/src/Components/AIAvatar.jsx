@@ -1,21 +1,17 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Bot, X, Send, User, Loader2, Sparkles, Zap } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import API from "../api/axios";
-import MobileShortsPromo from "./HomeComponents/MobileShortsPromo";
+import { Bot, X, Send, User, Loader2, Sparkles, Languages } from "lucide-react";
 
 const AIAvatar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
       role: "model",
-      content: "Hello! I'm the Stack Adda AI Assistant. 👋 How can I help you learn and build today?",
+      content: "নমস্কার! আমি Stack Adda Bangla-র AI অ্যাসিস্ট্যান্ট। কীভাবে আপনাকে সাহায্য করতে পারি? 👋",
     },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
-  const navigate = useNavigate();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -25,21 +21,16 @@ const AIAvatar = () => {
     scrollToBottom();
   }, [messages, isOpen]);
 
-  const handleLinkClick = (path) => {
-    setIsOpen(false);
-    navigate(path);
-  };
-
   const [placeholderText, setPlaceholderText] = useState("");
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
 
   const placeholders = [
-    "Ask me anything about Stack Adda...",
-    "What courses do you offer?",
-    "How can I learn MERN stack?",
-    "Who are the founders of Stack Adda?",
-    "Are there any coding shorts?"
+    "কবে লঞ্চ হবে?",
+    "কী কী কোর্স থাকবে?",
+    "লাইভ ক্লাস হবে কি?",
+    "Stack Adda Bangla কী?",
+    "ফ্রি কোর্স থাকবে কি?"
   ];
 
   useEffect(() => {
@@ -66,26 +57,36 @@ const AIAvatar = () => {
     setLoading(true);
 
     try {
-      const res = await API.post("/ai/chat", {
-        messages: [...messages, userMessage],
+      // Pointing to the main backend API on port 5000
+      const res = await fetch("http://localhost:5000/api/ai/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messages: [...messages, userMessage],
+          context: "bangla" // Specific context for Bangla App
+        }),
       });
 
-      if (res.data.success) {
+      const data = await res.json();
+
+      if (data.success) {
         setMessages((prev) => [
           ...prev,
-          { role: "model", content: res.data.reply },
+          { role: "model", content: data.reply },
         ]);
       } else {
         setMessages((prev) => [
           ...prev,
-          { role: "model", content: "Sorry, I am facing some issues right now." },
+          { role: "model", content: "দুঃখিত, কোনো সমস্যা হয়েছে।" },
         ]);
       }
     } catch (error) {
       console.error("AI Chat error:", error);
       setMessages((prev) => [
         ...prev,
-        { role: "model", content: "Sorry, I am facing some issues right now. Make sure the API key is set." },
+        { role: "model", content: "দুঃখিত, সার্ভারের সাথে যোগাযোগ করতে পারছি না।" },
       ]);
     } finally {
       setLoading(false);
@@ -115,15 +116,15 @@ const AIAvatar = () => {
             : "max-h-0 w-0 opacity-0 mb-0 scale-95 pointer-events-none"
         }`}
       >
-        <div className="flex flex-col h-[500px] max-h-[80vh] w-full bg-[#0c0c0e] border border-white/10 shadow-[0_10px_50px_rgba(0,0,0,0.5)] rounded-2xl overflow-hidden">
+        <div className="flex flex-col h-[500px] max-h-[80vh] w-full bg-[#0c0c0e] border border-green-500/10 shadow-[0_10px_50px_rgba(0,0,0,0.5)] rounded-2xl overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-orange-500/20 to-orange-600/10 border-b border-white/5">
+          <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-green-600/20 to-emerald-600/10 border-b border-white/5">
             <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-orange-500/20 text-orange-400 rounded-lg">
-                <Bot size={20} />
+              <div className="p-1.5 bg-green-500/20 text-green-400 rounded-lg">
+                <Languages size={20} />
               </div>
               <div>
-                <h3 className="font-semibold text-white text-sm">Stack Adda AI</h3>
+                <h3 className="font-semibold text-white text-sm">Stack Adda Bangla AI</h3>
                 <p className="text-[10px] text-green-400 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
                   Online
@@ -139,7 +140,7 @@ const AIAvatar = () => {
           </div>
 
           {/* Messages Area */}
-          <div className="flex-1 h-0 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent" data-lenis-prevent="true">
+          <div className="flex-1 h-0 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
             {messages.map((msg, idx) => (
               <div
                 key={idx}
@@ -151,7 +152,7 @@ const AIAvatar = () => {
                   className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
                     msg.role === "user"
                       ? "bg-white/10 text-white"
-                      : "bg-orange-500 text-white"
+                      : "bg-green-600 text-white"
                   }`}
                 >
                   {msg.role === "user" ? <User size={14} /> : <Bot size={16} />}
@@ -161,30 +162,25 @@ const AIAvatar = () => {
                     className={`px-4 py-2 rounded-2xl text-sm leading-relaxed ${
                       msg.role === "user"
                         ? "bg-white/10 text-white rounded-tr-sm"
-                        : "bg-orange-500/10 border border-orange-500/20 text-white/90 rounded-tl-sm"
+                        : "bg-green-500/10 border border-green-500/20 text-white/90 rounded-tl-sm"
                     }`}
                   >
                     {/* Basic markdown parsing for bold text */}
                     {msg.content.split('**').map((part, i) => i % 2 === 1 ? <strong key={i} className="text-white font-bold">{part}</strong> : part)}
                   </div>
-                  {idx === 0 && msg.role === "model" && (
-                    <div className="w-full mt-1">
-                      <MobileShortsPromo />
-                    </div>
-                  )}
                 </div>
               </div>
             ))}
             
             {loading && (
               <div className="flex gap-3 max-w-[85%] mr-auto">
-                <div className="shrink-0 w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center">
+                <div className="shrink-0 w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center">
                   <Bot size={16} />
                 </div>
-                <div className="px-4 py-3 rounded-2xl bg-orange-500/10 border border-orange-500/20 text-white/90 rounded-tl-sm flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-                  <span className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-                  <span className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-bounce"></span>
+                <div className="px-4 py-3 rounded-2xl bg-green-500/10 border border-green-500/20 text-white/90 rounded-tl-sm flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                  <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                  <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-bounce"></span>
                 </div>
               </div>
             )}
@@ -192,30 +188,24 @@ const AIAvatar = () => {
           </div>
 
           {/* Suggested Questions */}
-          <div className="px-3 pb-2 flex gap-2 overflow-x-auto scrollbar-none whitespace-nowrap" data-lenis-prevent="true">
+          <div className="px-3 pb-2 flex gap-2 overflow-x-auto scrollbar-none whitespace-nowrap">
             <button
-              onClick={() => handleSuggestionClick("What is Stack Adda?")}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-orange-500/20 to-orange-400/10 hover:from-orange-500/30 hover:to-orange-400/20 border border-orange-500/20 rounded-full text-xs text-orange-400 transition"
+              onClick={() => handleSuggestionClick("Bangla platform কবে লঞ্চ হবে?")}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-green-500/20 to-emerald-400/10 hover:from-green-500/30 hover:to-emerald-400/20 border border-green-500/20 rounded-full text-xs text-green-400 transition"
             >
-              <Sparkles size={12} className="text-orange-400" /> What is Stack Adda?
+              <Sparkles size={12} className="text-green-400" /> কবে লঞ্চ হবে?
             </button>
             <button
-              onClick={() => handleSuggestionClick("How to buy a course?")}
+              onClick={() => handleSuggestionClick("কী কী কোর্স থাকবে?")}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-white/[0.05] hover:bg-white/[0.1] border border-white/5 rounded-full text-xs text-white/70 transition"
             >
-              How to buy a course?
+              কী কী কোর্স থাকবে?
             </button>
             <button
-              onClick={() => handleSuggestionClick("Do you have free tutorials?")}
+              onClick={() => handleSuggestionClick("Live DSA ক্লাস হবে কি?")}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-white/[0.05] hover:bg-white/[0.1] border border-white/5 rounded-full text-xs text-white/70 transition"
             >
-              Do you have free tutorials?
-            </button>
-            <button
-              onClick={() => handleSuggestionClick("Who are the founders?")}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-white/[0.05] hover:bg-white/[0.1] border border-white/5 rounded-full text-xs text-white/70 transition"
-            >
-              Who are the founders?
+              Live DSA ক্লাস হবে?
             </button>
           </div>
 
@@ -230,12 +220,12 @@ const AIAvatar = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={placeholderText}
-                className="w-full bg-[#131316] border border-white/10 text-white text-sm rounded-xl py-3 pl-4 pr-12 focus:outline-none focus:border-orange-500/50 transition-colors placeholder:text-white/30"
+                className="w-full bg-[#131316] border border-white/10 text-white text-sm rounded-xl py-3 pl-4 pr-12 focus:outline-none focus:border-green-500/50 transition-colors placeholder:text-white/30"
               />
               <button
                 type="submit"
                 disabled={!input.trim() || loading}
-                className="absolute right-2 p-1.5 bg-orange-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-orange-600 transition"
+                className="absolute right-2 p-1.5 bg-green-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-green-700 transition"
               >
                 {loading ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
               </button>
@@ -250,7 +240,7 @@ const AIAvatar = () => {
         {/* Floating Tooltip */}
         {!isOpen && (
           <div className="absolute -top-12 right-0 bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-xl animate-bounce whitespace-nowrap pointer-events-none transition-opacity duration-300 opacity-80 group-hover/btn:opacity-100">
-            Chat with AI ✨
+            Stack Adda Bangla ✨
             <div className="absolute -bottom-1.5 right-6 w-3 h-3 bg-white/10 border-r border-b border-white/20 transform rotate-45"></div>
           </div>
         )}
@@ -259,15 +249,15 @@ const AIAvatar = () => {
           {/* Pulsing Background Rings */}
           {!isOpen && (
             <>
-              <div className="absolute inset-0 rounded-full bg-orange-500 animate-[ping_2s_ease-in-out_infinite] opacity-40"></div>
-              <div className="absolute -inset-2 rounded-full border border-orange-500/30 animate-[spin_4s_linear_infinite]"></div>
-              <div className="absolute -inset-3 rounded-full border border-orange-500/10 animate-[spin_4s_linear_infinite_reverse]"></div>
+              <div className="absolute inset-0 rounded-full bg-green-500 animate-[ping_2s_ease-in-out_infinite] opacity-40"></div>
+              <div className="absolute -inset-2 rounded-full border border-green-500/30 animate-[spin_4s_linear_infinite]"></div>
+              <div className="absolute -inset-3 rounded-full border border-green-500/10 animate-[spin_4s_linear_infinite_reverse]"></div>
             </>
           )}
 
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="relative flex items-center justify-center w-14 h-14 bg-gradient-to-tr from-orange-600 via-orange-500 to-yellow-500 rounded-full shadow-[0_0_30px_rgba(249,115,22,0.5)] hover:shadow-[0_0_50px_rgba(249,115,22,0.8)] hover:-translate-y-1 hover:scale-110 transition-all duration-300 z-10 overflow-hidden"
+            className="relative flex items-center justify-center w-14 h-14 bg-gradient-to-tr from-green-600 via-green-500 to-emerald-400 rounded-full shadow-[0_0_30px_rgba(34,197,94,0.5)] hover:shadow-[0_0_50px_rgba(34,197,94,0.8)] hover:-translate-y-1 hover:scale-110 transition-all duration-300 z-10 overflow-hidden"
           >
             {/* Glass Glare */}
             <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/40 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1s_infinite]"></div>
@@ -277,7 +267,7 @@ const AIAvatar = () => {
             {isOpen ? (
               <X size={24} className="text-white drop-shadow-md" />
             ) : (
-              <Bot size={28} className="text-white drop-shadow-lg transform transition-transform group-hover/btn:scale-110 group-hover/btn:rotate-12" />
+              <Languages size={28} className="text-white drop-shadow-lg transform transition-transform group-hover/btn:scale-110 group-hover/btn:rotate-12" />
             )}
           </button>
         </div>

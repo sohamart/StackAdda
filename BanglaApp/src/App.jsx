@@ -1,6 +1,7 @@
 import React from 'react';
 import ComingSoon from './ComingSoon';
 import Home from './Pages/Home';
+import AIAvatar from './Components/AIAvatar';
 
 function App() {
   // Check the environment variable
@@ -12,6 +13,7 @@ function App() {
     return (
       <div className="no-scrollbar overflow-x-hidden">
         <ComingSoon />
+        <AIAvatar />
       </div>
     );
   }
@@ -20,6 +22,7 @@ function App() {
   return (
     <div className="no-scrollbar overflow-x-hidden">
       <Home />
+      <AIAvatar />
     </div>
   );
 }

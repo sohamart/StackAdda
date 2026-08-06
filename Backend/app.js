@@ -40,6 +40,8 @@ app.use(
     origin: [
       "http://localhost:3000",
       "http://localhost:5173",
+      "http://localhost:5174",
+      "http://localhost:5175",
       "https://stack-adda.vercel.app",
       "https://stackadda.vercel.app",
       "https://stackbackend-omega.vercel.app",

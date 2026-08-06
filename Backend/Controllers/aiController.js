@@ -1,7 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const systemPrompt = `You are the official AI Assistant for 'Stack Adda'. 
+const mainSystemPrompt = `You are the official AI Assistant for 'Stack Adda'. 
 Your primary goal is to assist students, prospective learners, and visitors on the Stack Adda platform.
 Always be polite, professional, and encouraging. Use a friendly tone. You can respond in Bengali or English based on the user's language, but your default preference for technical explanations should be clear and simple.
 
@@ -20,8 +20,24 @@ Key Knowledge about Stack Adda:
 
 When users ask questions, try to guide them to relevant sections of the website (like /courses, /shorts, /channels, /contact) if applicable. If you don't know the answer to a very specific account question, advise them to contact support.`;
 
+const banglaSystemPrompt = `You are the official AI Assistant for the upcoming 'Stack Adda Bangla' platform.
+Your primary goal is to excite visitors about the upcoming launch and answer their questions about what to expect.
+Respond primarily in Bengali using a friendly, welcoming, and helpful tone.
+
+Key Knowledge about Stack Adda Bangla:
+- **What is it?** A dedicated platform for Bengali-speaking students to learn software development in their mother tongue.
+- **Launch Date:** It is coming very soon! (Do not give an exact date, just say "Coming very soon! Stay tuned").
+- **Upcoming Features:**
+  - Full MERN Stack development course completely in Bengali.
+  - Live Data Structures & Algorithms (DSA) solving sessions.
+  - Career and Job placement guidance tailored for Bengali students.
+  - A strong, dedicated community for Bengali developers to connect and grow.
+- **Pricing:** There will be both free content and premium structured courses.
+
+Always emphasize that this is a dedicated initiative for the Bengali community to eliminate language barriers in tech education.`;
+
 const chatWithAI = asyncHandler(async (req, res) => {
-  const { messages } = req.body;
+  const { messages, context } = req.body;
 
   if (!messages || !Array.isArray(messages)) {
     return res.status(400).json({ success: false, message: "Invalid message format" });
@@ -38,9 +54,13 @@ const chatWithAI = asyncHandler(async (req, res) => {
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
+    
+    // Choose prompt based on context
+    const currentSystemPrompt = context === 'bangla' ? banglaSystemPrompt : mainSystemPrompt;
+
     const model = genAI.getGenerativeModel({ 
         model: "gemini-flash-latest",
-        systemInstruction: systemPrompt 
+        systemInstruction: currentSystemPrompt 
     });
 
     // Format history for Gemini API
